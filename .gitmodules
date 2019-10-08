@@ -1,0 +1,7 @@
+[submodule "udoc"]
+	path = udoc
+	url = https://github.com/ejgallego/udoc.git
+[submodule "jscoq"]
+	path = jscoq-src
+	url = https://github.com/gares/jscoq.git
+	branch = fix-build
