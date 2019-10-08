@@ -30,3 +30,4 @@ nlia.cache
 nra.cache
 _opam
 jscoq
+*.stamp
