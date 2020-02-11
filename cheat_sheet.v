@@ -1,6 +1,6 @@
 From mathcomp Require Import all_ssreflect.
 
-(* Coq Andes Summer School Cheat Sheet. *)
+(* VU Master Course Cheat Sheet. *)
 (* Some parts are copied/adapted from:*)
 (* https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners *)
 (* For a complete reference see the Coq Reference Manual: *)
