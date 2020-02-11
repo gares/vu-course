@@ -3,15 +3,11 @@ From mathcomp Require Import all_ssreflect.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-(** 
-
-what follows is a slide, it creates an index item next to the scroll bar,
-just move the mouse there.
-
+(**
 ----------------------------------------------------------
 #<div class="slide">#
 
-** This is the title
+** Type Theory: the fundation of Coq
 
 some text
 

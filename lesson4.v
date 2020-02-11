@@ -11,7 +11,7 @@ just move the mouse there.
 ----------------------------------------------------------
 #<div class="slide">#
 
-** This is the title
+** Induction and structured proofs
 
 some text
 

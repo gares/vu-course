@@ -3,21 +3,22 @@ From mathcomp Require Import all_ssreflect.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-(** 
-
-what follows is a slide, it creates an index item next to the scroll bar,
-just move the mouse there.
-
+(**
 ----------------------------------------------------------
 #<div class="slide">#
 
-** This is the title
+** Programs and Proofs
 
-some text
+In this lecture, first steps on:
+- writing programs
+- writing specifications
+- writing proofs
 
-#<a href="https://example.com">some html link</a>#
+*** Why programs?
 
-This is inline Coq code [fun x => x] and now some block Coq code
+Well, you use programs all the times, since primary school!
+
+Let's start with natural numbers
 
 #<div>#
 *)

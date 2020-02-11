@@ -1,6 +1,10 @@
 COQC=coqc
+VFILES=$(wildcard *.v)
+HTML=$(VFILES:%.v=%.html)
 
-run: jscoq.stamp demo.html
+html: $(HTML)
+
+run: jscoq.stamp html
 	@echo
 	@echo "Go to: http://localhost:8000/demo.html"
 	@echo
