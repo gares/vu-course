@@ -105,8 +105,8 @@ and then the variable substituted for the argument
 
 #<div>#
 *)
-Eval lazy delta [f] in f 2.
-Eval lazy delta [f] beta in f 2.
+Eval lazy delta[f] in f 2.
+Eval lazy delta[f] beta in f 2.
 (**
 #</div>#
 
@@ -147,12 +147,17 @@ how the terms (in normal form) of this type are built.
 Only [true] and [false] are canonical inhabitants of
 [bool].
 
-To use a boolean value Coq provides the [if..then..else..]
-syntax.
+To use a boolean value Coq provides the
+[match x with true => ... | false => .. end] syntax.
 
 #<div>#
 *)
-Definition twoVtree (b : bool) := if b then 2 else 3.
+Definition twoVtree (b : bool) :=
+  match b with
+  | true => 2
+  | false => 3
+  end.
+
 Eval lazy in twoVtree true.
 Eval lazy delta in twoVtree true.
 Eval lazy delta beta in twoVtree true.
@@ -165,8 +170,10 @@ later on.
 
 #<div>#
 *)
-Definition andb (b1 b2 : bool) := if b1 then b2 else false.
-Definition orb (b1 b2 : bool) := if b1 then true else b2.
+Definition andb (b1 b2 : bool) :=
+  match b1 with true => b2 | false => false end.
+Definition orb (b1 b2 : bool) :=
+  match b1 with true => true | false => b2 end.
 
 Infix "&&" := andb.
 Infix "||" := orb.
@@ -193,15 +200,9 @@ Print nat.
 Coq provides a special notation for literals, eg [3],
 that is just sugar for [S (S (S O))].
 
-The Mathematical Components library adds on top of that
-the postfix [.+1], [.+2], .. for iterated applications
-of [S] to terms other than [O].
-
 #<div>#
 *)
 Check 3.
-Check (fun x => (x + x).+2).
-Eval lazy in (fun x => (x + x).+2) 1.
 (**
 #</div>#
 
@@ -213,7 +214,7 @@ command to define recusrsive functions.
 #<div>#
 *)
 Definition pred (n : nat) :=
-  if n is p.+1 then p else 0.
+  match n with 0 => 0 | S p => p end.
 
 Eval lazy in pred 7.
 (**
@@ -229,7 +230,10 @@ Now lets define addition using recursion
 #<div>#
 *)
 Fixpoint addn n m :=
-  if n is p.+1 then (addn p m).+1 else m.
+  match n with
+  | 0 => m
+  | S p => S (addn p m)
+  end.
 Infix "+" := addn.
 Eval lazy in 3 + 2.
 (**
@@ -251,7 +255,7 @@ Let's now write the equality test for natural numbers
 Fixpoint eqn n m :=
   match n, m with
   | 0, 0 => true
-  | p.+1, q.+1 => eqn p q
+  | S p, S q => eqn p q
   | _, _ => false
   end.
 Infix "==" := eqn.
@@ -265,7 +269,7 @@ Other examples are subtraction and order
 *)
 Fixpoint subn m n : nat :=
   match m, n with
-  | p.+1, q.+1 => subn p q
+  | S p, S q => subn p q
   | _ , _ => m
   end.
 
@@ -350,7 +354,10 @@ Let's now define the [size] function.
 #<div>#
 *)
 Fixpoint size A (s : seq A) :=
-  if s is _ :: tl then (size tl).+1 else 0.
+  match s with
+  | _ :: tl => S (size tl)
+  | nil => 0
+  end.
 
 Eval lazy in size [:: 1; 8; 34].
 (**
@@ -369,7 +376,7 @@ if s is e :: tl then f e :: map f tl else nil.
 #<div>#
 *)
 Definition l := [:: 1; 2; 3].
-Eval lazy in [seq x.+1 | x <- l].
+Eval lazy in [seq S x | x <- l].
 (**
 #</div>#
 
@@ -404,7 +411,7 @@ We use this mecanism to talk about symbolic computation.
 Section symbols.
 Variables x : nat.
 
-Eval lazy in pred x.+1 .
+Eval lazy in pred (S x).
 Eval lazy in pred x .
 (**
 #</div>#
@@ -421,7 +428,10 @@ function.
 *)
 
 Fixpoint foldr A T f (a : A) (s : seq T) :=
-  if s is x :: xs then f x (foldr f a xs) else a.
+  match s with
+  | x :: xs => f x (foldr f a xs)
+  | nil => a
+  end.
 (**
 #</div>#
 
@@ -472,7 +482,11 @@ We need a bit of infrastruture
 
 #<div>#
 *)
-Fixpoint iota m n := if n is u.+1 then m :: iota m.+1 u else [::].
+Fixpoint iota m n :=
+  match n with
+  | 0 => [::]
+  | S u => m :: iota (S m) u
+  end.
 
 Eval lazy in iota 0 5.
 
@@ -501,22 +515,6 @@ This slide corresponds to
 section 1.6 of
 #<a href="https://math-comp.github.io/mcb/">the Mathematical Components book</a>#
 #</div></div>#
-
-#</div>#
-
-----------------------------------------------------------
-#<div class="slide">#
-** Lesson 1: sum up
-
-- [fun .. => ..]
-- [Check]
-- [Definition]
-- [Print]
-- [Eval lazy]
-- [Indcutive] declarations [bool], [nat], [seq].
-- [match .. with .. end] and [if .. is .. then .. else ..]
-- [Fixpoint]
-- [andb] [orb] [eqn] [leq] [addn] [subn] [size] [foldr]
 
 #</div>#
 
@@ -598,11 +596,11 @@ computation.
 
 <<
 Fixpoint addn n m :=
-  if n is p.+1 then (addn p m).+1 else m.
+  match n with 0 => m | S p => S (addn p m) end.
 
 Fixpoint subn m n : nat :=
   match m, n with
-  | p.+1, q.+1 => subn p q
+  | S p, S q => subn p q
   | _ , _ => m
   end.
 
@@ -611,21 +609,21 @@ Definition leq m n := m - n == 0.
 
 #<div>#
 *)
-Lemma addSn m n : m.+1 + n = (m + n).+1.
+Lemma addSn m n : S m + n = S (m + n).
 Proof. by []. Qed.
 
 Lemma leq0n n : 0 <= n.
 Proof. by []. Qed.
 
-Lemma ltn0 n : n.+1 <= 0 = false.
+Lemma ltn0 n : S n <= 0 = false.
 Proof. by []. Qed.
 
-Lemma ltnS m n : (m.+1 <= n.+1) = (m <= n).
+Lemma ltnS m n : (S m <= S n) = (m <= n).
 Proof. by []. Qed.
 (**
 #</div>#
 
-Notice [_ < _] is just a notation for [_.+1 <= _].
+Notice [_ < _] is just a notation for [S _ <= _].
 
 Notice the naming convention.
 
@@ -710,7 +708,7 @@ Sometimes case analysis is not enough.
 
 [[
 Fixpoint muln (m n : nat) : nat :=
-  if m is p.+1 then n + muln p n else 0.
+  match m with 0 => 0 | S p => n + muln p n end.
 ]]
 
 #<div>#
@@ -858,8 +856,23 @@ section 2.3.3 of
 #</div>#
 ----------------------------------------------------------
 #<div class="slide">#
-** Lesson 2: sum up
+** Lesson 1: sum up
 
+*** Programs and specifications
+
+- [fun .. => ..]
+- [Check]
+- [Definition]
+- [Print]
+- [Eval lazy]
+- [Indcutive] declarations [bool], [nat], [seq].
+- [match .. with .. end] and [if .. is .. then .. else ..]
+- [Fixpoint]
+- [andb] [orb] [eqn] [leq] [addn] [subn] [size] [foldr]
+
+*** Proofs
+
+- [expr = true] or [expr = expr] is a specification
 - [by []] trivial proofs (including computation)
 - [case: m] case split
 - [apply: t] backchain
