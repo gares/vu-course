@@ -4,4 +4,4 @@
 [submodule "jscoq"]
 	path = jscoq-src
 	url = https://github.com/gares/jscoq.git
-	branch = fix-build
+	branch = v8.10+minimc

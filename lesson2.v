@@ -1,8 +1,12 @@
-From mathcomp Require Import all_ssreflect.
+From mathcomp Require Import mini_ssreflect.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
+
+Add Printing Coercion is_true.
+Notation "x '= true'" := (is_true x) (x at level 100, at level 0, only printing).
+
 (**
 ----------------------------------------------------------
 #<div class="slide vfill">#
@@ -35,7 +39,7 @@ Unset Printing Implicit Defensive.
 Functions are written using the [fun .. => ..] syntax. Down below we write
 the function:
 
-#$$ n \mapsto 1 + n + 1 $$#
+#$$ n \mapsto 1 + n $$#
 
 The command [Check] verifies that a term is well typed.
 The precise meaning will be given tomorrow morning, for now think about
@@ -43,7 +47,7 @@ it as a well formed element of some set.
 
 #<div>#
 *)
-Check (fun n => 1 + n + 1).
+Check (fun n => 1 + n).
 (**
 #</div>#
 
@@ -61,7 +65,7 @@ practice).
 #<div>#
 *)
 Check 2.
-Check (fun n => 1 + n + 1) 2.
+Check (fun n => 1 + n) 2.
 (**
 #</div>#
 
@@ -74,9 +78,9 @@ syntactic sugar for binding the function arguments.
 
 #<div>#
 *)
-Definition f := (fun n => 1 + n + 1).
-(* Definition f n := 1 + n + 1. *)
-(* Definition f (n : nat) := 1 + n + 1. *)
+Definition f := (fun n => 1 + n).
+(* Definition f n := 1 + n. *)
+(* Definition f (n : nat) := 1 + n. *)
 (**
 #</div>#
 
@@ -500,7 +504,7 @@ close to the LaTeX source for the formula above.
 *)
 
 Notation "\sum_ ( m <= i < n ) F" :=
-  (foldr (fun i a => F + a) 0 (iota m (n-m))).
+  (foldr (fun i a => F + a) 0 (iota m (n-m))) (at level 0).
 
 Check \sum_(1 <= x < 5) (x * 2 - 1).
 Eval lazy in \sum_(1 <= x < 5) (x * 2 - 1).

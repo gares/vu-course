@@ -19,12 +19,14 @@ jscoq.stamp: jscoq.tgz
 	tar -xzf jscoq.tgz
 	touch $@
 
-setup.stamp: 
+setup.stamp:
 	git submodule update --init --remote
 	which dune
 	cd udoc && make all
 	touch setup.stamp
 
+refresh-jscoq:
+	rm -rf jscoq-src/ && git submodule update --init --remote &&  make build-jscoq && make jscoq.stamp
 
 PWD=$(shell pwd)
 OPAMROOT=$(PWD)/_opam
