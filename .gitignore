@@ -31,6 +31,5 @@ nra.cache
 _opam
 jscoq
 *.stamp
-lesson*.html
 cheat_sheet.html
 demo.html
