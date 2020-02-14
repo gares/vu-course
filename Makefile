@@ -10,10 +10,23 @@ run: jscoq.stamp html
 	@echo
 	python3 -m http.server 8000 || python -m SimpleHTTPServer 8000
 
-%.html: %.v header.html footer.html Makefile setup.stamp jscoq.stamp
+%.html.tmp: %.v header.html footer.html Makefile setup.stamp jscoq.stamp
 	# if does not work, then html ok but no links
 	-$(COQC) $< > /dev/null
 	udoc/_build/install/default/bin/udoc --with-header header.html --with-footer footer.html -t $* $< -o $@
+
+lesson%.html : lesson%.html.tmp
+	@mv $< $@
+cheat%.html : cheat%.html.tmp
+	@mv $< $@
+
+# Exercises
+exercise%.html: exercise%.html.tmp
+	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^(\*a\*).*$$/  admit./'  $< > $@
+exercise%-solution.html: exercise%.html.tmp
+	@cp $< $@
+exercise%-todo.v: exercise%.v
+	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^(\*a\*).*$$/  admit./'  $< > $@
 
 jscoq.stamp: jscoq.tgz
 	tar -xzf jscoq.tgz
