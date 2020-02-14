@@ -7,6 +7,8 @@ Unset Printing Implicit Defensive.
 Add Printing Coercion is_true.
 Notation "x '= true'" := (is_true x) (x at level 100, at level 0, only printing).
 
+Remove Printing If bool.
+
 (**
 ----------------------------------------------------------
 #<div class="slide vfill">#
@@ -47,7 +49,7 @@ it as a well formed element of some set.
 
 #<div>#
 *)
-Check (fun n => 1 + n).
+Check (fun n : nat => 1 + n).
 (**
 #</div>#
 
@@ -56,8 +58,6 @@ space):
 
 #$$ \mathbb{N} \to \mathbb{N} $$#
 
-Notice that the variable [n] was annotated with its type as well.
-
 Function application is written by writing the function
 on the left of the argument (eg, not as in the mathematical
 practice).
@@ -65,12 +65,9 @@ practice).
 #<div>#
 *)
 Check 2.
-Check (fun n => 1 + n) 2.
+Check (fun n : nat => 1 + n) 2.
 (**
 #</div>#
-
-Notice how [2] has a type that fits, and hence
-the type of the function applied to [2] is [nat].
 
 Terms (hence functions) can be given a name using
 the [Definition] command. The command offers some
@@ -78,9 +75,8 @@ syntactic sugar for binding the function arguments.
 
 #<div>#
 *)
-Definition f := (fun n => 1 + n).
-(* Definition f n := 1 + n. *)
-(* Definition f (n : nat) := 1 + n. *)
+Definition f : nat -> nat := (fun n : nat => 1 + n).
+(* Definition f (n : nat) : nat := 1 + n. *)
 (**
 #</div>#
 
@@ -147,16 +143,22 @@ Print bool.
 #</div>#
 
 This command declares a new type [bool] and declares
-how the terms (in normal form) of this type are built.
-Only [true] and [false] are canonical inhabitants of
-[bool].
+how the terms of this type are built.
+Only [true] and [false] are *canonical* inhabitants of
+[bool] and they are called *constructors*.
 
-To use a boolean value Coq provides the
-[match x with true => ... | false => .. end] syntax.
+Remark: a data type declaration prescribes the shape of values, not
+which operations are available nor their properties.
+We are going to use programs (functions) to describe the operations
+on a data type.
+
+Coq provides one very primitive operation that works on data types.
+This operation lets you take a decision based on the canonical shape
+of the data. It is written [match x with true => ... | false => .. end].
 
 #<div>#
 *)
-Definition twoVtree (b : bool) :=
+Definition twoVtree (b : bool) : nat :=
   match b with
   | true => 2
   | false => 3
@@ -174,10 +176,11 @@ later on.
 
 #<div>#
 *)
-Definition andb (b1 b2 : bool) :=
-  match b1 with true => b2 | false => false end.
-Definition orb (b1 b2 : bool) :=
-  match b1 with true => true | false => b2 end.
+Definition andb (b1 : bool) (b2 : bool) : bool :=
+  match b1 with true => b2   | false => false end.
+
+Definition orb (b1 :bool) (b2 : bool) : bool :=
+  match b1 with true => true | false => b2    end.
 
 Infix "&&" := andb.
 Infix "||" := orb.
@@ -195,11 +198,15 @@ Natural numbers are defined similarly to booleans:
 
 [Inductive nat := O | S (n : nat).]
 
+Remark that the declaration is recursive.
+
 #<div>#
 *)
 Print nat.
 (**
 #</div>#
+
+Remark:
 
 Coq provides a special notation for literals, eg [3],
 that is just sugar for [S (S (S O))].
@@ -210,30 +217,31 @@ Check 3.
 (**
 #</div>#
 
-In order to use natural numbers Coq provides two
-tools. An extended [if..then..else..] syntax to
-extract the argument of [S] and the [Fixpoint]
-command to define recusrsive functions.
+Now let's define a simple operation on natural numbers.
+
+As for booleans, Coq provides a primitie operation to
+make decisions based on the canonical values.
 
 #<div>#
 *)
-Definition pred (n : nat) :=
+Definition pred (n : nat) : nat :=
   match n with 0 => 0 | S p => p end.
 
 Eval lazy in pred 7.
 (**
 #</div>#
 
-Notice that [p] is a binder. When the [if..then..else..]
+Remark that [p] is a binder. When the [match..with..end]
 is evaluated, and [n] put in normal form, then if it
-is [S t] the variable [p] takes [t] and the then-branch
+is [S t] the variable [p] takes [t] and the second
 is taken.
 
-Now lets define addition using recursion
+Since the data type of natural number is recursive Coq provides
+another primitive operation called [Fixpoint].
 
 #<div>#
 *)
-Fixpoint addn n m :=
+Fixpoint addn (n : nat) (m : nat) : nat :=
   match n with
   | 0 => m
   | S p => S (addn p m)
@@ -243,20 +251,11 @@ Eval lazy in 3 + 2.
 (**
 #</div>#
 
-The [if..then..else..] syntax is just sugar for
-[match..with..end].
-
-#<div>#
-*)
-Print addn.
-(**
-#</div>#
-
 Let's now write the equality test for natural numbers
 
 #<div>#
 *)
-Fixpoint eqn n m :=
+Fixpoint eqn (n : nat) (m : nat) : bool :=
   match n, m with
   | 0, 0 => true
   | S p, S q => eqn p q
@@ -271,7 +270,7 @@ Other examples are subtraction and order
 
 #<div>#
 *)
-Fixpoint subn m n : nat :=
+Fixpoint subn (m : nat) (n : nat) : nat :=
   match m, n with
   | S p, S q => subn p q
   | _ , _ => m
@@ -294,12 +293,6 @@ Eval lazy in 4 <= 5.
 
 #<div class="note">(notes)<div class="note-text">#
 
-All the constants defined in this slide are already
-defined in Coq's prelude or in Mathematical Components.
-The main difference is that [==] is not specific to
-[nat] but overloaded (it works for most data types).
-This topic is to be developed in lesson 4.
-
 This slide corresponds to
 section 1.2 of
 #<a href="https://math-comp.github.io/mcb/">the Mathematical Components book</a>#
@@ -318,7 +311,7 @@ pair or a list.  The interesting characteristic of containers
 is that they are polymorphic: the same container can be used
 to hold terms of many types.
 
-[Inductive seq (A : Type) := nil | cons (hd : A) (tl : seq A).]
+[Inductive list (A : Type) := nil | cons (hd : A) (tl : seq A).]
 
 #<div>#
 *)
@@ -327,8 +320,8 @@ Check cons 3 [::].
 (**
 #</div>#
 
-We learn that [[::]] is a notation for the empty sequence
-and that the type parameter [?A] is implicit.
+We learn that [[::]] is a notation for the empty list
+and that the type parameter [?T] is implicit.
 
 #<div>#
 *)
@@ -338,13 +331,13 @@ Check [:: 3; 4; 5 ].
 #</div>#
 
 The infix [::] notation stands for [cons]. This one is mostly
-used to pattern match a sequence.
+used to pattern match a list.
 
-The notation [[:: .. ; .. ]] can be used to form sequences
+The notation [[:: .. ; .. ]] can be used to form list
 by separating the elements with [;]. When there are no elements
-what is left is [[::]] that is the empty seqeunce.
+what is left is [[::]] that is the empty list.
 
-And of course we can use sequences with other data types
+And of course we can use list with other data types
 
 #<div>#
 *)
@@ -357,13 +350,15 @@ Let's now define the [size] function.
 
 #<div>#
 *)
-Fixpoint size A (s : seq A) :=
+Fixpoint size A (s : list A) : nat :=
   match s with
   | _ :: tl => S (size tl)
   | nil => 0
   end.
 
 Eval lazy in size [:: 1; 8; 34].
+Eval lazy in size [:: true; false; false].
+
 (**
 #</div>#
 
@@ -373,14 +368,15 @@ by functions that are specific to the type of the
 contents.
 
 [[
-Fixpoint map A B (f : A -> B) s :=
-if s is e :: tl then f e :: map f tl else nil.
+Fixpoint map A B (f : A -> B) (s : list A) : list B :=
+  match s with e :: tl => f e :: map f tl | nil => nil end.
 ]]
 
 #<div>#
 *)
 Definition l := [:: 1; 2; 3].
-Eval lazy in [seq S x | x <- l].
+Check  map (fun x => S x) l.
+Eval lazy in map (fun x => S x) l.
 (**
 #</div>#
 
@@ -431,7 +427,7 @@ function.
 #<div>#
 *)
 
-Fixpoint foldr A T f (a : A) (s : seq T) :=
+Fixpoint foldr A T (f : T -> A -> A) (a : A) (s : list T) :=
   match s with
   | x :: xs => f x (foldr f a xs)
   | nil => a
@@ -486,7 +482,7 @@ We need a bit of infrastruture
 
 #<div>#
 *)
-Fixpoint iota m n :=
+Fixpoint iota (m : nat) (n : nat) : list nat :=
   match n with
   | 0 => [::]
   | S u => m :: iota (S m) u
@@ -504,7 +500,8 @@ close to the LaTeX source for the formula above.
 *)
 
 Notation "\sum_ ( m <= i < n ) F" :=
-  (foldr (fun i a => F + a) 0 (iota m (n-m))) (at level 0).
+  (foldr (fun i a => F + a) 0 (iota m (n-m)))
+  (at level 41, m, n, i at level 50, F at level 41).
 
 Check \sum_(1 <= x < 5) (x * 2 - 1).
 Eval lazy in \sum_(1 <= x < 5) (x * 2 - 1).
@@ -538,8 +535,11 @@ Abort.
 (**
 #</div>#
 
-In lesson 1 we have defined many boolean tests that can
-play the role of (decidable) predicates.
+Remark: to save space, variables of the same type can be
+writte [(a b c : type)] instead of [(a : type) (b : type) ...].
+
+We have defined many boolean tests that can
+play the role of predicates.
 
 #<div>#
 *)
@@ -548,14 +548,7 @@ Check (0 <= 4) = true. (* a statement we can prove *)
 (**
 #</div>#
 
-#<div style='color: red; font-size: 150%;'>#
-Motto: whenever possible predicates are expressed as a programs.
-#</div>#
-
-This choice has a deep impact on the proofs we make in lesson 2 and 3 and
-the way we can form new types in lesson 4.
-
-More statements using equality and predicates in bool 
+More statements using equality and predicates in bool
 
 #<div>#
 *)
@@ -567,11 +560,10 @@ Abort.
 (**
 #</div>#
 
-Notice that in the first statement [=] really means
+Remark: in the first statement [=] really means
 "if and only if".
 
-The last statement is valid thanks to the [is_true]
-"coercion" automatically inserted by Coq.
+Remark: Coq adds [= true] automatically when we state a lemma.
 
 #<div>#
 *)
@@ -593,9 +585,9 @@ section 2.1 of
 #<div class="slide">#
 ** Proofs by computation
 
-Our statements are programs. Hence they compute!
+Our statements are made of programs. Hence they compute!
 
-The [by[]] tactic solves trivial goal (mostly) by
+The [by[]] proof command solves trivial goals (mostly) by
 computation.
 
 <<
@@ -627,15 +619,15 @@ Proof. by []. Qed.
 (**
 #</div>#
 
-Notice [_ < _] is just a notation for [S _ <= _].
+Let's look around.
 
-Notice the naming convention.
+[Locate] looks for a symbol to find the name behing id.
 
 #<div>#
 *)
 
-Print negb.
 Locate "~~".
+Print negb.
 
 Lemma negbK (b : bool) : ~~ (~~ b) = b.
 Proof. Fail by []. Abort.
@@ -672,7 +664,7 @@ The [case: term] command performs this proof step.
 
 #<div>#
 *)
-Lemma negbK b : ~~ (~~ b) = b.
+Lemma negbK (b : bool) : ~~ (~~ b) = b.
 Proof.
 case: b.
   by [].
@@ -688,6 +680,7 @@ Lemma orbN b : b || ~~ b.
 Proof.
 by case: b.
 Qed.
+
 (**
 #</div>#
 
@@ -699,7 +692,7 @@ names for these arguments.
 
 #<div>#
 *)
-Lemma leqn0 n : (n <= 0) = (n == 0).
+Lemma leqn0 (n : nat) : (n <= 0) = (n == 0).
 Proof.
 case: n => [| p].
   by [].
@@ -717,8 +710,8 @@ Fixpoint muln (m n : nat) : nat :=
 
 #<div>#
 *)
-Lemma muln_eq0 m n :
-(m * n == 0) = (m == 0) || (n == 0).
+Lemma muln_eq0 (m n : nat) :
+  (m * n == 0) = (m == 0) || (n == 0).
 Proof.
 case: m => [|p].
   by [].
@@ -733,10 +726,7 @@ But maybe someone proved it already...
 
 #<div>#
 *)
-Search _ (_ * 0) in ssrnat. (*   :-(   *)
-Search _ muln 0 in ssrnat.
-Print right_zero.
-Search right_zero.
+Search _ (_ * 0).
 (**
 #</div>#
 
@@ -744,17 +734,7 @@ The [Search] command is quite primitive but also
 your best friend. 
 
 It takes a head pattern, the whildcard [_]
-in the examples above, followed by term or patterns,
-and finally a location, in this case the [ssrnat] library.
-
-Our first attempt was unsuccessful because
-standard properies (associativity, communtativity, ...)
-are expressed in Mathematical Components using
-higher order predicates.
-In this way these lemmas are very consistent, but also
-harder to find if one does not know that.
-
-The second hit is what we need to complete the proof.
+in the examples above, followed by term or patterns.
 
 #<div class="note">(notes)<div class="note-text">#
 This slide corresponds to
@@ -775,7 +755,7 @@ Coq user manual, SSReflect chapter).
 
 #<div>#
 *)
-Lemma muln_eq0 m n :
+Lemma muln_eq0 (m n : nat) :
   (m * n == 0) = (m == 0) || (n == 0).
 Proof.
 case: m => [ // |p].
@@ -791,7 +771,7 @@ about [rewrite].
 
 #<div>#
 *)
-Lemma leq_mul2l m n1 n2 :
+Lemma leq_mul2l (m n1 n2 : nat) :
   (m * n1 <= m * n2) = (m == 0) || (n1 <= n2).
 Proof.
 rewrite /leq.
