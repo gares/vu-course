@@ -60,27 +60,23 @@
 *** Require and Import #<a href="##Declarations">#↑#</a>#
 
 The first lines of a [.v] file are usually naming the libraries
-that will be used to write definitions, statements and prove them.
-
+that will be used to write definitions, statements and prove them,
+the syntax, assuming the library [〈lib〉] is installed, is as follow.
 <<
 From 〈lib〉 Require Import 〈module(s)〉.
 >>
 
-Assuming the library [〈lib〉] is installed.
+For most of the lectures we use simplified versions of the mathcomp library.
+<<
+From mathcomp Require Import mini_ssreflect 〈other mini mathcomp libs〉.
+>>
 
+However, in this cheat sheet, which is more complete, we use:
 #<div>#
 *)
 From mathcomp Require Import all_ssreflect.
 (**
 #</div>#
-
-But for most of the lectures we use:
-
-<<
-From mathcomp Require Import mini_ssreflect 〈other mini mathcomp libs〉.
->>
-which are simplified versions of the mathcomp library.
-
 #</div>#
 ----------------------------------------------------------
 #<div id="Definition">#
