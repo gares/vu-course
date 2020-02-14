@@ -327,11 +327,11 @@ A proof in progress looks like this in the dedicated buffer:
 〈statement〉
 >>
 
-What is above the === is the proof context, a list of named
-assumptions, with their type. What is above the ==== is a type,
+What is above the [===] is the proof context, a list of named
+assumptions, with their type. What is above the [====] is a type,
 with possible prenex quantification and arrows. Part of the
 formal proof, the boring one, deals with moving items around
-the ====. Only the top most assumption or quantified variable
+the [====]. Only the top most assumption or quantified variable
 can be named and used to the context: this is an introduction step.
 Any item from the context can be pushed on top of the statement
 (provided that this complies with possible dependencies): this
@@ -437,7 +437,7 @@ Proof.
 by case: b1.
 Qed.
 
-(* Below, term (S n) is denoted with a postfix notation n.+1 *)
+(* Below, term `(S n)` is denoted with a postfix notation `n.+1` *)
 
 (* Simple case analysis on nat *)
 Lemma leqn0 n : (n <= 0) = (n == 0).  Proof. by case: n. Qed.
@@ -492,7 +492,7 @@ elim: m n => [|m IHm] // k.
   +  by [].
 Qed.
 
-(* Killing trivial subgoal with the // switch before performing a *)
+(* Killing trivial subgoal with the `//` switch before performing a *)
 (* case analysis on a variable in the remaining branches. *)
 Lemma leqNgt3 m n : (m <= n) = ~~ (n < m).
 Proof.
@@ -507,7 +507,7 @@ Proof.
 by elim: m n => [|m IHm] // [].
 Qed.
 
-(* Simplification in an intro pattern: /= simplifies both goals by *)
+(* Simplification in an intro pattern: `/=` simplifies both goals by *)
 (* computation and can be inserted anywhere in an intro-pattern. It *)
 (* is often useful after an case analysis*)
 
@@ -516,8 +516,8 @@ Proof.
 case: b1 => /=.
 Admitted.
 
-(* predn is the predecessor on nat (predn 0 == 0) and has postfix *)
-(* notation .-1 *)
+(* `predn` is the predecessor on `nat` (with `predn 0 == 0`) *)
+(* and has postfix notation `.-1` *)
 Lemma leq_pred1 n : n.-1 <= n.
 Proof.
 case: n => [| k] /=.
@@ -525,7 +525,7 @@ case: n => [| k] /=.
 - by [].
 Qed.
 
-(* Combining simplification and closing of trivial branches: //= *)
+(* Combining simplification and closing of trivial branches: `//=` *)
 Lemma leq_pred2 n : n.-1 <= n.
 Proof.
 case: n => [| k] //=.
@@ -550,7 +550,7 @@ End ProofsInductiveDefinitionsExamples.
 *)
 Module ConnectiveExamples.
 
-(* True is a unit type (an inductive singleton type) in Prop*)
+(* True is a unit type (an inductive singleton type) in `Prop` *)
 Print True.
 
 (* False is the empty type: an inductive with no constructor. *)
@@ -584,7 +584,7 @@ Qed.
 Lemma impl_elim2 (A B : Prop) : (A -> B) -> A -> B.
 Proof.
 move=> hAB hA.
-move/hAB: hA. (* hA is generalized, then given as argument to hAB, and *)
+move/hAB: hA. (* hA is generalized, then given as argument to `hAB`, and *)
               (* the resulting term is generalized. *)
 by [].
 Qed.
@@ -594,11 +594,11 @@ Lemma impl_elim3 (A B : Prop) : (A -> B) -> A -> B.
 Proof.
 move=> hAB hA.
 move/hAB: hA => hB. (* same as before, but introducing the resulting *)
-              (* application using the name hB *)
+                    (* application using the name `hB` *)
 by [].
 Qed.
 
-(* Using an implication by modus ponens on the context, in the intro pattern*)
+(* Using an implication by modus ponens on the context, in the intro pattern *)
 Lemma impl_elim4 (A B : Prop) : (A -> B) -> A -> B.
 Proof.
 move=> hAB /hAB hB.
@@ -643,20 +643,20 @@ Lemma disj_elim (A B : Prop) : A \/ B -> B \/ A.
 Proof.
 move=> AoB.
 case: AoB => [hA | hB]. (* creates two subgoals, and we name the *)
-                      (* hypothesis created in each case *)
+                        (* hypothesis created in each case *)
 - by right.
 - by left.
 Qed.
 
 
-(* Negation of A is denoted ~ A, which unfolds to A -> False. So *)
-(* working with negation is basically similar to working with *)
+(* Negation of `A` is denoted `~ A`, which unfolds to `A -> False`.*)
+(* So working with negation is basically similar to working with *)
 (* implication. *)
 
 
 (* Using a negation: the `contradiction` tactic is specific to *)
 (* obviously inconsistent contexts. In such cases, the tactic resorts to
-   the ex False quod libert rule: *)
+   the "ex falso quodlibet" rule: *)
 
 (* Ex Falso Quod Libet *)
 Check False_ind.
@@ -675,17 +675,17 @@ apply: hnA.
 by [].
 Qed.
 
-(* Remark: the converse implication ~ ~ A -> A is not provable without *)
+(* Remark: the converse implication `~ ~ A -> A` is not provable without *)
 (* an extra axiom, and thus proof patterns like contraposition are not *)
 (* available on Prop statements. But they are in for boolean statements *)
-(* Note that (~~ b) denotes (negb b), not to be confused with *)
-(*   ~  ~  b with unfolds to ~ (~ (b = true)) *)
+(* Note that `~~ b` denotes `negb b`, not to be confused with *)
+(*   `~ ~ b` with unfolds to `~ (~ (b = true))` *)
 
 Lemma bool_neg_neg (b : bool) : ~~ (~~ b) = b.
 Proof. by case: b. Qed.
 
 (* Contraposition:
-contra : forall c b : bool, (c -> b) -> ~~ b -> ~~ c
+`contra : forall c b : bool, (c -> b) -> ~~ b -> ~~ c`
  *)
 About contra.
 (* And variants, e.g., *)
@@ -695,8 +695,8 @@ About contraLR.
 Lemma neg_intro_with_bool (n : nat) : n = 0 -> ~ (0 < n).
 Proof.
 move=> e. (* We will see that we can use a rewrite intro pattern in the *)
-         (* "Rewrite" section *)
-by rewrite e. (* by computation, to ~ (false = true) *)
+          (* "Rewrite" section of this document *)
+by rewrite e. (* by computation, to `~ (false = true` *)
 Qed.
 
 
@@ -707,7 +707,7 @@ Proof. exists 0. by []. Qed.
 (* Using an existential statement *)
 Lemma ex_elim (m : nat) : (exists n : nat, m = S n) -> 0 < m.
 Proof.
-case=> k hk. (* k s the witness, hk is its property *)
+case=> k hk. (* `k` is the witness, `hk` is its property *)
 by rewrite hk.
 Qed.
 
@@ -723,22 +723,22 @@ Qed.
 (* Equivalences between a term of type bool and a term of type Prop is
 better stated using the `reflect` constant:
 
-reflect <prop statement> <bool statement>
+`reflect 〈prop statement〉 〈bool statement〉`
 
 It is logically equivalent to a double implication:
  *)
 
 About iffP.
-  (* forall (P Q : Prop) (b : bool),
-       reflect P b -> (P -> Q) -> (Q -> P) -> reflect Q b *)
+  (* `forall (P Q : Prop) (b : bool),
+       reflect P b -> (P -> Q) -> (Q -> P) -> reflect Q b` *)
 
-About rwP. (*  forall (P : Prop) (b : bool), reflect P b -> P <-> b *)
+About rwP. (*  `forall (P : Prop) (b : bool), reflect P b -> P <-> b` *)
 
 (* Stating and proving a reflect statement. Remember that a coercion *)
-(* is hiding the (_ = true) which turn booleans to Prop. *)
+(* is hiding the `_ = true` which turn booleans to Prop. *)
 Lemma orP (b1 b2 : bool) : reflect (b1 \/ b2)  (b1 || b2).
 Proof.
-apply: (iffP idP). (* we ca use iffP to fall back to a double implication *)
+apply: (iffP idP). (* we ca use `iffP` to fall back to a double implication *)
 - case: b1; case: b2=> //=; intuition. (* intuition is for *)
                                 (* intuitionistic tautologies *)
 - by case=> e; rewrite e //= orbT.
@@ -876,7 +876,7 @@ Module SearchExamples.
   Search _ (logn _ _ = 0). (* find any lemma that says something about
                                `logn` that are `0` *)
 
-  (* You can also use [?] to define variables, which lets you repeat them within
+  (* You can also use `?` to define variables, which lets you repeat them within
      the expression to narrow down your search. *)
   Search _ (?x * ?x).
   Search _ (?x * _ <= ?x * _).
