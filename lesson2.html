@@ -40,7 +40,10 @@ From mathcomp Require Import mini_ssreflect.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-Notation "x" := (is_true x) (at level 0, only printing).
+
+Add Printing Coercion is_true.
+Notation "x '= true'" := (is_true x) (x at level 100, at level 0, only printing).
+
 </textarea></div>
 <div><p>
 <hr/>
@@ -650,7 +653,7 @@ close to the LaTeX source for the formula above.
 <div><textarea id='coq-ta-28'>
 
 Notation "\sum_ ( m <= i < n ) F" :=
-  (foldr (fun i a => F + a) 0 (iota m (n-m))).
+  (foldr (fun i a => F + a) 0 (iota m (n-m))) (at level 0).
 
 Check \sum_(1 <= x < 5) (x * 2 - 1).
 Eval lazy in \sum_(1 <= x < 5) (x * 2 - 1).
@@ -698,7 +701,6 @@ play the role of (decidable) predicates.
 <div><textarea id='coq-ta-30'>
 Check 0 <= 4. (* not a statement *)
 Check (0 <= 4) = true. (* a statement we can prove *)
-TODO Notation "x = true" := (is_true x)
 </textarea></div>
 <div><p>
 </div>

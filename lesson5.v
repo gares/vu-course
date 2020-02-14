@@ -130,7 +130,8 @@ Qed.
 
 Lemma ex3 x : x - x = 0.
 Proof.
-rewrite -[LHS]/(interp (Minus (Extra 0) (Extra 0)) [::x]).
+pose AST : expr := Minus (Extra 0) (Extra 0).
+rewrite -[LHS]/(interp AST [::x]).
 rewrite go.
 rewrite /=.
 by [].
