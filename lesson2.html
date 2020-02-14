@@ -1003,19 +1003,19 @@ We learn two tactics.
 </div>
 <div><textarea id='coq-ta-40'>
 About dvdn_addr.
-Lemma example m p : prime p ->
+Lemma example m p : p > 1 ->
   p %| m `! + 1 -> m < p.
 Proof.
-move=> prime_p.
-(* Search "contra". *)
+move=> p_gt1.
+(* Search "contra" in MC. *)
 apply: contraLR.
 rewrite -leqNgt.
 move=> leq_p_m.
 rewrite dvdn_addr.
-  by rewrite gtnNdvd // prime_gt1.
-(* Search _ dvdn factorial.*)
+  by rewrite gtnNdvd.
+(* Search _ dvdn factorial in MC.*)
 apply: dvdn_fact.
-by rewrite leq_p_m prime_gt0.
+by rewrite leq_p_m ltnW.
 Qed.
 </textarea></div>
 <div><p>
