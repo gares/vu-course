@@ -33,6 +33,10 @@ Remove Printing If bool.
 - #<a href="https://math-comp.github.io/mcb/">Mathematical Components</a>#
   chapters one and two (at home)
 
+*** Disclaimer:
+- I'm a computer scientist, I speak weird ;-)
+- don't be afraid, raise your hand and I'll do my best to explain my lingo.
+
 #</div>#
 ----------------------------------------------------------
 #<div class="slide">#
@@ -726,15 +730,18 @@ But maybe someone proved it already...
 
 #<div>#
 *)
-Search _ (_ * 0).
+Search _ (_ * 0) in MC.
 (**
 #</div>#
 
 The [Search] command is quite primitive but also
-your best friend. 
+your best friend.
 
 It takes a head pattern, the whildcard [_]
 in the examples above, followed by term or patterns.
+
+You must always use [in MC] in order to limit the search space
+to the set of lemmas relevant to these lectures.
 
 #<div class="note">(notes)<div class="note-text">#
 This slide corresponds to

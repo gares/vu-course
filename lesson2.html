@@ -113,6 +113,19 @@ Remove Printing If bool.
 
 </li>
 </ul>
+<h3>
+ Disclaimer:
+</h3>
+
+<p>
+<ul class="doclist">
+  <li> I'm a computer scientist, I speak weird ;-)
+
+  </li>
+<li> don't be afraid, raise your hand and I'll do my best to explain my lingo.
+
+</li>
+</ul>
 </div>
 <hr/>
 
@@ -898,16 +911,19 @@ But maybe someone proved it already...
 <div>
 </div>
 <div><textarea id='coq-ta-37'>
-Search _ (_ * 0).
+Search _ (_ * 0) in MC.
 </textarea></div>
 <div><p>
 </div>
 <p>
 The <tt>Search</tt> command is quite primitive but also
-your best friend. 
+your best friend.
 <p>
 It takes a head pattern, the whildcard <tt>_</tt>
 in the examples above, followed by term or patterns.
+<p>
+You must always use <tt>in MC</tt> in order to limit the search space
+to the set of lemmas relevant to these lectures.
 <p>
 <div class="note">(notes)<div class="note-text">
 This slide corresponds to
