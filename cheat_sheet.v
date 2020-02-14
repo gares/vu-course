@@ -1,103 +1,144 @@
-From mathcomp Require Import all_ssreflect.
+(**
 
-(* VU Master Course Cheat Sheet. *)
-(* Some parts are copied/adapted from:*)
-(* https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners *)
-(* For a complete reference see the Coq Reference Manual: *)
-(*  (https://coq.inria.fr/distrib/current/refman/index.html *)
+* VU Master Course Cheat Sheet.
 
-(*** Structure of the document:***)
+- Some parts are copied/adapted from #<a href="https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners">#Quick-Reference-for-Beginners#</a>#
 
-(*
-= Declarations:
-  Definition
-  Argument
-  Fixpoint
-  Lemma
-  Theorem
+- For a complete reference see the #<a href="https://coq.inria.fr/distrib/current/refman/index.html">#Coq Reference Manual#</a>#
+*)(**
+----------------------------------------------------------
 
+#<div class="slide vfill" id="Outline">#
 
-= Management of the goal: 
-introduction
-generalization
-clearing
+** Outline of the document
 
-= Trivial proofs:
-computation
-assumption
-hints
+- #<a href="##Declarations">#Declarations#</a>#
+  - #<a href="##Require">#Require Import#</a>#
+  - #<a href="##Definition">#Definition and Arguments#</a>#
+  - #<a href="##Fixpoint">#Fixpoint#</a>#
+  - #<a href="##Lemma">#Lemma and Theorem#</a>#
 
-= Proofs on inductive definitions:
-case analysis
-induction
+- #<a href="##Management">#Management of the goal:#</a>#
+  - Introduction
+  - Generalization
+  - Clearing
 
-= Logical connectives in Prop:
-implication
-universal quantification
-conjunction
-disjunction
-negation
-existential
-double implication
-reflect
+- #<a href="##Trivial">#Trivial proofs:#</a>#
+  - Computation
+  - Assumption
+  - Hints
 
-= Rewriting, congruence
+- #<a href="##Inductives">#Proofs on inductive definitions:#</a>#
+  - Case analysis
+  - Induction
 
-= Queries and Inspection:
-  Search
-  About
-  Check
-  Print
+- #<a href="##Logical">#Logical connectives in Prop:#</a>#
+  - Implication
+  - Universal quantification
+  - Conjunction
+  - Disjunction
+  - Negation
+  - Existential quantification
+  - Double implication
+  - Reflect
 
+- #<a href="##Rewriting">#Rewriting, congruence#</a>#
+
+- #<a href="##Queries">#Queries and Inspection:#</a>#
+  - Search
+  - About
+  - Check
+  - Print
+
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Declarations">#
+
+** Declarations #<a href="##Outline">#↑#</a>#
+
+#<div id="Require">#
+*** Require and Import #<a href="##Declarations">#↑#</a>#
+
+The first lines of a [.v] file are usually naming the libraries
+that will be used to write definitions, statements and prove them.
+
+<<
+From 〈lib〉 Require Import 〈module(s)〉.
+>>
+
+Assuming the library [〈lib〉] is installed.
+
+#<div>#
 *)
+From mathcomp Require Import all_ssreflect.
+(**
+#</div>#
 
+But for most of the lectures we use:
 
-(*** Declarations ***)
+<<
+From mathcomp Require Import mini_ssreflect 〈other mini mathcomp libs〉.
+>>
+which are simplified versions of the mathcomp library.
 
-(* Definition :
-   A [Definition] declares a term, a type, a proposition, or a non-recursive
-   function. It looks like:
+#</div>#
+----------------------------------------------------------
+#<div id="Definition">#
 
-     Definition <name> : <type> := <value>.
+*** Definition #<a href="##Declarations">#↑#</a>#
 
-   It's possible to omit the <type> if Coq can infer it from the value, which
-   then looks like:
+The keyword [Definition] declares a term, a type, a proposition, or a
+non-recursive function. It looks like:
 
-     Definition <name> := <value>.
+<<
+Definition 〈name〉 : 〈type〉 := 〈value〉.
+>>
 
-   But we strongly suggest that you enforce type annotations in definitions,
-   for the sake of documentation and robustness.
+It's possible to omit the [type] if Coq can infer it from the value,
+which then looks like:
 
-   For functions, the arguments can go before or after the colon. That is, saying:
+<<
+Definition 〈name〉 := 〈value〉.
+>>
 
-     Definition <name> : <type1> -> <type2> -> <type3> := 
-     fun <argname> <argname> => <body>
+But we strongly suggest that you enforce type annotations in
+definitions, for the sake of documentation and robustness.
 
-   ...is equivalent to:
+For functions, the arguments can go before or after the colon. That
+is, saying:
 
-     Definition <name> (<argname> : <type1>) : <type2> -> <type3> := 
-     fun <argname> => <body>
-     Definition <name> (<argname> : <type1>) (<argname : <type2>) : <type3> := 
-     <body>
- *)
+<<
+Definition 〈name〉 : 〈type1〉 -> 〈type2〉 -> 〈type3〉 :=
+  fun 〈argname〉 〈argname〉 => 〈body〉.
 
+>>
+is equivalent to:
+
+<<
+Definition 〈name〉 (〈argname〉 : 〈type1〉) : 〈type2〉 -> 〈type3〉 := fun 〈argname〉 => 〈body〉.
+Definition 〈name〉 (〈argname〉 : 〈type1〉) (〈argname〉 : 〈type2〉) : 〈type3〉 := 〈body〉.
+>>
+
+#<div>#
+*)
 Module DefinitionExamples.
   (* defining numbers *)
   Definition x : nat := 5.
-  Definition y := 5. 
-  (* y is a [nat], because of the default notation scope. Handle with care...*)
+  Definition y := 5.
+  (* `y` is a `nat`, because of the default notation scope.
+     Handle with care...*)
 
   (* defining (non inductive) types *)
-  Definition two_nats : Type := nat * nat. 
-  (* represents a pair of natural numbers, using an infix notation for 
-     the type [prod] used in the 1st lecture. *)
+  Definition two_nats : Type := nat * nat.
+  (* represents a pair of natural numbers,
+     using an infix notation for the type `prod` . *)
 
   (* defining functions *)
   Definition add2 : nat -> nat := fun n => n + 2.
   Definition add3 (n : nat) : nat := n + 3.
   Definition make_pair : nat -> nat -> two_nats := fun n m => (n, m).
 
-  (* The following are all equivalent to [make_pair] *)
+  (* The following are all equivalent to `make_pair` *)
   Definition make_pair' (a : nat) : nat -> two_nats := fun b => (a,b).
   Definition make_pair'' (a : nat) (b : nat) : two_nats := (a,b).
   Definition make_pair''' (a b : nat) : two_nats := (a,b).
@@ -109,15 +150,15 @@ Module DefinitionExamples.
       |S k => false
     end.
 
-  (* Case analysis on a boolean can use a specific if ... then ... else ...
-    syntax *)
+  (* Case analysis on a boolean can use a specific
+     `if 〈condition〉 then 〈true case〉 else 〈false case〉` syntax *)
   Definition neg_bool (b : bool) : bool := if b then false else true.
 
   (* defining propositions and predicates *)
   Definition nat_pos : Prop := forall x : nat, 0 <= x.
-  Definition nat_pos' (x : nat) : Prop := 0 <= x. (* equivalent to [nat_pos] *)
+  Definition nat_pos' (x : nat) : Prop := 0 <= x. (* equivalent to `nat_pos` *)
 
-  (* This [Prop] is false; you wouldn't be able to prove it, 
+  (* This `Prop` is false; you wouldn't be able to prove it,
      but you can state it because the sentence is well-typed. *)
   Definition nat_neg : Prop := forall x : nat, x < 0.
 
@@ -157,113 +198,136 @@ Module DefinitionExamples.
    with several more options. See the reference manual. *)
 
 End DefinitionExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Fixpoint">#
 
+*** Fixpoint #<a href="##Declarations">#↑#</a>#
 
-(* Fixpoint :
-   [Fixpoint] defines a *recursive* function. Syntax is similar to [Definition]:
+  [Fixpoint] defines a *recursive* function. Syntax is similar to [Definition]:
 
-     Fixpoint <name> : <type> := 
-     fun <arguments...> => <body>.
-     Fixpoint <name> (<argname> : <type>) (argname : <type>) ... : <type> := 
-     <body>.
+<<
+Fixpoint 〈name〉 : 〈type〉 := fun 〈arguments...〉 => 〈body〉.
+Fixpoint 〈name〉 (〈argname〉 : 〈type〉) (argname : 〈type〉) ... : 〈type〉 := 〈body〉.
+>>
 
   Such a definition is accepted if termination is ensured by a recursive call
-  on a strict subterm. 
- *)
+  on a strict subterm.
 
+#<div>#
+*)
 Module FixpointExamples.
   (* loop and decrement n until we reach 0 *)
   Fixpoint countdown (n : nat) : nat :=
     match n with
     | O => n
-    | S x => countdown x 
-    (* "x" is the name I chose for n's predecessor; changing
-       the name won't break anything *)
+    | S x => countdown x
+    (* "x" is the name I chose for n's predecessor;
+       changing the name won't break anything *)
     end.
 
-  (* naive exponentiation : if the fixpoint has more than one inductive 
-     argument, it is useful to document which one is decreasing, for the sake of
-     documentation. *)
+  (* naive exponentiation : if the fixpoint has more than one
+     inductive argument, it is useful to document which one is
+     decreasing, for the sake of documentation. *)
   Fixpoint power_of (b : nat) (e : nat) {struct e} : nat :=
     match e with
-    | O => 1 (* returns 1 if e = 0 *)
-    | S n => b * power_of b n (* if e = n + 1 for some n, return b * b^n with a
-                                 recursive call *)
+    (* returns 1 if e = 0 *)
+    | O => 1
+    (* if e = n + 1 for some n, return b * b^n with a recursive call *)
+    | S n => b * power_of b n
     end.
 
 End FixpointExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Declarations">#
 
-(* Lemma :
-   [Lemma] is the most common type of proof declaration. It allows to define a 
-   term using a gradual, interactive construction, possibly using 
+*** Lemma #<a href="##Outline">#↑#</a>#
+
+   [Lemma] is the most common type of proof declaration. It allows to define a
+   term using a gradual, interactive construction, possibly using
    instructions called tactics. This mode of interaction is called "proof-mode".
 
 The syntax looks like:
 
-      Lemma <name> : <proof statement>.
-      Proof.
-        <proof body>
-      Qed.
-  
-  [Theorem], [Remark], [Corollary ] are synonyms.
+<<
+Lemma 〈name〉 : 〈proof statement〉.
+Proof.
+  〈proof body〉
+Qed.
+>>
+
+   [Theorem], [Remark], [Corollary] are synonyms.
 
    You can omit writing [Proof] before your proof, but it's convention, and
    visually helps separate the proof from the proof statement when the statement
    is long and complicated.
 
-   The <proof statement> can in fact be any type, but it is usually a type 
+   The [〈proof statement〉] can in fact be any type, but it is usually a type
    of type [Prop].
-*)
 
 
-(*
    If you don't finish your proof but want to exit your lemma, you can't use
-   [Qed]. Instead, you have two options: [Admitted]. 
+   [Qed]. Instead, you have two options: [Admitted].
+
    This will let other proofs see and use your unfinished
    lemma, even though you haven't yet proven it. Naturally, this means it's
    important to remember if you're depending on an admitted lemma, because it
    means your top-level proof might not be correct. To see the admitted proofs
    a lemma or theorem depends on, type [Print Assumptions <lemma/theorem name>].
- *)
+
+#<div>#
+*)
 Module LemmaExamples.
-  (* [True] has the type [Prop], so it technically counts as a proof statement *)
+  (* `True` has the type `Prop`, so it technically counts as a proof statement *)
   Lemma simple : True.
   Proof.
     by []. (* in this case, we just tell Coq "this proof is easy". See
-   the "Trivial Proofs" section below" *)
+   the "Trivial Proofs" section below *)
   Qed.
 
-  (* Lemmas can take arguments, like definitions. These are parameters of the
-  statement, i.e. prenex universal quantification. *)
+  (* Lemmas can take arguments, like definitions. These are parameters
+  of the statement, i.e. prenex universal quantification. *)
   Lemma nat_nonneg (a : nat) : 0 <= a.
   Proof.
     by [].
   Qed.
 
 (* We could also have stated the lemma as:
-  Lemma nat_nonneg : forall (a : nat),  0 <= a.
-but the previous version saves us the bureaucracy of introducing (naming) 
-the parameters in the context. *)
+     `Lemma nat_nonneg : forall (a : nat),  0 <= a.`
+   but the previous version saves us the bureaucracy of introducing
+   (i.e. naming) the parameters in the context. *)
 
  Lemma nat_nonneg' (a : nat) : 0 <= a.
   Proof.
     admit. (* give up the current branch of the proof. *)
   Admitted.
 End LemmaExamples.
+(**
+#</div>#
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Management">#
 
-(*** Management of the goal ***)
+*** Management of the goal #<a href="##Outline">#↑#</a>#
 
+A proof in progress looks like this in the dedicated buffer:
 
-(* A proof in progress looks like this in the dedicated buffer:
-
-<name1> : <type1>
-<name1> : <type1>
+<<
+〈name1〉 : 〈type1〉
+〈name1〉 : 〈type1〉
 ...
-<namek> : <typek>
+〈namek〉 : 〈typek〉
 ===================
-<statement>
+〈statement〉
+>>
 
-What is above the ===== is the proof context, a list of named 
+What is above the === is the proof context, a list of named
 assumptions, with their type. What is above the ==== is a type,
 with possible prenex quantification and arrows. Part of the
 formal proof, the boring one, deals with moving items around
@@ -271,8 +335,10 @@ the ====. Only the top most assumption or quantified variable
 can be named and used to the context: this is an introduction step.
 Any item from the context can be pushed on top of the statement
 (provided that this complies with possible dependencies): this
-is a generalization step. *)
+is a generalization step.
 
+#<div>#
+*)
 Module ManagementExamples.
 
 Lemma leq_addr (n m : nat) : n <= n + m.
@@ -294,13 +360,20 @@ move: (n + m) => k {m}.
 Admitted.
 
 End ManagementExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Trivial">#
 
-(*** Trivial Proofs ***)
+*** Trivial Proofs #<a href="##Outline">#↑#</a>#
 
-(* As much as possible, simple proofs = short scripts.
-The [by []] tactic solves trivial goals, and fails if it did not work.
-Trivial here means:*)
+As much as possible, simple proofs = short scripts.
+The #`by []`# tactic solves trivial goals, and fails if it did not work.
+Trivial here means:
 
+#<div>#
+*)
 Module TrivialExamples.
 
 (* By computation *)
@@ -318,15 +391,15 @@ Lemma leqnn_hint (n : nat) : n <= n.
 Proof. by []. Qed.
 
 (* The database of hints can be extended using the command:
-Hint Resolve <name of the lemma>.
+   `Hint Resolve 〈name of the lemma〉.`
 
-A resolving hint should not feature preconditions (the statement should 
- not be an implication, as these would not be solved by the [by []] tactic.
+A resolving hint should not feature preconditions (the statement should
+ not be an implication, as these would not be solved by the #`by []`# tactic.
 *)
 
-(* Finally, in non-trivial proof, a final call to [[by []]] can be
-   replaced by a prenex [by]. It is a good practice to tag the line
-   terminating a proof with such a prenex [by], but this is specially
+(* Finally, in non-trivial proof, a final call to #`by []`# can be
+   replaced by a prenex `by`. It is a good practice to tag the line
+   terminating a proof with such a prenex `by`, but this is specially
    useful in the case of proofs with subgoals (e.g., case analysis). *)
 
 (* Tactics used in this proof are explained in the next sections. *)
@@ -334,22 +407,27 @@ Lemma prenex_by (n m : nat) : n = m -> n + m = n + n.
 Proof. by move=> e; rewrite e. Qed.
 
 End TrivialExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Inductives">#
 
+*** Proofs on inductive definitions #<a href="##Outline">#↑#</a>#
 
-(*** Proofs on inductive definitions ***)
-
-
+#<div>#
+*)
 Module ProofsInductiveDefinitionsExamples.
 
 (* Case analysis on bool *)
 
-(* Note that (~~ b) denotes (negb b), not to be confused with *)
+(* Note that `~~ b` denotes `negb b`, not to be confused with *)
 
 Lemma bool_tauto (b1 b2 : bool) : b1 || ~~ b1.
 Proof.
-case: b1. (* opens two subgoals, we use [-] bullet to mark the *)
+case: b1. (* opens two subgoals, we use `-` bullet to mark the *)
           (* paragraph devoted to each of them, respectively. Other *)
-          (* available bullets are [+] and [*] *)
+          (* available bullets are `+` and `*` *)
 - by [].
 - by [].
 Qed.
@@ -368,8 +446,8 @@ Lemma leqn0 n : (n <= 0) = (n == 0).  Proof. by case: n. Qed.
 (* branch of the case analysis. We do so using a so-called *)
 (* intro-pattern. Intro-patterns are the features that take care of *)
 (* the bureaucracy generated by a previous tactic. Intro-patterns *)
-(* happen after an arrow [=>]. The most obvious thing we want to do is *)
-(* naming, and that what the move => <name1> <name2> did. We do the *)
+(* happen after an arrow `=>`. The most obvious thing we want to do is *)
+(* naming, and that what the `move => 〈name1〉 〈name2〉` did. We do the *)
 (* same, here but a bracket allows to give names in parallel to the *)
 (* material relevant to each subgoal. *)
 
@@ -385,10 +463,9 @@ elim: n => [| k].
 Qed.
 
 (* Generalizing before starting induction *)
-
 Lemma leqNgt0 m n : (m <= n) = ~~ (n < m).
-Proof. 
-elim: m n => [|m IHm]. 
+Proof.
+elim: m n => [|m IHm].
 - move=> k. by [].
 - move=> k. case: k.
   +  by [].
@@ -397,8 +474,8 @@ Qed.
 
 (* Introducing a variable in both branches *)
 Lemma leqNgt1 m n : (m <= n) = ~~ (n < m).
-Proof. 
-elim: m n => [|m IHm] k.  
+Proof.
+elim: m n => [|m IHm] k.
 - by [].
 - case: k.
   +  by [].
@@ -408,8 +485,8 @@ Qed.
 (* Killing trivial subgoal with the // switch before introducing a *)
 (* variable in the remaining branches *)
 Lemma leqNgt2 m n : (m <= n) = ~~ (n < m).
-Proof. 
-elim: m n => [|m IHm] // k.  
+Proof.
+elim: m n => [|m IHm] // k.
 - case: k.
   +  by [].
   +  by [].
@@ -418,16 +495,16 @@ Qed.
 (* Killing trivial subgoal with the // switch before performing a *)
 (* case analysis on a variable in the remaining branches. *)
 Lemma leqNgt3 m n : (m <= n) = ~~ (n < m).
-Proof. 
-elim: m n => [|m IHm] // [].  
+Proof.
+elim: m n => [|m IHm] // [].
   +  by [].
   +  by [].
 Qed.
 
-(* Factoring the [by] *)
+(* Factoring the `by` *)
 Lemma leqNgt4 m n : (m <= n) = ~~ (n < m).
-Proof. 
-by elim: m n => [|m IHm] // [].  
+Proof.
+by elim: m n => [|m IHm] // [].
 Qed.
 
 (* Simplification in an intro pattern: /= simplifies both goals by *)
@@ -435,40 +512,43 @@ Qed.
 (* is often useful after an case analysis*)
 
 Lemma simpl_switch_bool b1 b2 : b1 && b2 = b2 && b1.
-Proof. 
+Proof.
 case: b1 => /=.
 Admitted.
 
 (* predn is the predecessor on nat (predn 0 == 0) and has postfix *)
 (* notation .-1 *)
-Lemma leq_pred1 n : n.-1 <= n. 
-Proof. 
-case: n => [| k] /=. 
+Lemma leq_pred1 n : n.-1 <= n.
+Proof.
+case: n => [| k] /=.
 - by [].
 - by [].
 Qed.
 
 (* Combining simplification and closing of trivial branches: //= *)
-Lemma leq_pred2 n : n.-1 <= n. 
-Proof. 
-case: n => [| k] //=. 
+Lemma leq_pred2 n : n.-1 <= n.
+Proof.
+case: n => [| k] //=.
 Qed.
 
 (* For this simple lemma, the shortest proof script would not require *)
 (* these switch. *)
-Lemma leq_pred3 n : n.-1 <= n. 
+Lemma leq_pred3 n : n.-1 <= n.
 Proof.  by case: n. Qed.
 
 
 End ProofsInductiveDefinitionsExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Logical">#
 
+*** Logical connectives in Prop #<a href="##Outline">#↑#</a>#
 
-(*** Logical connectives in Prop ***)
-
-
-
+#<div>#
+*)
 Module ConnectiveExamples.
-
 
 (* True is a unit type (an inductive singleton type) in Prop*)
 Print True.
@@ -491,7 +571,7 @@ apply: hAB.
 by [].
 Qed.
 
-(* [exact] is the combination or apply and by *)
+(* `exact` is the combination or apply and by *)
 Lemma impl_elim1' (A B : Prop) : (A -> B) -> A -> B.
 Proof.
 move=> hAB hA.
@@ -554,7 +634,7 @@ Lemma disj_intro_r (A B : Prop) : B -> A \/ B.
 Proof.
 move=> hB.
 (* we chose which side we will prove *)
-right. (* or [left] for the other one *)
+right. (* or `left` for the other one *)
 by [].
 Qed.
 
@@ -574,7 +654,7 @@ Qed.
 (* implication. *)
 
 
-(* Using a negation: the [contradiction] tactic is specific to *)
+(* Using a negation: the `contradiction` tactic is specific to *)
 (* obviously inconsistent contexts. In such cases, the tactic resorts to
    the ex False quod libert rule: *)
 
@@ -606,7 +686,7 @@ Proof. by case: b. Qed.
 
 (* Contraposition:
 contra : forall c b : bool, (c -> b) -> ~~ b -> ~~ c
- *) 
+ *)
 About contra.
 (* And variants, e.g., *)
 About contraLR.
@@ -633,7 +713,7 @@ Qed.
 
 
 (* A double implication is just the conjunction of two implications *)
-Lemma equiv (A B : Prop) : A /\ B <-> B /\ A. 
+Lemma equiv (A B : Prop) : A /\ B <-> B /\ A.
 Proof.
 split.
 - by case=> hA hB; split.
@@ -641,15 +721,15 @@ split.
 Qed.
 
 (* Equivalences between a term of type bool and a term of type Prop is
-better stated using the [reflect] constant:
+better stated using the `reflect` constant:
 
 reflect <prop statement> <bool statement>
 
 It is logically equivalent to a double implication:
  *)
 
-About iffP. 
-  (* forall (P Q : Prop) (b : bool), 
+About iffP.
+  (* forall (P Q : Prop) (b : bool),
        reflect P b -> (P -> Q) -> (Q -> P) -> reflect Q b *)
 
 About rwP. (*  forall (P : Prop) (b : bool), reflect P b -> P <-> b *)
@@ -684,10 +764,16 @@ by [].
 Qed.
 
 End ConnectiveExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Rewriting">#
 
+*** Rewriting, congruence #<a href="##Outline">#↑#</a>#
 
-(*** Rewriting, congruence ***)
-
+#<div>#
+*)
 Module RewriteExamples.
 
 (* Simple rewrite, left to right *)
@@ -715,8 +801,8 @@ Proof. move=> e. rewrite e /=. by []. Qed.
 (* A alternative version where everything happens in the intro pattern *)
 Lemma ex6 (n m : nat) : n = m.+1 -> ~~ (n == 0).
 Proof. move=> -> /=. by []. Qed.
- 
-(* The most concise one of course only needs the rewrite, as [by] takes *)
+
+(* The most concise one of course only needs the rewrite, as `by` takes *)
 (* care of computation. *)
 
 Lemma ex7 (n m : nat) : n = m.+1 -> ~~ (n == 0).
@@ -728,35 +814,39 @@ Proof.
 move=> e. rewrite [X in X + _ = _]e. by [].
 Qed.
 
-
 (* Congruence tactic *)
 Lemma congr (a b c k : nat) : a = b -> b + c = k -> a + (b + c) = b + k.
 Proof.
-move=> e1 e2. 
+move=> e1 e2.
 congr (_ + _).
 - by [].
 - by [].
 Qed.
 
-Lemma pairP (A B : Type) (a : A) (b : B) : 
+Lemma pairP (A B : Type) (a : A) (b : B) :
   pair a b = (fst (pair a b), snd (pair a b)).
-Proof. 
+Proof.
 congr (_, _).
 Qed.
 
-(*** Inspection, Queries ***)
+End RewriteExamples.
+(**
+#</div>#
+#</div>#
+----------------------------------------------------------
+#<div class="slide" id="Queries">#
 
-(* Search :
+*** Queries and Inspection #<a href="##Outline">#↑#</a>#
 
-   One of the most useful commands for discovering lemmas or functions that have
+   One of the most useful commands for discovering lemmas or functions
+   that have already been defined is [Search].
 
-   already been defined is [Search].
- *)
-
+#<div>#
+*)
 Module SearchExamples.
 
   (* simple statements : you can search about functions or about already-defined
-     terms like 2, or even expressions like (1+1). *)
+     terms like `2`, or even expressions like `1 + 1`. *)
   Search _ muln.
   (* restricts the search to occurrences in the conclusion *)
   Search _ logn.
@@ -766,11 +856,11 @@ Module SearchExamples.
   Search muln in prime.
 
 
-  (* You can also [Search] for things containing multiple expressions *)
+  (* You can also `Search` for things containing multiple expressions *)
   Search muln logn.
 
 
-  (* We can also [Search] types, like [nat] and [list], to get every function or
+  (* We can also `Search` types, like `nat` and `list`, to get every function or
   definition with that type as a subset of its type signature, and every lemma
   that has the type in its proof statement. *)
   Search nat.
@@ -780,23 +870,23 @@ Module SearchExamples.
                                   numbers and return a boolean *)
 
 
-  (* Extremely usefully, [Search] allows you to leave "blanks" in expressions
+  (* Extremely usefully, `Search` allows you to leave "blanks" in expressions
      using underscores. *)
-  Search _ (_ + (_ + _)). 
+  Search _ (_ + (_ + _)).
   Search _ (logn _ _ = 0). (* find any lemma that says something about
-                               [logn] that are 0 *)
+                               `logn` that are `0` *)
 
   (* You can also use [?] to define variables, which lets you repeat them within
      the expression to narrow down your search. *)
   Search _ (?x * ?x).
   Search _ (?x * _ <= ?x * _).
 
-  (* you can attach scope delimiters to [Search] expressions, which means that in
-     this [Search] the [1]  and [*] are interpreted as the *integer* 1 and the
-     function [Z.mul] (integer multiplication), instead of the *natural number* 1
-     and the function [Nat.mul] (natural number multiplication). *)
-  Search (_ + _)%coq_nat. (* Vanilla Coq addition on nat *)
-  Search (_ + _)%N. (* Mathematical Components addition on nat *)
+  (* you can attach scope delimiters to `Search` expressions, which means that in
+     this `Search` the `1`  and `*` are interpreted as the *integer* 1 and the
+     function `Z.mul` (integer multiplication), instead of the *natural number* 1
+     and the function `Nat.mul` (natural number multiplication). *)
+  Search (_ + _)%coq_nat. (* Vanilla Coq addition on` nat` *)
+  Search (_ + _)%N. (* Mathematical Components addition on `nat` *)
 End SearchExamples.
 
 (* About gives useful information about a defined constant, including
@@ -812,3 +902,8 @@ Check nat.
 Print negb.
 
 Print nat.
+
+(**
+#</div>#
+#</div>#
+*)
