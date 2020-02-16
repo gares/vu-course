@@ -365,7 +365,7 @@ End ManagementExamples.
 *** Trivial Proofs #<a href="##Outline">#↑#</a>#
 
 As much as possible, simple proofs = short scripts.
-The #`by []`# tactic solves trivial goals, and fails if it did not work.
+The [by []] tactic solves trivial goals, and fails if it did not work.
 Trivial here means:
 
 #<div>#
