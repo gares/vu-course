@@ -9,6 +9,12 @@ p {
   font-size: 14pt;
 }
 
+tt {
+  font-size:14.6667px;
+  font-family: monospace, times, "Arial Unicode MS";
+  background-color: rgb(241, 241, 241);
+}
+
 .slide {
   position: relative;
   margin-bottom: 30px;
