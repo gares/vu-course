@@ -1,12 +1,11 @@
 From mathcomp Require Import mini_ssreflect.
 
+(* ignore these directives *)
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-
 Add Printing Coercion is_true.
 Notation "x '= true'" := (is_true x) (x at level 100, at level 0, only printing).
-
 Remove Printing If bool.
 
 (**
