@@ -1,4 +1,4 @@
-From mathcomp Require Import all_ssreflect.
+From mathcomp Require Import mini_ssreflect.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -110,19 +110,9 @@ What would it mean for [simplify] to be correct?
 
 Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
 Proof.
-have interpMult a b : interp (Mult a b) = (interp a) * (interp b) by [].
-elim: e => //=.
-move=> x Hx y Hy.
-case Ex : (simplify x) => [|x1 x2|n].
-- by rewrite Hx Ex. (* 0 * n = n by computation *)
-- case Ey : (simplify y) => [|y1 y2|m].
-  + by rewrite Hy Ey /= muln0. (* n * 0 = 0 by muln0 *)
-  + by rewrite Hx Hy Ex Ey -interpMult.
-  + by rewrite Hx Hy Ex Ey -interpMult.
-- case Ey: (simplify y)  => [|y1 y2|m].
-  + by rewrite Hy Ey muln0. (* n * 0 = 0 by muln0 *)
-  + by rewrite Hx Hy Ex Ey -interpMult.
-  + by rewrite Hx Hy Ex Ey -interpMult.
+elim: e => //= x Hx y Hy.
+case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
+1,2: by rewrite muln0.
 Qed.
 
 (**
@@ -213,18 +203,9 @@ What would it mean for [simplify] to be correct?
 
 Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
 Proof.
-have interpMinus a b : interp (Minus a b) = (interp a) - (interp b) by [].
-elim: e => //=.
-move=> x Hx y Hy.
-  case Ex : (simplify x) => [|x1 x2|n].
-  - by rewrite Hx Ex.
-  - by rewrite Hx Ex Hy.
-  - case Ey : (simplify y) => [|y1 y2|m].
-    + by rewrite Hx Hy Ex Ey -interpMinus.
-    + by rewrite Hx Hy Ex Ey -interpMinus.
-    + case: eqP.
-      + by rewrite Hx Hy Ex Ey => ->; rewrite subnn.
-      + by rewrite Hx Hy Ex Ey -interpMinus.
+elim: e => //= x Hx y Hy.
+case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
+by case: eqP => [->|//]; rewrite subnn.
 Qed.
 
 (**
@@ -264,16 +245,16 @@ Module C.
 Inductive expr :=
   | Zero
   | Minus (x : expr) (y : expr)
-  | ExtraId (n : nat).
+  | Var (n : nat).
 
 Fixpoint simplify e :=
   match e with
   | Minus x y =>
       match simplify x, simplify y with
-      | ExtraId n, ExtraId m =>
+      | Var n, Var m =>
           match n == m with
           | true => Zero
-          | false => Minus (ExtraId n) (ExtraId m)
+          | false => Minus (Var n) (Var m)
           end
       | a, b => Minus a b
       end
@@ -284,34 +265,25 @@ Fixpoint interp (e : expr) (c : list nat) :=
   match e with
   | Zero => 0
   | Minus x y => (interp x c) - (interp y c)
-  | ExtraId x => nth 0 c x
+  | Var x => nth 0 c x
   end.
 
   (* Syntax of (3 - 3 *)
-Definition T : expr := Minus (ExtraId 0) (ExtraId 0).
+Definition T : expr := Minus (Var 0) (Var 0).
 Definition C : list nat := [:: 3].
 Eval lazy delta [T C interp nth] iota beta in interp T C.
 
-
 Lemma simplify_correct (e : expr) (c : list nat) : interp e c = interp (simplify e) c.
 Proof.
-have interpMinus a b l : interp (Minus a b) l = (interp a l) - (interp b l) by [].
-elim: e => //=.
-move=> x Hx y Hy.
-  case Ex : (simplify x) => [|x1 x2|n].
-  - by rewrite Hx Ex.
-  - by rewrite Hx Ex Hy.
-  - case Ey : (simplify y) => [|y1 y2|m].
-    + by rewrite Hx Hy Ex Ey -interpMinus.
-    + by rewrite Hx Hy Ex Ey -interpMinus.
-    + case: eqP.
-      + by rewrite Hx Hy Ex Ey => ->; rewrite subnn.
-      + by rewrite Hx Hy Ex Ey -interpMinus.
+elim: e => //= x Hx y Hy.
+case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
+by case: eqP => [->|//]; rewrite subnn.
 Qed.
+
 
 Lemma ex3 x : x - x = 0.
 Proof.
-pose AST : expr := Minus (ExtraId 0) (ExtraId 0).
+pose AST : expr := Minus (Var 0) (Var 0).
 pose CTX : list nat := [:: x].
 rewrite -[LHS]/(interp AST CTX).
 rewrite simplify_correct.
@@ -319,23 +291,20 @@ rewrite /=.
 by [].
 Qed.
 
+End C.
 
-(* 
+(*
+#</div>#
+
 - computation is powerful on closed terms
 - proof size is constant
 
-*)
-
-
-
-(**
-#</div>#
 
 #</div>#
 ----------------------------------------------------------
 #<div class="slide vfill">#
 
-** This is another title
+** To sum up
 
 a slide that is vfilled, if you click on (1) or next-slide
 in the toolbar up-right to the coq document you get it centered.

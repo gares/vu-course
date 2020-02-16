@@ -45,304 +45,21 @@ Unset Printing Implicit Defensive.
 <div class="slide">
 <p>
 <h2>
- Reflection in the large
-</h2>
-
-<p>
-<h3>
- In this lecture
-</h3>
-
-<p>
-<ul class="doclist">
-  <li> bla
-
-  </li>
-<li> bla
-
-</li>
-</ul>
-<p>
-<p>
-</div>
-<hr/>
-
-<div class="slide vfill">
-<p>
-<h2>
- Recap: computation and variables
+ Exercise 1:
 </h2>
 
 <p>
 <ul class="doclist">
-  <li> Why is the first goal trivial by computation?
+  <li> Improve the last symplification function of lesson 5 by adding
+  the simplification rule $$x - 0 = x$$
 
   </li>
-<li> Why the second is not?
-
-</li>
 </ul>
 <div>
 </div>
 <div><textarea id='coq-ta-2'>
-Lemma ex1 x : 0 * x = 0.
-Proof. by []. Qed.
 
-Lemma ex2 x : x * 0 = 0.
-Proof.
-Fail by [].
-Admitted.
-
-</textarea></div>
-<div><p>
-</div>
-<p>
-We used the lemma <tt>muln0</tt> before. Can't we explain Coq
-to use it for us?
-<p>
-</div>
-<hr/>
-
-<div class="slide">
-<p>
-<h3>
- Idea
-</h3>
-
-<p>
-<ul class="doclist">
-  <li> we could write a program that simplifies expressions
-
-  </li>
-<li> we could provide it correct
-
-</li>
-<li> we could have Coq run it for us
-
-</li>
-</ul>
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-3'>
-Module A. (* A module is a box for Coq code, ignore this *)
-
-Inductive expr :=
-  | Zero
-  | Mult (x : expr) (y : expr)
-  | Extra (stuff : nat).
-</textarea></div>
-<div><p>
-</div>
-<p>
-The <tt>expr</tt> data type is the <em>syntax</em> of expressions.
-It is a data type like <tt>nat</tt> or <tt>bool</tt> are we know how to
-write programs on this data.
-<p>
-Let's write a program that deal with Zero.
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-4'>
-
-Fixpoint simplify e :=
-  match e with
-  | Mult x y =>
-      match simplify x, simplify y with
-      | Zero, _ => Zero
-      | _, Zero => Zero
-      | a, b => Mult a b
-      end
-  | x => x
-  end.
-
-(* Syntax of (3 * 0) * 4 *)
-Definition T : expr := Mult (Mult (Extra 3) Zero) (Extra 4).
-
-Eval lazy in simplify T. (* = Zero *)
-</textarea></div>
-<div><p>
-</div>
-<p>
-We have to link these expressions and out goals.
-Each expression in <tt>expr</tt> represents an expression in out goal.
-Let's make this map explicit.
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-5'>
-Fixpoint interp e :=
-  match e with
-  | Zero => 0
-  | Mult x y => (interp x) * (interp y)
-  | Extra x => x
-  end.
-
-Eval lazy delta [T interp] iota beta in interp T.
-</textarea></div>
-<div><p>
-</div>
-<p>
-What would it mean for <tt>simplify</tt> to be correct?
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-6'>
-
-Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
-Proof.
-elim: e => //= x Hx y Hy.
-case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
-1,2: by rewrite muln0.
-Qed.
-
-</textarea></div>
-<div><p>
-</div>
-<p>
-Now let's take advantage of 
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-7'>
-
-Lemma ex3 x : x * 0 = 0.
-Proof.
-pose AST : expr := Mult (Extra x) Zero.
-rewrite -[LHS]/(interp AST).
-rewrite simplify_correct.
-rewrite /=.
-by [].
-Qed.
-
-End A.
-</textarea></div>
-<div><p>
-</div>
-<p>
-</div>
-<hr/>
-
-<div class="slide">
-<p>
-<h3>
- Let's add more simplification rules!
-</h3>
-
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-8'>
-Module B.
-
-Inductive expr :=
-  | Zero
-  | Minus (x : expr) (y : expr)
-  | Extra (stuff : nat).
-</textarea></div>
-<div><p>
-</div>
-<p>
-The rule we want is $n - n = 0$ when n is a number
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-9'>
-
-Fixpoint simplify e :=
-  match e with
-  | Minus x y =>
-      match simplify x, simplify y with
-      | Extra n, Extra m =>
-          match n == m with
-          | true => Zero
-          | false => Minus (Extra n) (Extra m)
-          end
-      | a, b => Minus a b
-      end
-  | x => x
-  end.
-
-(* Syntax of (3 - 3 *)
-Definition T : expr := Minus (Extra 3) (Extra 3).
-
-Eval lazy in simplify T. (* = Zero *)
-</textarea></div>
-<div><p>
-</div>
-<p>
-We have to link these expressions and out goals.
-Each expression in <tt>expr</tt> represents an expression in out goal.
-Let's make this map explicit.
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-10'>
-Fixpoint interp e :=
-  match e with
-  | Zero => 0
-  | Minus x y => (interp x) - (interp y)
-  | Extra x => x
-  end.
-
-Eval lazy delta [T interp] iota beta in interp T.
-</textarea></div>
-<div><p>
-</div>
-<p>
-What would it mean for <tt>simplify</tt> to be correct?
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-11'>
-
-Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
-Proof.
-elim: e => //= x Hx y Hy.
-case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
-by case: eqP => [->|//]; rewrite subnn.
-Qed.
-
-</textarea></div>
-<div><p>
-</div>
-<p>
-Now let's try to take advantage of it
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-12'>
-
-Lemma ex3 x : x - x = 0.
-Proof.
-pose AST : expr := Minus (Extra x) (Extra x).
-rewrite -[LHS]/(interp AST).
-rewrite simplify_correct.
-rewrite /=.
-Abort.
-
-End B.
-</textarea></div>
-<div><p>
-</div>
-<p>
-What went wrong...
-<p>
-</div>
-<hr/>
-
-<div class="slide">
-<p>
-<h3>
- Let's add more simplification rules!
-</h3>
-
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-13'>
-
-Module C.
+Module Ex1.
 
 Inductive expr :=
   | Zero
@@ -358,6 +75,7 @@ Fixpoint simplify e :=
           | true => Zero
           | false => Minus (Var n) (Var m)
           end
+      | (* Fill me *)
       | a, b => Minus a b
       end
   | y => y
@@ -370,21 +88,17 @@ Fixpoint interp (e : expr) (c : list nat) :=
   | Var x => nth 0 c x
   end.
 
-  (* Syntax of (3 - 3 *)
-Definition T : expr := Minus (Var 0) (Var 0).
-Definition C : list nat := [:: 3].
-Eval lazy delta [T C interp nth] iota beta in interp T C.
-
 Lemma simplify_correct (e : expr) (c : list nat) : interp e c = interp (simplify e) c.
 Proof.
 elim: e => //= x Hx y Hy.
-case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
+case: (simplify x) Hx => [|x1 x2|n] -> ; case: (simplify y) Hy => [|y1 y2|m] -> //.
+(* fill in *)
 by case: eqP => [->|//]; rewrite subnn.
 Qed.
 
-Lemma ex3 x : x - x = 0.
+Lemma test (x : nat) : x - x - 0 = 0.
 Proof.
-pose AST : expr := Minus (Var 0) (Var 0).
+pose AST : expr := Minus (Minus (Var 0) (Var 0)) Zero.
 pose CTX : list nat := [:: x].
 rewrite -[LHS]/(interp AST CTX).
 rewrite simplify_correct.
@@ -392,7 +106,159 @@ rewrite /=.
 by [].
 Qed.
 
-End C.
+End Ex1.
+</textarea></div>
+<div><p>
+</div>
+<hr/>
+
+<div class="slide">
+<p>
+<h2>
+ Exercise 2:
+</h2>
+
+<p>
+<ul class="doclist">
+  <li> Improve on exercise 1 by adding
+  to the <tt>expr</tt> data type a node for multiplication and
+  the simplification rules $$x * 0 = 0$$ and $$0 * x = 0$$
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-3'>
+Module Ex2.
+
+Inductive expr :=
+  | Zero
+  | (* fill in *)
+  | Minus (x : expr) (y : expr)
+  | Var (n : nat).
+
+Fixpoint simplify e :=
+  match e with
+  | Minus x y =>
+      match simplify x, simplify y with
+      | Var n, Var m =>
+          match n == m with
+          | true => Zero
+          | false => Minus (Var n) (Var m)
+          end
+      | (* Fill me, from ex 1*)
+      | a, b => Minus a b
+      end
+  | (* fill me *)
+  | y => y
+  end.
+
+Fixpoint interp (e : expr) (c : list nat) :=
+  match e with
+  | Zero => 0
+  | Minus x y => (interp x c) - (interp y c)
+  | (* fill in *)
+  | Var x => nth 0 c x
+  end.
+
+Lemma simplify_correct (e : expr) (c : list nat) : interp e c = interp (simplify e) c.
+Proof.
+elim: e => //= x Hx y Hy.
+- case: (simplify x) Hx => [|x1 x2|x1 x2|n] -> ; case: (simplify y) Hy => [|y1 y2|y1 y2|m] -> //.
+  (* fill in *)
+- case: (simplify x) Hx => [|x1 x2|x1 x2|n] -> ; case: (simplify y) Hy => [|y1 y2|y1 y2|m] -> //.
+  (* fill in, like in exercise 1 *)
+  by case: eqP => [->|//]; rewrite subnn.
+Qed.
+
+Lemma test (x : nat) (y : nat) : x - x - (y * 0) = 0.
+Proof.
+pose AST : expr := (* fill me *)
+pose CTX : list nat := (* fill me *)
+rewrite -[LHS]/(interp AST CTX).
+rewrite simplify_correct.
+rewrite /=.
+by [].
+Qed.
+
+End Ex2.
+
+</textarea></div>
+<div><p>
+</div>
+<hr/>
+
+<div class="slide">
+<p>
+<h2>
+ Exercise 3:
+</h2>
+
+<p>
+<ul class="doclist">
+  <li> Improve on exercise 2 by adding
+  to the <tt>expr</tt> data type a node for One and
+  the simplification rules $$x * 1 = x$$ and $$1 * x = x$$
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-4'>
+Module Ex3.
+
+Inductive expr :=
+  | Zero
+  | (* fill in *)
+  | (* fill in, as in exercise 2 *)
+  | Minus (x : expr) (y : expr)
+  | Var (n : nat).
+
+Fixpoint simplify e :=
+  match e with
+  | Minus x y =>
+      match simplify x, simplify y with
+      | Var n, Var m =>
+          match n == m with
+          | true => Zero
+          | false => Minus (Var n) (Var m)
+          end
+      | (* Fill me, from ex 1*)
+      | a, b => Minus a b
+      end
+  | (* fill me *)
+  | y => y
+  end.
+
+Fixpoint interp (e : expr) (c : list nat) :=
+  match e with
+  | Zero => 0
+  | (* fill in *)
+  | Minus x y => (interp x c) - (interp y c)
+  | (* fill in *)
+  | Var x => nth 0 c x
+  end.
+
+Lemma simplify_correct (e : expr) (c : list nat) : interp e c = interp (simplify e) c.
+Proof.
+elim: e => //= x Hx y Hy.
+- case: (simplify x) Hx => [||x1 x2|x1 x2|n] -> ; case: (simplify y) Hy => [||y1 y2|y1 y2|m] -> //.
+  (* fill in *)
+- case: (simplify x) Hx => [||x1 x2|x1 x2|n] -> ; case: (simplify y) Hy => [||y1 y2|y1 y2|m] -> //.
+  (* fill in *)
+Qed.
+
+Lemma test (x : nat) (y : nat) : x - x - (y * 0) = 0.
+Proof.
+pose AST : expr := (* fill me *)
+pose CTX : list nat := (* fill me *)
+rewrite -[LHS]/(interp AST CTX).
+rewrite simplify_correct.
+rewrite /=.
+by [].
+Qed.
+
+End Ex3.
 
 (*
 </div>
@@ -407,23 +273,11 @@ End C.
 
 ** To sum up
 
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
-
-<div class="note">(notes)<div class="note-text">
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
-</div></div>
-
 </div>
 ----------------------------------------------------------
 *)</textarea></div>
 <script type="text/javascript">
- var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
-                  'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
-                  'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
-                  'coq-ta-13'];
+ var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4'];
 </script>
 <hr />
 
