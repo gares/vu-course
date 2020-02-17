@@ -141,7 +141,10 @@ Search _ (* fil this in*)
 (*D*)(_ (+) ~~ _).
 Lemma find_me (p : bool) (q : bool) :  ~~ p = q -> p (+) q.
 Proof.
+(* This is a new command: it names an assumption, so that you can
+   mention it later in your proof *)
+move=> np_q.
 (* fill this in *)
-(*D*)by move=> np_q; rewrite -np_q addbN negb_add.
+(*D*)by rewrite -np_q addbN negb_add.
 Qed.
 

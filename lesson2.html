@@ -443,31 +443,17 @@ pair or a list.  The interesting characteristic of containers
 is that they are polymorphic: the same container can be used
 to hold terms of many types.
 <p>
-<tt>Inductive list (A : Type) := nil | cons (hd : A) (tl : seq A).</tt>
-<p>
+<pre class="inline-coq" data-lang="coq">
+Inductive list (A : Type) := nil | cons (hd : A) (tl : list A).<p>
+</pre>
 <div>
 </div>
 <div><textarea id='coq-ta-17'>
-Check nil.
-Check cons 3 [::].
-</textarea></div>
-<div><p>
-</div>
-<p>
-We learn that <tt>[::]</tt> is a notation for the empty list
-and that the type parameter <tt>?T</tt> is implicit.
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-18'>
-Check 1 :: nil.
+Check cons 1 nil.
 Check [:: 3; 4; 5 ].
 </textarea></div>
 <div><p>
 </div>
-<p>
-The infix <tt>::</tt> notation stands for <tt>cons</tt>. This one is mostly
-used to pattern match a list.
 <p>
 The notation <tt>[:: .. ; .. ]</tt> can be used to form list
 by separating the elements with <tt>;</tt>. When there are no elements
@@ -477,7 +463,7 @@ And of course we can use list with other data types
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-19'>
+<div><textarea id='coq-ta-18'>
 Check [:: 3; 4; 5 ].
 Check [:: true; false; true ].
 </textarea></div>
@@ -488,10 +474,10 @@ Let's now define the <tt>size</tt> function.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-20'>
+<div><textarea id='coq-ta-19'>
 Fixpoint size A (s : list A) : nat :=
   match s with
-  | _ :: tl => S (size tl)
+  | cons _ tl => S (size tl)
   | nil => 0
   end.
 
@@ -509,11 +495,11 @@ contents.
 <p>
 <pre class="inline-coq" data-lang="coq">
 Fixpoint map A B (f : A -> B) (s : list A) : list B :=
-  match s with e :: tl => f e :: map f tl | nil => nil end.<p>
+  match s with cons e tl => cons (f e) map f tl | nil => nil end.<p>
 </pre>
 <div>
 </div>
-<div><textarea id='coq-ta-21'>
+<div><textarea id='coq-ta-20'>
 Definition l := [:: 1; 2; 3].
 Check  map (fun x => S x) l.
 Eval lazy in map (fun x => S x) l.
@@ -551,7 +537,7 @@ We use this mecanism to talk about symbolic computation.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-22'>
+<div><textarea id='coq-ta-21'>
 Section symbols.
 Variables x : nat.
 
@@ -571,11 +557,11 @@ function.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-23'>
+<div><textarea id='coq-ta-22'>
 
 Fixpoint foldr A T (f : T -> A -> A) (a : A) (s : list T) :=
   match s with
-  | x :: xs => f x (foldr f a xs)
+  | cons x xs => f x (foldr f a xs)
   | nil => a
   end.
 </textarea></div>
@@ -587,7 +573,7 @@ is to postulate a virable <tt>f</tt> and compute.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-24'>
+<div><textarea id='coq-ta-23'>
 
 Variable f : nat -> nat -> nat.
 
@@ -602,7 +588,7 @@ obtain a term that evaluates to a number.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-25'>
+<div><textarea id='coq-ta-24'>
 
 Eval lazy in foldr addn 3 [:: 1; 2 ].
 
@@ -636,11 +622,11 @@ We need a bit of infrastruture
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-26'>
+<div><textarea id='coq-ta-25'>
 Fixpoint iota (m : nat) (n : nat) : list nat :=
   match n with
-  | 0 => [::]
-  | S u => m :: iota (S m) u
+  | 0 => nil
+  | S u => cons m (iota (S m) u)
   end.
 
 Eval lazy in iota 0 5.
@@ -654,7 +640,7 @@ close to the LaTeX source for the formula above.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-27'>
+<div><textarea id='coq-ta-26'>
 
 Notation "\sum_ ( m <= i < n ) F" :=
   (foldr (fun i a => F + a) 0 (iota m (n-m)))
@@ -691,7 +677,7 @@ It is not surprising one can equate two numbers.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-28'>
+<div><textarea id='coq-ta-27'>
 Lemma addnA (m n k : nat) : m + (n + k) = m + n + k.
 Abort.
 </textarea></div>
@@ -706,7 +692,7 @@ play the role of predicates.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-29'>
+<div><textarea id='coq-ta-28'>
 Check 0 <= 4. (* not a statement *)
 Check (0 <= 4) = true. (* a statement we can prove *)
 </textarea></div>
@@ -717,7 +703,7 @@ More statements using equality and predicates in bool
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-30'>
+<div><textarea id='coq-ta-29'>
 Lemma eqn_leq (m n : nat) : (m == n) = (m <= n) && (n <= m).
 Abort.
 
@@ -734,7 +720,7 @@ Remark: Coq adds <tt>= true</tt> automatically when we state a lemma.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-31'>
+<div><textarea id='coq-ta-30'>
 Check is_true.
 </textarea></div>
 <div><p>
@@ -763,22 +749,28 @@ Our statements are made of programs. Hence they compute!
 The <tt>by[]</tt> proof command solves trivial goals (mostly) by
 computation.
 <p>
-<pre>
+<pre class="inline-coq" data-lang="coq">
 Fixpoint addn n m :=
-  match n with 0 => m | S p => S (addn p m) end.
-
+  match n with 0 => m | S p => S (addn p m) end.<p>
+</pre><pre class="inline-coq" data-lang="coq">
 Fixpoint subn m n : nat :=
   match m, n with
   | S p, S q => subn p q
   | _ , _ => m
-  end.
-
-Definition leq m n := m - n == 0.
+  end.<p>
+</pre><pre class="inline-coq" data-lang="coq">
+Fixpoint eqn (n : nat) (m : nat) : bool :=
+  match n, m with
+  | 0, 0 => true
+  | S p, S q => eqn p q
+  | _, _ => false
+  end.<p>
+</pre><pre class="inline-coq" data-lang="coq">
+Definition leq m n := m - n == 0.<p>
 </pre>
-<p>
 <div>
 </div>
-<div><textarea id='coq-ta-32'>
+<div><textarea id='coq-ta-31'>
 Lemma addSn m n : S m + n = S (m + n).
 Proof. by []. Qed.
 
@@ -800,7 +792,7 @@ Let's look around.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-33'>
+<div><textarea id='coq-ta-32'>
 
 Locate "~~".
 Print negb.
@@ -842,7 +834,7 @@ The <tt>case: term</tt> command performs this proof step.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-34'>
+<div><textarea id='coq-ta-33'>
 Lemma negbK (b : bool) : ~~ (~~ b) = b.
 Proof.
 case: b.
@@ -872,7 +864,7 @@ names for these arguments.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-35'>
+<div><textarea id='coq-ta-34'>
 Lemma leqn0 (n : nat) : (n <= 0) = (n == 0).
 Proof.
 case: n => [| p].
@@ -891,7 +883,7 @@ Fixpoint muln (m n : nat) : nat :=
 </pre>
 <div>
 </div>
-<div><textarea id='coq-ta-36'>
+<div><textarea id='coq-ta-35'>
 Lemma muln_eq0 (m n : nat) :
   (m * n == 0) = (m == 0) || (n == 0).
 Proof.
@@ -909,7 +901,7 @@ But maybe someone proved it already...
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-37'>
+<div><textarea id='coq-ta-36'>
 Search _ (_ * 0) in MC.
 </textarea></div>
 <div><p>
@@ -946,7 +938,7 @@ Coq user manual, SSReflect chapter).
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-38'>
+<div><textarea id='coq-ta-37'>
 Lemma muln_eq0 (m n : nat) :
   (m * n == 0) = (m == 0) || (n == 0).
 Proof.
@@ -964,12 +956,12 @@ about <tt>rewrite</tt>.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-39'>
+<div><textarea id='coq-ta-38'>
 Lemma leq_mul2l (m n1 n2 : nat) :
   (m * n1 <= m * n2) = (m == 0) || (n1 <= n2).
 Proof.
 rewrite /leq.
-(* Search _ muln subn in ssrnat. *)
+(* Search _ (_ * (_ - _)) in MC. *)
 rewrite -mulnBr.
 rewrite muln_eq0.
 by [].
@@ -986,59 +978,7 @@ section 2.2.3 of
 <p>
 <p><br/><p>
 </div>
-<hr/>
-
-<div class="slide">
-<h2>
- Proofs by backward chaining
-</h2>
-
 <p>
-We learn two tactics.
-<tt>move=> names</tt> to introduce hypotheses in the context.
-<tt>apply: term</tt> to backchain.
-<p>
-<div>
-</div>
-<div><textarea id='coq-ta-40'>
-About dvdn_addr.
-Lemma example m p : p > 1 ->
-  p %| m `! + 1 -> m < p.
-Proof.
-move=> p_gt1.
-(* Search "contra" in MC. *)
-apply: contraLR.
-rewrite -leqNgt.
-move=> leq_p_m.
-rewrite dvdn_addr.
-  by rewrite gtnNdvd.
-(* Search _ dvdn factorial in MC.*)
-apply: dvdn_fact.
-by rewrite leq_p_m ltnW.
-Qed.
-</textarea></div>
-<div><p>
-</div>
-<p>
-Remark <tt>dvdn_addr</tt> is an <tt>iff</tt> used inside a context.
-<p>
-Remark <tt>//</tt> in <tt>rewrite</tt> to solve simple goals.
-<p>
-Remark <tt>rewrite</tt> acepts many rewrite rules.
-<p>
-Remark <tt>n <= m <= p</tt> is <tt>n <= m && m <= p</tt>.
-<p>
-<div class="note">(notes)<div class="note-text">
-<p>
-This slide corresponds to
-section 2.3.3 of
-<a href="https://math-comp.github.io/mcb/">the Mathematical Components book</a>
-</div></div>
-<p>
-<p><br/><p>
-</div>
-<hr/>
-
 <div class="slide">
 <h2>
  Lesson 1: sum up
@@ -1091,23 +1031,17 @@ section 2.3.3 of
 <li> <tt>by []</tt> trivial proofs (including computation)
 
 </li>
-<li> <tt>case: m</tt> case split
+<li> <tt>case: m => [//|p]</tt> case split
 
 </li>
-<li> <tt>apply: t</tt> backchain
-
-</li>
-<li> <tt>rewrite t1 t2 //</tt> rewrite
-
-</li>
-<li> <tt>move=> n</tt> naming
+<li> <tt>rewrite t1 /t2</tt> rewrite
 
 </li>
 </ul>
 </div>
 <p>
 </div>
-<div><textarea id='coq-ta-41'>
+<div><textarea id='coq-ta-39'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
@@ -1119,8 +1053,7 @@ section 2.3.3 of
                   'coq-ta-25',  'coq-ta-26',  'coq-ta-27',  'coq-ta-28', 
                   'coq-ta-29',  'coq-ta-30',  'coq-ta-31',  'coq-ta-32', 
                   'coq-ta-33',  'coq-ta-34',  'coq-ta-35',  'coq-ta-36', 
-                  'coq-ta-37',  'coq-ta-38',  'coq-ta-39',  'coq-ta-40', 
-                  'coq-ta-41'];
+                  'coq-ta-37',  'coq-ta-38',  'coq-ta-39'];
 </script>
 <hr />
 

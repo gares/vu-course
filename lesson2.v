@@ -314,27 +314,16 @@ pair or a list.  The interesting characteristic of containers
 is that they are polymorphic: the same container can be used
 to hold terms of many types.
 
-[Inductive list (A : Type) := nil | cons (hd : A) (tl : seq A).]
+[[
+Inductive list (A : Type) := nil | cons (hd : A) (tl : list A).
+]]
 
 #<div>#
 *)
-Check nil.
-Check cons 3 [::].
-(**
-#</div>#
-
-We learn that [[::]] is a notation for the empty list
-and that the type parameter [?T] is implicit.
-
-#<div>#
-*)
-Check 1 :: nil.
+Check cons 1 nil.
 Check [:: 3; 4; 5 ].
 (**
 #</div>#
-
-The infix [::] notation stands for [cons]. This one is mostly
-used to pattern match a list.
 
 The notation [[:: .. ; .. ]] can be used to form list
 by separating the elements with [;]. When there are no elements
@@ -355,7 +344,7 @@ Let's now define the [size] function.
 *)
 Fixpoint size A (s : list A) : nat :=
   match s with
-  | _ :: tl => S (size tl)
+  | cons _ tl => S (size tl)
   | nil => 0
   end.
 
@@ -372,7 +361,7 @@ contents.
 
 [[
 Fixpoint map A B (f : A -> B) (s : list A) : list B :=
-  match s with e :: tl => f e :: map f tl | nil => nil end.
+  match s with cons e tl => cons (f e) map f tl | nil => nil end.
 ]]
 
 #<div>#
@@ -432,7 +421,7 @@ function.
 
 Fixpoint foldr A T (f : T -> A -> A) (a : A) (s : list T) :=
   match s with
-  | x :: xs => f x (foldr f a xs)
+  | cons x xs => f x (foldr f a xs)
   | nil => a
   end.
 (**
@@ -487,8 +476,8 @@ We need a bit of infrastruture
 *)
 Fixpoint iota (m : nat) (n : nat) : list nat :=
   match n with
-  | 0 => [::]
-  | S u => m :: iota (S m) u
+  | 0 => nil
+  | S u => cons m (iota (S m) u)
   end.
 
 Eval lazy in iota 0 5.
@@ -593,18 +582,28 @@ Our statements are made of programs. Hence they compute!
 The [by[]] proof command solves trivial goals (mostly) by
 computation.
 
-<<
+[[
 Fixpoint addn n m :=
   match n with 0 => m | S p => S (addn p m) end.
-
+]]
+[[
 Fixpoint subn m n : nat :=
   match m, n with
   | S p, S q => subn p q
   | _ , _ => m
   end.
-
+]]
+[[
+Fixpoint eqn (n : nat) (m : nat) : bool :=
+  match n, m with
+  | 0, 0 => true
+  | S p, S q => eqn p q
+  | _, _ => false
+  end.
+]]
+[[
 Definition leq m n := m - n == 0.
->>
+]]
 
 #<div>#
 *)
@@ -781,7 +780,7 @@ Lemma leq_mul2l (m n1 n2 : nat) :
   (m * n1 <= m * n2) = (m == 0) || (n1 <= n2).
 Proof.
 rewrite /leq.
-(* Search _ muln subn in ssrnat. *)
+(* Search _ (_ * (_ - _)) in MC. *)
 rewrite -mulnBr.
 rewrite muln_eq0.
 by [].
@@ -799,52 +798,6 @@ section 2.2.3 of
 #<p><br/><p>#
 #</div>#
 
-----------------------------------------------------------
-#<div class="slide">#
-** Proofs by backward chaining
-
-We learn two tactics.
-[move=> names] to introduce hypotheses in the context.
-[apply: term] to backchain.
-
-#<div>#
-*)
-About dvdn_addr.
-Lemma example m p : p > 1 ->
-  p %| m `! + 1 -> m < p.
-Proof.
-move=> p_gt1.
-(* Search "contra" in MC. *)
-apply: contraLR.
-rewrite -leqNgt.
-move=> leq_p_m.
-rewrite dvdn_addr.
-  by rewrite gtnNdvd.
-(* Search _ dvdn factorial in MC.*)
-apply: dvdn_fact.
-by rewrite leq_p_m ltnW.
-Qed.
-(**
-#</div>#
-
-Remark [dvdn_addr] is an [iff] used inside a context.
-
-Remark [//] in [rewrite] to solve simple goals.
-
-Remark [rewrite] acepts many rewrite rules.
-
-Remark [n <= m <= p] is [n <= m && m <= p].
-
-#<div class="note">(notes)<div class="note-text">#
-
-This slide corresponds to
-section 2.3.3 of
-#<a href="https://math-comp.github.io/mcb/">the Mathematical Components book</a>#
-#</div></div>#
-
-#<p><br/><p>#
-#</div>#
-----------------------------------------------------------
 #<div class="slide">#
 ** Lesson 1: sum up
 
@@ -864,10 +817,8 @@ section 2.3.3 of
 
 - [expr = true] or [expr = expr] is a specification
 - [by []] trivial proofs (including computation)
-- [case: m] case split
-- [apply: t] backchain
-- [rewrite t1 t2 //] rewrite
-- [move=> n] naming
+- [case: m => [//|p]] case split
+- [rewrite t1 /t2] rewrite
 
 #</div>#
 
