@@ -28,7 +28,7 @@ Eval lazy in even 6. (* = true *)
 
 (** *** Exercise 2:
    - State and prove the following boolean formulas:
-     [~~ b1 && (b2 || b3) = (~~ b1 && b2) || ~~ (b1 || ~~ b2)]
+     [b1 && (~~ b2 || b3) = (b1 && ~~ b2) || (b1 && b3)]
    *)
 Lemma exercise2 (* fill me *)
 (*D*)  b1 b2 b3 : b1 && (~~ b2 || b3) = ( b1 && ~~ b2) || (b1 && b3).
