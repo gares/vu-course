@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" href="jscoq/node_modules/bootstrap/dist/css/bootstrap.min.css" />
 
-    <title>Use Coq in Your Browser: The Js Coq Theorem Prover Online IDE!</title>
+    <title>Machine-Checked Mathematics</title>
     <link rel="stylesheet" href="local.css" />
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'
@@ -21,15 +21,16 @@
         <div id="code-wrapper">
             <div id="document">
                 <p>
-                To play this document inside your browser use ALT-N and ALT-P.
+                Use ALT-(up-arrow) and ALT-(down-arrow) to process this document inside your browser, line-by-line. 
+		Use ALT-(right-arrow) to go to the cursor. 
                 You can
                 <span class="save-button" onClick="save_coq_snippets()">save your edits</span>
                 inside your browser and
                 <span class="save-button" onClick="load_coq_snippets()">load them back</span>.
                 <!-- (edits are also saved when you close the window) -->
-                Finally you can
+                Finally, you can
                 <span class="save-button" onClick="download_coq_snippets()">download</span>
-                the file for sending it to your teacher.
+                your working copy of the file, e.g., for sending it to teachers.
                 <hl />
                 </p>
 <div><textarea id='coq-ta-1'>
@@ -51,7 +52,7 @@ Remove Printing If bool.
 <p>
 <ul class="doclist">
   <li> Write a recursive function taking a natural number to a boolean
-    value. That value is tru iff the number if even
+    value. That value is true iff the number if even
 
   </li>
 </ul>
@@ -70,7 +71,7 @@ Eval lazy in even 6. (* = true *)
 
 <p>
 <ul class="doclist">
-  <li> State and prove the followin boolean formula:
+  <li> State and prove the following boolean formulas:
      <tt>~~ b1 && (b2 || b3) = (~~ b1 && b2) || ~~ (b1 || ~~ b2)</tt>
 
   </li>
@@ -85,7 +86,7 @@ Lemma exercise2 (* fill me *)
  Exercise 3  :
 </h3>
 
-    Prove Peirce using only the rewrite command.
+    Prove Peirce's  law using only the rewrite command.
 <p>
 <ul class="doclist">
   <li> Hint: use Search to find relevant lemmas about <tt>==></tt> and <tt>~~</tt>

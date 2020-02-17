@@ -9,7 +9,7 @@ Remove Printing If bool.
 
 (** *** Exercise 1:
   - Write a recursive function taking a natural number to a boolean
-    value. That value is tru iff the number if even
+    value. That value is true iff the number if even
 *)
 Fixpoint even (n : nat) : bool := (* fill me *)
 (*D*)  match n with
@@ -27,7 +27,7 @@ Eval lazy in even 3. (* = false *)
 Eval lazy in even 6. (* = true *)
 
 (** *** Exercise 2:
-   - State and prove the followin boolean formula:
+   - State and prove the following boolean formulas:
      [~~ b1 && (b2 || b3) = (~~ b1 && b2) || ~~ (b1 || ~~ b2)]
    *)
 Lemma exercise2 (* fill me *)
@@ -38,7 +38,7 @@ Lemma exercise2 (* fill me *)
 
 
 (** *** Exercise 3  :
-    Prove Peirce using only the rewrite command.
+    Prove Peirce's  law using only the rewrite command.
     - Hint: use Search to find relevant lemmas about [==>] and [~~]
     - Hint: use the lemma that says [(a || b) && a = a]
 *)
