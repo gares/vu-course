@@ -20,8 +20,8 @@ lesson%.html : lesson%.html.tmp
 cheat%.html : cheat%.html.tmp
 	@mv $< $@
 
-similar.html : similar.html.tmp
-	@mv $< $@
+similar.html : similar.v
+	udoc/_build/install/default/bin/udoc --with-header header.html --with-footer footer.html -t $* $< -o $@
 
 # Exercises
 exercise%.html: exercise%.html.tmp
