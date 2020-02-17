@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" href="jscoq/node_modules/bootstrap/dist/css/bootstrap.min.css" />
 
-    <title>Use Coq in Your Browser: The Js Coq Theorem Prover Online IDE!</title>
+    <title>Machine-Checked Mathematics</title>
     <link rel="stylesheet" href="local.css" />
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'
@@ -21,15 +21,16 @@
         <div id="code-wrapper">
             <div id="document">
                 <p>
-                To play this document inside your browser use ALT-N and ALT-P.
+                Use ALT-(up-arrow) and ALT-(down-arrow) to process this document inside your browser, line-by-line. 
+		Use ALT-(right-arrow) to go to the cursor. 
                 You can
                 <span class="save-button" onClick="save_coq_snippets()">save your edits</span>
                 inside your browser and
                 <span class="save-button" onClick="load_coq_snippets()">load them back</span>.
                 <!-- (edits are also saved when you close the window) -->
-                Finally you can
+                Finally, you can
                 <span class="save-button" onClick="download_coq_snippets()">download</span>
-                the file for sending it to your teacher.
+                your working copy of the file, e.g., for sending it to teachers.
                 <hl />
                 </p>
 <div><textarea id='coq-ta-1'>
@@ -48,7 +49,7 @@ just move the mouse there.
 <div class="slide vfill" id="Outline">
 <p>
 <h2>
- Induction and proof managment
+ Induction and proof management
 </h2>
 
 <p>
@@ -114,7 +115,7 @@ let ym := bm in  (* mth element of the stack *)
 …
 Pn xl ->         (* nth element of the stack *)
 … ->
-Conclusion       (* bottom of the stack = no more elemnts *)
+Conclusion       (* bottom of the stack = no more elements *)
 <p>
 </pre>
 <h4>
@@ -138,7 +139,7 @@ Abort.
 <p>
 <div class="note">(notes)<div class="note-text">
 This slide corresponds to section
-<a href="https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.html#bookkeeping">Bookkeeping</a> of the online docmentation of the ssreflect proof language.
+<a href="https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.html#bookkeeping">Bookkeeping</a> of the online documentation of the ssreflect proof language.
 </div></div>
 <p><br/><p>
 </div>
@@ -181,7 +182,7 @@ Abort.
 
 <div class="slide">
 <h3>
- intro-pattern and discharge partterns
+ intro-pattern and discharge patterns
 </h3>
 
 <p>
@@ -228,7 +229,7 @@ You can write
     cf <a href="https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.html#introduction-in-the-context">ssreflect documentation on introduction to the context</a>
 
   </li>
-<li> <tt>tactic: d_items</tt> where <tt>d_items</tt> is a list of <quote>dicharge</quote> items <tt>d_item_1 … d_item_n</tt>, and is equivalent to <tt>move: d_item_n; …; move: d_item_1</tt>, and
+<li> <tt>tactic: d_items</tt> where <tt>d_items</tt> is a list of <quote>discharge</quote> items <tt>d_item_1 … d_item_n</tt>, and is equivalent to <tt>move: d_item_n; …; move: d_item_1</tt>, and
 <ul class="doclist">
   <li> <tt>tactic</tt> must be <tt>move</tt>, <tt>case</tt>, <tt>elim</tt>, <tt>apply</tt>, <tt>exact</tt> or <tt>congr</tt>,
 
@@ -236,7 +237,7 @@ You can write
 <li> <tt>move: name</tt> clears the name from the context,
 
 </li>
-<li> <tt>move: pattern</tt> generalize a subterm of the goal that match the pattern,
+<li> <tt>move: pattern</tt> generalize a sub-term of the goal that match the pattern,
 
 </li>
 <li> <tt>move: (name)</tt> forces <tt>name</tt> to be a pattern, hence not clearing it.
@@ -492,7 +493,7 @@ apply: (iffP idP).
   by rewrite (IH m Hm).
 move=> def_n; rewrite {}def_n.
 Undo.
-move=> ->. (* move + rewrie + clear idiom *)
+move=> ->. (* move + rewrite + clear idiom *)
 by elim: m.
 Qed.
 </textarea></div>
@@ -725,7 +726,7 @@ Qed.
   </li>
 <li> <tt>set name := pattern</tt>, finds the pattern in the conclusion,
   and puts a definition <tt>name</tt> in the context.
-  Finally, it substitutes the pattern for <tt>name</tt> in the conclution.
+  Finally, it substitutes the pattern for <tt>name</tt> in the conclusion.
 
 </li>
 </ul>
@@ -837,7 +838,7 @@ dvdnP: forall d m : nat, reflect (exists k : nat, m = k * d) (d | n -> d | m -> 
 </h3>
 
 <p>
-The notation <tt>m = n %[mod d]</tt> is an abbreviationn for <tt>m %% d = n %% d</tt>.
+The notation <tt>m = n %[mod d]</tt> is an abbreviation for <tt>m %% d = n %% d</tt>.
 <div>
 </div>
 <div><textarea id='coq-ta-19'>
@@ -851,7 +852,7 @@ modnDl: forall m d : nat, d + m = m <tt>mod d</tt>
 </div>
 <p>
 <h3>
- GCD, relattive primality and primality
+ GCD, relative primality and primality
 </h3>
 
 <p>

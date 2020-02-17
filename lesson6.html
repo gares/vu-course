@@ -74,6 +74,7 @@ Today:
 
 <p>
 Here is a toy copy of the (polymorphic) type of lists:
+<p>
 <div>
 </div>
 <div><textarea id='coq-ta-2'>
@@ -88,7 +89,8 @@ About cons.
 <div><p>
 </div>
 <p>
-A well-type term features many copies of the polymorphic parameter:
+A well-typed term features many copies of the polymorphic parameter:
+<p>
 <div>
 </div>
 <div><textarea id='coq-ta-3'>
@@ -140,7 +142,11 @@ Reminder: the apply tactic:
 <div><textarea id='coq-ta-6'>
 Module Tactics.
 
-From mathcomp Require Import mini_ssreflect.
+Import mini_ssreflect.
+
+Set Implicit Arguments.
+Unset Strict Implicit.
+Unset Printing Implicit Defensive.
 
 Lemma apply_example1 (n m : nat) (P : nat ->Prop) : (forall k, P k) -> P 4.
 Proof.
@@ -154,6 +160,40 @@ move=> h.
 Fail apply: h.
 apply: (h 2).
 Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ Matching and unification
+</h2>
+
+<p>
+Tactics use information from the goal, to compute relevant instances of lemmas.
+<p>
+Reminder: the elim tactic:
+<div>
+</div>
+<div><textarea id='coq-ta-7'>
+
+About last_ind.
+
+Section FoldLeft.
+
+Variables (T R : Type) (f : R -> T -> R).
+
+(* Lemma foldl_rev (z : R) (s : list T) : foldl f z (rev s) = foldr (fun x z => f z x) z s. *)
+(* Proof. *)
+(* elim/last_ind: s z. => // s x IHs z. rewrite rev_rcons -cats1 foldr_cat -IHs. *)
+(* Qed. *)
+
+End FoldLeft.
 
 End Tactics.
 </textarea></div>
@@ -202,7 +242,7 @@ Pairs of data:
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-7'>
+<div><textarea id='coq-ta-8'>
 Variables A1 B1 C1 : Type.
 Check A1 -> B1 -> C1.
 Check A1 * B1 -> C1.
@@ -213,7 +253,7 @@ Check A1 * B1 -> C1.
 Pairs of proofs:
 <div>
 </div>
-<div><textarea id='coq-ta-8'>
+<div><textarea id='coq-ta-9'>
 Variables A2 B2 C2 : Prop.
 Check A2 -> B2 -> C2.
 Check A2 /\ B2 -> C2.
@@ -235,7 +275,7 @@ A pair of a data (a number) and a proof (of positivity)
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-9'>
+<div><textarea id='coq-ta-10'>
 Module PosNat.
 
 From mathcomp Require Import all_ssreflect.
@@ -249,7 +289,7 @@ Which defines projections as well in one go.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-10'>
+<div><textarea id='coq-ta-11'>
 About nval.
 
 About vnalP.
@@ -268,7 +308,7 @@ About vnalP.
 Now.
 <div>
 </div>
-<div><textarea id='coq-ta-11'>
+<div><textarea id='coq-ta-12'>
 Variable P : nat -> Prop.
 
 Check forall n : nat, 0 < n -> P n.
@@ -283,12 +323,13 @@ End PosNat.
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-12'>
+<div><textarea id='coq-ta-13'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
                   'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
-                  'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12'];
+                  'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
+                  'coq-ta-13'];
 </script>
 <hr />
 

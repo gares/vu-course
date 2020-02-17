@@ -6,15 +6,14 @@
 
     <link rel="stylesheet" href="jscoq/node_modules/bootstrap/dist/css/bootstrap.min.css" />
 
-    <title>Use Coq in Your Browser: The Js Coq Theorem Prover Online IDE!</title>
+    <title>Machine-Checked Mathematics</title>
     <link rel="stylesheet" href="local.css" />
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'
         async></script>
-        <!--
     <script src="Blob.js" type="text/javascript"></script>
     <script src="FileSaver.js" type="text/javascript"></script>
-        -->
+
 </head>
 
 <body>
@@ -22,17 +21,17 @@
         <div id="code-wrapper">
             <div id="document">
                 <p>
-                To play this document inside your browser use ALT-N and ALT-P.
+                Use ALT-(up-arrow) and ALT-(down-arrow) to process this document inside your browser, line-by-line. 
+		Use ALT-(right-arrow) to go to the cursor. 
                 You can
                 <span class="save-button" onClick="save_coq_snippets()">save your edits</span>
                 inside your browser and
-                <span class="save-button" onClick="load_coq_snippets()">load them back</span>
-                <!--
-                (edits are also saved when you close the window). Finally you can
+                <span class="save-button" onClick="load_coq_snippets()">load them back</span>.
+                <!-- (edits are also saved when you close the window) -->
+                Finally, you can
                 <span class="save-button" onClick="download_coq_snippets()">download</span>
-                the file for offline editing.
+                your working copy of the file, e.g., for sending it to teachers.
                 <hl />
--->
                 </p>
 <div><textarea id='coq-ta-1'>
 From mathcomp Require Import all_ssreflect.
