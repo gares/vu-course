@@ -353,3 +353,11 @@ tt {
 .slide-tooltip:hover .slide-tooltiptext-rightarrow {
     visibility: visible;
 }
+
+.CodeMirror.cm-s-default {
+  background: #ffffff !important;
+}
+
+.coq-eval-ok {
+  background: rgb(255, 232, 183) !important;
+}
