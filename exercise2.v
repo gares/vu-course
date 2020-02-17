@@ -10,7 +10,7 @@ Remove Printing If bool.
 (** *** Exercise 1:
   - Define a function double that takes a natural
     number to its double.
-  - you can use the operations on nat that we dinefined in class
+  - you can use the operations on nat that we defined in class
 *)
 Definition double (n : nat) : nat := (* fill this in *)
 (*D*)2 * n.
