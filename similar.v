@@ -7,6 +7,11 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
+Reserved Notation "A '~_' D B"
+  (at level 70, D at level 0, B at next level, format "A  '~_' D  B").
+Reserved Notation "A '~' B"
+  (at level 70, B at next level, format "A  '~'  B").
+
 Import GRing.Theory Num.Theory.
 Local Open Scope ring_scope.
 
@@ -80,7 +85,8 @@ End mxOver.
 Lemma mxOver_diag (S : {pred C}) n (D : 'rV[C]_n) :
    0 \in S -> D \is a mxOver S -> diag_mx D \is a mxOver S.
 Proof.
-by move=> ??; apply/mxOverP=>??; rewrite mxE; case: eqP; rewrite //(mxOverP _).
+by move=> ? ?; apply/mxOverP=> ? ?; rewrite mxE;
+   case: eqP; rewrite //(mxOverP _).
 Qed.
 
 Section mxOverRing.
@@ -145,11 +151,11 @@ Qed.
 Definition similar_in n (D : {pred 'M[C]_n}) (A B : 'M[C]_n) :=
   exists2 P, (P \in D) && (P \in unitmx) & A *m P = P *m B.
 
+Notation "A ~_ D B" := (similar_in D A B) .
+Notation "A ~ B" := (A ~_ xpredT B).
 
 Lemma real_similar n (A B : 'M[C]_n) :
-  similar_in predT A B ->
-  A \is a realmx -> B \is a realmx ->
-  similar_in realmx A B.
+  A ~ B -> A \is a realmx -> B \is a realmx -> A ~_realmx B.
 Proof.
 case=> [P /andP[_]]; pose Pr := P ^ (@Re _); pose Pi := P ^ (@Im _).
 have Pr_real : Pr \is a realmx by apply/mxOverP=> i j; rewrite !mxE Creal_Re.
