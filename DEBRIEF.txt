@@ -1,0 +1,16 @@
+lesson1:
+
+lesson2:
+- explain better how to declare a inductive, the few (static) examples
+  of bool, nat and list are not enough
+- do write list_nat, list_bool and then list A, since the idea
+  is hard to grasp
+- the option type (ex lesson 2) is not at all clear to a math person
+
+lesson3:
+
+lesson4:
+
+lesson5:
+
+lesson6:
