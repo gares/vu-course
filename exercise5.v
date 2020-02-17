@@ -75,7 +75,7 @@ End Ex1.
 ** Exercise 2:
 
 - Improve on exercise 1 by adding
-  to the [expr] data type a node for multiplication and
+  to the [expr] data type a constructor for multiplication and
   the simplification rules #$$x * 0 = 0$$# and #$$0 * x = 0$$#
 
 #<div>#
@@ -156,7 +156,7 @@ End Ex2.
 ** Exercise 3:
 
 - Improve on exercise 2 by adding
-  to the [expr] data type a node for One and
+  to the [expr] data type a constructor for One and
   the simplification rules #$$x * 1 = x$$# and #$$1 * x = x$$#
 
 #<div>#
@@ -240,10 +240,6 @@ End Ex3.
 
 (*
 #</div>#
-
-- computation is powerful on closed terms
-- proof size is constant
-
 
 #</div>#
 ----------------------------------------------------------
