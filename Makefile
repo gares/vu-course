@@ -20,6 +20,9 @@ lesson%.html : lesson%.html.tmp
 cheat%.html : cheat%.html.tmp
 	@mv $< $@
 
+similar.html : similar.html.tmp
+	@mv $< $@
+
 # Exercises
 exercise%.html: exercise%.html.tmp
 	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^(\*a\*).*$$/  admit./'  $< > $@
