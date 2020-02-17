@@ -25,7 +25,6 @@ Remove Printing If bool.
   - proofs by computation
   - proofs by case split
   - proofs by rewriting
-  - proofs by backchaining
 
 *** Extra material:
 - #<a href="cheat_sheet.html">Coq cheat sheet</a># (during ex session)
