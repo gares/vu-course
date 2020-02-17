@@ -121,17 +121,20 @@ Proof. by move=> /eq_map_mx->; rewrite map_mx_id. Qed.
 
 End MissingMaterial.
 
+Local Arguments Re {_}.
+Local Arguments Im {_}.
+
 Notation realmx := (mxOver Num.real).
 
 Lemma Remx_rect m n :
-  {in realmx &, forall (X Y : 'M_(m,n)), (X + 'i *: Y) ^ (@Re _) = X}.
+  {in realmx &, forall (X Y : 'M_(m,n)), (X + 'i *: Y) ^ Re = X}.
 Proof.
 move=> X Y Xreal Yreal; apply/matrixP=> i j; rewrite !mxE.
 by rewrite Re_rect // (mxOverP _ _).
 Qed.
 
 Lemma Immx_rect m n :
-  {in realmx &, forall (X Y : 'M_(m,n)), (X + 'i *: Y) ^ (@Im _) = Y}.
+  {in realmx &, forall (X Y : 'M_(m,n)), (X + 'i *: Y) ^ Im = Y}.
 Proof.
 move=> /= X Y Xreal Yreal; apply/matrixP=> i j; rewrite !mxE.
 by rewrite Im_rect // (mxOverP _ _).
@@ -143,10 +146,23 @@ Lemma eqmx_ReiIm m n (X Y X' Y' : 'M[C]_(m,n)) :
   (X + 'i *: Y) = (X' + 'i *: Y') -> (X, Y) = (X', Y').
 Proof.
 move=> XRe YRe X'Im Y'Im eqXY.
-have /(congr1 (fun X => X ^ (@Im _))) := eqXY.
-have /(congr1 (fun X => X ^ (@Re _))) := eqXY.
+have /(congr1 (fun X => X ^ Im)) := eqXY.
+have /(congr1 (fun X => X ^ Re)) := eqXY.
 by rewrite !Remx_rect// !Immx_rect// => -> ->.
 Qed.
+
+Lemma realmx_Re m n (A : 'M_(m, n)) : A ^ Re \is a realmx.
+Proof. by apply/mxOverP => i j; rewrite !mxE Creal_Re. Qed.
+Hint Resolve realmx_Re : core.
+
+Lemma realmx_Im m n (A : 'M_(m, n)) : A ^ Im \is a realmx.
+Proof. by apply/mxOverP => i j; rewrite !mxE Creal_Im. Qed.
+Hint Resolve realmx_Im : core.
+
+Definition realmx_ReIm := (realmx_Re, realmx_Im).
+
+Lemma mxCrect m n (A : 'M[C]_(m, n)) : A = A ^ Re + 'i *: A ^ Im. (* 1 min *)
+Proof. by apply/matrixP => i j; rewrite !mxE -Crect. Qed. (* 1 min *)
 
 Definition similar_in n (D : {pred 'M[C]_n}) (A B : 'M[C]_n) :=
   exists2 P, (P \in D) && (P \in unitmx) & A *m P = P *m B.
@@ -154,32 +170,29 @@ Definition similar_in n (D : {pred 'M[C]_n}) (A B : 'M[C]_n) :=
 Notation "A ~_ D B" := (similar_in D A B) .
 Notation "A ~ B" := (A ~_ xpredT B).
 
-Lemma real_similar n (A B : 'M[C]_n) :
-  A ~ B -> A \is a realmx -> B \is a realmx -> A ~_realmx B.
+Lemma real_similar n (A B : 'M[C]_n) : A \is a realmx -> B \is a realmx ->
+  A ~ B -> A ~_realmx B.
 Proof.
-case=> [P /andP[_]]; pose Pr := P ^ (@Re _); pose Pi := P ^ (@Im _).
-have Pr_real : Pr \is a realmx by apply/mxOverP=> i j; rewrite !mxE Creal_Re.
-have Pi_real : Pi \is a realmx by apply/mxOverP=> i j; rewrite !mxE Creal_Im.
-pose Q x := P ^ (@Re _) + x *: P ^ (@Im _).
-have -> : P = Q 'i by apply/matrixP=> i j; rewrite !mxE -Crect.
-move=> Qi_unit eq_AP_PB Areal Breal.
-pose p := \det (Pr ^ polyC + 'X *: Pi ^ polyC).
-have horner_evaliC x : horner_eval (x : C) \o polyC =1 id := fun=> hornerC _ _.
-have Qunit x : Q x \in unitmx = (p.[x] != 0).
-  rewrite /p -horner_evalE -det_map_mx map_mxD map_mxZ/= horner_evalE hornerX.
-  by rewrite -![(_ ^ polyC) ^ _]map_mx_comp !eq_map_mx_id// unitmxE unitfE.
-have p_neq0 : p != 0.
-  by move: Qi_unit; rewrite Qunit; apply: contra_neq => ->; rewrite hornerE.
-have [a a_real rootNa] : exists2 a, a \is Num.real &  ~~ root p a.
-  have rs_uniq : uniq [seq (i%:R : C) | i <- iota 0 (size p)].
-    by rewrite map_inj_uniq ?iota_uniq //; apply: mulrIn; rewrite oner_eq0.
-  have := contraNN (fun x => max_poly_roots p_neq0 x rs_uniq).
-  rewrite size_map size_iota ltnn => /(_ isT) /allPn[a a_in rootNpa].
-  by exists a => //; by move: a_in => /mapP [i _ ->]; rewrite realn.
-exists (Q a); first by rewrite Qunit rootNa rpredD// mxOverZ//.
-apply/eqP; have /eqP := eq_AP_PB.
-rewrite !mulmxDl !mulmxDr -!scalemxAr -!scalemxAl => /eqP/eqmx_ReiIm.
-by rewrite !mxOverMmx// => /(_ isT isT isT isT) [-> ->].
+case=> Areal Breal [P /=]; rewrite (mxCrect P). (* 1min + 2min *)
+set Pr := P ^ Re; set Pi := P ^ Im. (* 1min *)
+pose Q x := Pr + x *: Pi; rewrite -/(Q 'i) => Qi_unit eq_AP_PB. (* 1min *)
+pose p := \det (Pr ^ polyC + 'X *: Pi ^ polyC). (* 1min *)
+have Qunit x : Q x \in unitmx = (p.[x] != 0). (* 1min *)
+  have polyCK : horner_eval x \o polyC =1 id by move=> ?; apply: hornerC. (* 1min *)
+  rewrite /p -horner_evalE -det_map_mx map_mxD map_mxZ/= horner_evalE hornerX. (* 2min *)
+  by rewrite -![(_ ^ polyC) ^ _]map_mx_comp !eq_map_mx_id// unitmxE unitfE. (* 2min *)
+have pi_neq0 : p.['i] != 0 by rewrite -Qunit. (* 1min *)
+have p_neq0 : p != 0 by apply: contra_neq pi_neq0 => ->; rewrite hornerE. (* 1min *)
+have [a a_real rootNa] : exists2 a, a \is Num.real & ~~ root p a. (* 1min *)
+  have rs_uniq : uniq [seq (i%:R : C) | i <- iota 0 (size p)]. (* 2min *)
+    by rewrite map_inj_uniq ?iota_uniq//; apply: mulrIn; rewrite oner_eq0. (* 2min *)
+  have := contraNN (fun x => max_poly_roots p_neq0 x rs_uniq). (* 2min *)
+  rewrite size_map size_iota ltnn => /(_ isT) /allPn[a /mapP[m _ -> rootNm]]. (* 2min *)
+  by exists m%:R; rewrite ?realn. (* 1min *)
+exists (Q a); first by rewrite rpredD ?Qunit// ?mxOverZ// ?realmx_ReIm. (* 1min *)
+move: eq_AP_PB; rewrite !mulmxDr !mulmxDl -!scalemxAl -!scalemxAr. (* 1min *)
+move=> /eqmx_ReiIm; rewrite !mxOverMmx ?realmx_ReIm//. (* 1min *)
+by move=> /(_ isT isT isT isT)[-> ->]. (* 1min *)
 Qed.
 
 End Similar.
