@@ -31,11 +31,11 @@ Outline:
 - we adopt some sort of "stack & heap" model
 
 
-(cf #<a href="http://localhost:8000/cheat_sheet.html">Cheat sheet: Management of the goal</a>#)
+(cf #<a href="cheat_sheet.html">Cheat sheet: Management of the goal</a>#)
 
 *** The stack model of a goal
 [[
-(* begin of heap *)
+(* begining of heap *)
 ci : Ti
 …
 dj := ej : Tj
