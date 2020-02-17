@@ -429,14 +429,13 @@ case: b1. (* opens two subgoals, we use `-` bullet to mark the *)
 Qed.
 
 Lemma bool_tauto_better (b1 b2 : bool) : b1 || ~~ b1.
-Proof.
-by case: b1.
-Qed.
+Proof. by case: b1. Qed.
 
 (* Below, term `(S n)` is denoted with a postfix notation `n.+1` *)
 
 (* Simple case analysis on nat *)
-Lemma leqn0 n : (n <= 0) = (n == 0).  Proof. by case: n. Qed.
+Lemma leqn0 (n : nat) : (n <= 0) = (n == 0).  
+Proof. by case: n. Qed.
 
 (* But often, we need to name the extra variable created in the second *)
 (* branch of the case analysis. We do so using a so-called *)
@@ -447,11 +446,12 @@ Lemma leqn0 n : (n <= 0) = (n == 0).  Proof. by case: n. Qed.
 (* same, here but a bracket allows to give names in parallel to the *)
 (* material relevant to each subgoal. *)
 
-Lemma leqn0_name n : (n <= 0) = (n == 0).  Proof. by case: n => [| k]. Qed.
+Lemma leqn0_name (n : nat) : (n <= 0) = (n == 0).  
+Proof. by case: n => [| k]. Qed.
 
 (* Simple induction on nat *)
 
-Lemma leqnn n : n <= n.
+Lemma leqnn (n : nat) : n <= n.
 Proof.
 elim: n => [| k].
 - by [].
@@ -459,7 +459,7 @@ elim: n => [| k].
 Qed.
 
 (* Generalizing before starting induction *)
-Lemma leqNgt0 m n : (m <= n) = ~~ (n < m).
+Lemma leqNgt0 (m n : nat) : (m <= n) = ~~ (n < m).
 Proof.
 elim: m n => [|m IHm].
 - move=> k. by [].
@@ -469,7 +469,7 @@ elim: m n => [|m IHm].
 Qed.
 
 (* Introducing a variable in both branches *)
-Lemma leqNgt1 m n : (m <= n) = ~~ (n < m).
+Lemma leqNgt1 (m n : nat) : (m <= n) = ~~ (n < m).
 Proof.
 elim: m n => [|m IHm] k.
 - by [].
@@ -480,7 +480,7 @@ Qed.
 
 (* Killing trivial subgoal with the // switch before introducing a *)
 (* variable in the remaining branches *)
-Lemma leqNgt2 m n : (m <= n) = ~~ (n < m).
+Lemma leqNgt2 (m n : nat) : (m <= n) = ~~ (n < m).
 Proof.
 elim: m n => [|m IHm] // k.
 - case: k.
@@ -490,7 +490,7 @@ Qed.
 
 (* Killing trivial subgoal with the `//` switch before performing a *)
 (* case analysis on a variable in the remaining branches. *)
-Lemma leqNgt3 m n : (m <= n) = ~~ (n < m).
+Lemma leqNgt3 (m n : nat) : (m <= n) = ~~ (n < m).
 Proof.
 elim: m n => [|m IHm] // [].
   +  by [].
@@ -498,23 +498,21 @@ elim: m n => [|m IHm] // [].
 Qed.
 
 (* Factoring the `by` *)
-Lemma leqNgt4 m n : (m <= n) = ~~ (n < m).
-Proof.
-by elim: m n => [|m IHm] // [].
-Qed.
+Lemma leqNgt4 (m n : nat) : (m <= n) = ~~ (n < m).
+Proof. by elim: m n => [|m IHm] // []. Qed.
 
 (* Simplification in an intro pattern: `/=` simplifies both goals by *)
 (* computation and can be inserted anywhere in an intro-pattern. It *)
 (* is often useful after an case analysis*)
 
-Lemma simpl_switch_bool b1 b2 : b1 && b2 = b2 && b1.
+Lemma simpl_switch_bool (b1 b2 : bool) : b1 && b2 = b2 && b1.
 Proof.
 case: b1 => /=.
 Admitted.
 
 (* `predn` is the predecessor on `nat` (with `predn 0 == 0`) *)
 (* and has postfix notation `.-1` *)
-Lemma leq_pred1 n : n.-1 <= n.
+Lemma leq_pred1 (n : nat) : n.-1 <= n.
 Proof.
 case: n => [| k] /=.
 - by [].
@@ -522,14 +520,12 @@ case: n => [| k] /=.
 Qed.
 
 (* Combining simplification and closing of trivial branches: `//=` *)
-Lemma leq_pred2 n : n.-1 <= n.
-Proof.
-case: n => [| k] //=.
-Qed.
+Lemma leq_pred2 (n : nat) : n.-1 <= n.
+Proof. case: n => [| k] //=. Qed.
 
 (* For this simple lemma, the shortest proof script would not require *)
 (* these switch. *)
-Lemma leq_pred3 n : n.-1 <= n.
+Lemma leq_pred3 (n : nat) : n.-1 <= n.
 Proof.  by case: n. Qed.
 
 
