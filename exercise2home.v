@@ -47,4 +47,4 @@ Lemma Peirce p q : ((p ==> q) ==> p) ==> p.
 (*D*) Proof. by rewrite implybE negb_imply implybE orbK orNb. Qed.
 
 (** When you are done, click the Download link at the top of the page
-    and send us your homework *)
+    and send us your homework by email: Assia.Mahboubi@inria.fr *)
