@@ -1,4 +1,9 @@
 lesson1:
+- intro: trop de detail/systèmes (1 slide par systeme) pour ce public,
+et le detail des applications bof.
+
+- demo: write tactics that operate on the goal visible for the audience
+(no incremental chained rewrite)
 
 lesson2:
 - explain better how to declare a inductive, the few (static) examples
@@ -10,7 +15,18 @@ lesson2:
 lesson3:
 
 lesson4:
+- start with have/suff (with minimal intro pattern)
+- use it to state induction hypotheses and prove generalized
+induction-based proofs.
+- explain that Coq is clever enough to generate these.
+
 
 lesson5:
 
 lesson6:
+
+
+varia:
+- introduce an Ltac 'prove_reflect' for apply: (iffP idP).
+- do insist on the stack model
+- remove the coercion from bool to nat.
