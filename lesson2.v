@@ -469,7 +469,7 @@ Let's try to write this formula in Coq
 
 #$$ \sum_{i=1}^n (i * 2 - 1) = n ^ 2 $$#
 
-We need a bit of infrastruture
+We need a bit of infrastructure
 
 #<div>#
 *)
