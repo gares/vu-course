@@ -1,10 +1,11 @@
 From mathcomp Require Import mini_ssreflect mini_ssrfun mini_ssrbool.
 From mathcomp Require Import mini_eqtype mini_ssrnat mini_seq mini_div.
+From mathcomp Require Import mini_prime.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
-(** 
+(**
 
 what follows is a slide, it creates an index item next to the scroll bar,
 just move the mouse there.
@@ -47,8 +48,6 @@ Fk : Pk ci
 =================
 forall (xl : Tl) (* top of the stack *)
 …,
-let ym := bm in  (* mth element of the stack *)
-…
 Pn xl ->         (* nth element of the stack *)
 … ->
 Conclusion       (* bottom of the stack = no more elements *)
@@ -59,12 +58,13 @@ Conclusion       (* bottom of the stack = no more elements *)
 
 #<div>#
 *)
-Axiom (Ti Tj Tl : Type) (ej bm : Tj).
-Axiom (Pk : Ti -> Type) (Pn : Tl -> Type).
-Axiom (Conclusion : Ti -> Tj -> Tj -> Tl -> Type).
+Section GoalModel.
+Variables (Ti Tj Tl : Type) (ej : Tj).
+Variables (Pk : Ti -> Type) (Pn : Tl -> Type).
+Variables (Conclusion : Ti -> Tj -> Tl -> Type).
 
 Lemma goal_model_example (ci : Ti) (dj : Tj := ej) (Fk : Pk ci) :
-  forall (xl : Tl), let ym := bm in Pn xl -> Conclusion ci dj ym xl.
+  forall (xl : Tl), Pn xl -> Conclusion ci dj xl.
 Abort.
 (**
 #</div>#
@@ -84,9 +84,10 @@ This slide corresponds to section
 #<div>#
 *)
 Lemma goal_model_example (ci : Ti) (dj : Tj := ej) (Fk : Pk ci) :
-  forall (xl : Tl), let ym := bm in Pn xl -> Conclusion ci dj ym xl.
+  forall (xl : Tl), Pn xl -> Conclusion ci dj xl.
 Proof.
-move=> xl ym pnxl.
+move=> xl pnxl.
+Fail move: xl.
 move: ci Fk.
 Abort.
 (**
@@ -102,14 +103,12 @@ Abort.
 You can write
 - [tactic=> i_items] where [i_items] is a list of "intro items", where each [i_item] can be either,
   - [x] a name, or
-  - [?] name chosen by the system, no user access, or
   - [_] remove the top of the stack (if possible), or
   - [//] close trivial subgoals, or
   - [/=] perform simplifications, or
   - [//=] do both the previous, or
   - [->] rewrite using the top of the stack, left to right, or
   - [<-] same but right to left, or
-  - [{x}] clear name [x] from the context, or
   - [ [i_items|…|i_items] ] introductions on various sub-goals
     when [tactic] is [case] or [elim],
   - …
@@ -123,48 +122,22 @@ You can write
 #<p><br/><p>#
 #</div>#
 ----------------------------------------------------------
-#<div class="slide">#
-*** Example
-#<div>#
-*)
-Lemma goal_model_example (ci : Ti) (dj : Tj := ej) (Fk : Pk ci) :
-  forall (xl : Tl), let ym := bm in Pn xl -> Conclusion ci dj ym xl.
-Proof.
-move=> xl /= pnxl.
-Fail move=> {xl}.
-Fail move=> {dj}.
-rewrite /dj {dj}.
-move: ci Fk.
-move=> {pnxl}.
-move=> ci _.
-Abort.
-(**
-#</div>#
-#<p><br/><p>#
-#</div>#
-----------------------------------------------------------
-#<div class="slide vfill" id="Elim">#
+#<div class="slide" id="Elim">#
 
-** Proof by induction #<a href="##Outline">#↑#</a>#
+** Proof by induction: generalizing the induction hypothesis #<a href="##Outline">#↑#</a>#
 
-*** Tactics [elim] and [case] work on the top of the stack
+*** Tactics [elim] work on the top of the stack
 
-Indeed, [elim: x y z => [t u v | w] ] is the same as
+Indeed, [elim: x y z => [t| u v w] ] is the same as
 - [move: x y z.]
 - [elim.]
-- [move=> t u v.] in one sub-goal, [move=> w.] in the other.
+- [move=> t.] in one sub-goal, [move=> u v w.] in the other.
 
 Examples:
 #<div>#
 *)
 Lemma addnA m n p : m + (n + p) = (m + n) + p.
-Proof. by elim: m => // m IHm; rewrite !addSn IHm. Restart.
-Proof. by elim: m => // m; rewrite !addSn => ->. Qed.
-
-Lemma andbC : commutative andb.
-Proof. move=> b1 b2; case: b1; case: b2. Restart.
-Proof. by case; case. Restart.
-Proof. by move=> [] []. Qed.
+Proof. by elim: m => [|m IHm]//=; rewrite !addSn IHm. Qed.
 (**
 #</div>#
 #<p><br/><p>#
@@ -178,10 +151,16 @@ Sometimes, we have to generalize the induction hypothesis, and in such cases, we
 #<div>#
 *)
 Lemma subnDA m n p : n - (m + p) = (n - m) - p.
-Proof. by move: m n; elim=> [//|m IHm]; case. Restart.
-Proof. by elim: m n => [|m IHm] []. Qed.
+Proof.
+have: forall m n, n - (m + p) = (n - m) - p.
+  by elim=> [|m' IHm]// [].
+Abort.
 
+(* this can be rewritten like this: *)
+Lemma subnDA m n p : n - (m + p) = (n - m) - p.
+Proof. by elim: m n => [|m IHm]// []. Qed.
 
+(* More complicated example *)
 Lemma foldl_cat' T R f (z0 : R) (s1 s2 : seq T) :
   foldl f z0 (s1 ++ s2) = foldl f (foldl f z0 s1) s2.
 Proof.
@@ -192,19 +171,23 @@ move=> x xs IH.
 move=> acc.
 rewrite /=.
 by rewrite IH.
+Qed.
 
-Restart.
-
-Proof. by elim: s1 z0 => [//|x xs IH] acc /=; rewrite IH. Qed.
 (**
 #</div>#
+
+This script can be abbreviated
+[[
+Proof. by elim: s1 z0 => [//|x xs IH] acc /=; rewrite IH. Qed.
+]]
+
 #<p><br/><p>#
 
 #</div>#
 ----------------------------------------------------------
 #<div class="slide vfill" id="Views">#
 
-** Using views, forward and backward. #<a href="##Outline">#↑#</a>#
+** Using views. #<a href="##Outline">#↑#</a>#
 
 There are two types of connectives.
 - connectives in [Prop]: [P /\ Q], [P \/ Q], [~ P], [P -> Q], [forall x, P x], [exists x, Q x], which denote statements.
@@ -258,8 +241,7 @@ Abort.
 - provides a more expressive logic (closed under [forall], [exists]…).
 
 **** Booleans:
-- provide computation,
-- other things out of the scope of this course.
+- provide computation.
 
 **** We want the best of the two worlds, and a way to link them: views.
 #<p><br/><p>#
@@ -277,23 +259,18 @@ To link a concept in bool and one in Prop we typically
 use the [reflect P b] predicate, which is a specialisation
 of equivalence [P <-> b],
 where one side is in [Prop] and the other in [bool].
-To prove [reflect] we use the [iffP] lemma that
-turns it into a two implication.
+To prove [reflect] we use the tactic [prove_reflect].
 
 #<div>#
 *)
-About iffP.
-About idP.
 
 Lemma eqnP {n m : nat} :
   reflect (n = m) (eqn n m).
 Proof.
-apply: (iffP idP).
+prove_reflect.
   elim: n m => [|n IH] m; case: m => // m Hm.
   by rewrite (IH m Hm).
-move=> def_n; rewrite {}def_n.
-Undo.
-move=> ->. (* move + rewrite + clear idiom *)
+move=> def_n; rewrite def_n {def_n}. (* clears `def_n` *)
 by elim: m.
 Qed.
 (**
@@ -306,7 +283,7 @@ sections 4.1.1 and 4.1.2 of
 #</div>#
 ----------------------------------------------------------
 #<div class="slide">#
-*** Using views forwards
+*** Using views in forward chaining
 
 The syntax [/view] can be put in intro patterns
 to modify the top assumption using [view]
@@ -317,16 +294,25 @@ About andP.
 Lemma example n m k : k <= n ->
   (n <= m) && (m <= k) -> n = k.
 Proof.
-move=> lekn /andP H; case: H => lenm lemk.
-Undo.
-move=> lekn /andP[lenm lemk]. (* view + case idiom *)
+move=> lekn /andP nmk; case: nmk => lenm lemk.
 Abort.
+
+About negPf.
+
+Lemma test_negPf n m (P : pred nat) : ~~ P n -> ~~ P m -> P n = P m.
+Proof.
+move=> /negPf.
+move=> Pn_eq_false.
+rewrite Pn_eq_false.
+move=> /negPf->.
+by [].
+Qed.
 (**
 #</div>#
 #</div>#
 ----------------------------------------------------------
 #<div class="slide">#
-*** Using views forwards
+*** Using view in backward chaining
 
 The [apply:] tactic accepts a [/view] flag
 to modify the goal using [view].
@@ -351,13 +337,11 @@ sections 4.1.3 and 4.1.4 of
 #</div>#
 ----------------------------------------------------------
 #<div class="slide">#
-*** Using views  with non reflexive lemmas
+*** Using views  with other lemmas
 
 - By processing an assumption through a lemma.
 - The leading / makes the lemma work as a function.
 - If the lemma states [A -> B], we can use it as a function to get a proof of [B] from a proof of [A].
-- If the lemma states [A <-> B], the view mechanisms tries the first of [A -> B] and [B -> A] that succeeds.
-- One can also chain multiple views on the same stack item.
 
 #<div>#
 *)
@@ -366,16 +350,9 @@ About prime_gt1.
 Lemma example_2 x y  : prime x -> odd y -> 2 < y + x.
 Proof.
 move=> /prime_gt1 x_gt_1. (* view through prime_gt1 *)
-Undo.
-move=> /prime_gt1/ltnW.
+move: x_gt_1 => /ltnW.
 Abort.
 
-Lemma example_3 A B  (V: A <-> B): B -> A .
-Proof.
-move=>b.
-apply/V.
-by [].
-Qed.
 (**
 #</div>#
 #<p><br/><p>#
@@ -388,7 +365,7 @@ section 4.2 of
 ----------------------------------------------------------
 #<div class="slide">#
 *** Views summary
-- [reflect] and [iffP]
+- [reflect] and [prove_reflect]
 - [move=> /v H] forward chaining with a view (new [i_item])
 - [apply/v] backward chaining with a view
 #</div>#
@@ -409,39 +386,21 @@ cf #<a href="https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.h
 #<div>#
 *)
 Lemma test_have n :
-  reflect (exists x y z, x ^ n + y ^ n == z ^ n) ((n == 1) || (n == 2)).
+  reflect (exists x y z, (x != 0) && (y != 0) && (z != 0) && (x ^ n + y ^ n == z ^ n))
+          ((n == 1) || (n == 2)).
 Proof.
 have test0 : forall x y z, x ^ 0 + y ^ 0 != z ^ 0 by [].
-have test1 : exists x y z, x ^ 1 + y ^ 1 = z ^ 1 by exists 0, 0, 0.
-have test2 : exists x y z, x ^ 2 + y ^ 2 = z ^ 2 by exists 3, 4, 5.
-suff test m : m >= 3 -> forall x y z, x ^ m + y ^ m != z ^ m.
-  case: n => [|[|[|n]]]//=; constructor.
-  - by move=> [x [y [z]]]; rewrite (negPf (test0 _ _ _)).
-  - by have [x [y [z /eqP]]] := test1; exists x, y, z.
-  - by have [x [y [z /eqP]]] := test2; exists x, y, z.
-  - by move=> [x [y [z]]]; rewrite (negPf (test _ _ _ _ _)).
+have test1 : exists x y z, (x != 0) && (y != 0) && (z != 0)
+  /\ x ^ 1 + y ^ 1 = z ^ 1 by exists 1, 1, 2.
+have test2 : exists x y z, (x != 0) && (y != 0) && (z != 0)
+  /\ x ^ 2 + y ^ 2 = z ^ 2 by exists 3, 4, 5.
+suff test m : m >= 3 -> forall x y z, (x != 0) && (y != 0) && (z != 0) ->
+  x ^ m + y ^ m != z ^ m.
+  admit.
 (* The rest of the proof fits in a margin *)
 Abort.
 (**
 #</div>#
-#</div>#
-----------------------------------------------------------
-#<div class="slide">#
-*** Example: Infinitude of primes
-#<div>#
-*)
-Lemma prime_above (m : nat) : exists p, (prime p) && (m < p).
-Proof.
-have: 1 < m`! + 1 by rewrite addn1 ltnS fact_gt0.
-move=> /pdivP[q pr_q q_dv_m1].
-exists q; rewrite pr_q /= ltnNge.
-apply: contraL q_dv_m1 => q_le_m.
-by rewrite dvdn_addr ?dvdn_fact ?prime_gt0 // gtnNdvd ?prime_gt1.
-Qed.
-
-(**
-#</div>#
-#<p><br/><p>#
 #</div>#
 
 ----------------------------------------------------------
@@ -570,7 +529,7 @@ Search _ prime.
 (*
 primeP:
   forall p : nat,
-  reflect (1 < p /\ (forall d : nat, d %| p -> (d == 1) || (d == p))) 
+  reflect (1 < p /\ (forall d : nat, d %| p -> (d == 1) || (d == p)))
           (prime p)
 *)
 (**
