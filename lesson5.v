@@ -10,8 +10,8 @@ Unset Printing Implicit Defensive.
 ** Reflection in the large
 
 *** In this lecture
-  - bla
-  - bla
+  - Play with the syntax of our goals
+  - Develop some automation thanks to computation
 
 
 #</div>#
@@ -25,10 +25,10 @@ Unset Printing Implicit Defensive.
 
 #<div>#
 *)
-Lemma ex1 x : 0 * x = 0.
+Lemma ex1 (x : nat) : 0 * x = 0.
 Proof. by []. Qed.
 
-Lemma ex2 x : x * 0 = 0.
+Lemma ex2 (x : nat) : x * 0 = 0.
 Proof.
 Fail by [].
 Admitted.
@@ -45,7 +45,7 @@ to use it for us?
 
 *** Idea
    - we could write a program that simplifies expressions
-   - we could provide it correct
+   - we could prove it correct
    - we could have Coq run it for us
 
 #<div>#
@@ -63,12 +63,13 @@ The [expr] data type is the _syntax_ of expressions.
 It is a data type like [nat] or [bool] are we know how to
 write programs on this data.
 
-Let's write a program that deal with Zero.
+Let's write a program that deals with [Zero], i.e. that implements
+the simplication rule #$$n * 0 = 0$$# and #$$0 * n = 0$$#.
 
 #<div>#
 *)
 
-Fixpoint simplify e :=
+Fixpoint simplify (e : expr) : expr :=
   match e with
   | Mult x y =>
       match simplify x, simplify y with
@@ -86,19 +87,20 @@ Eval lazy in simplify T. (* = Zero *)
 (**
 #</div>#
 
-We have to link these expressions and out goals.
-Each expression in [expr] represents an expression in out goal.
+We have to link these expressions and our goals.
+Each expression in [expr] represents an expression in our goal.
 Let's make this map explicit.
 
 #<div>#
 *)
-Fixpoint interp e :=
+Fixpoint interp (e : expr) : nat :=
   match e with
   | Zero => 0
   | Mult x y => (interp x) * (interp y)
   | Extra x => x
   end.
 
+Print T.
 Eval lazy delta [T interp] iota beta in interp T.
 (**
 #</div>#
@@ -112,24 +114,31 @@ Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
 Proof.
 elim: e => //= x Hx y Hy.
 case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -> //.
-1,2: by rewrite muln0.
+1,2: by rewrite muln0. (* This means: on goal number 1 and 2, do .... *)
 Qed.
 
 (**
 #</div>#
 
-Now let's take advantage of 
+Now let's take advantage of our program
 
 #<div>#
 *)
 
-Lemma ex3 x : x * 0 = 0.
+Lemma ex3 (x : nat) : x * 0 = 0.
 Proof.
 pose AST : expr := Mult (Extra x) Zero.
-rewrite -[LHS]/(interp AST).
+rewrite -[LHS]/(interp AST). (* replace the LHS with (interp AST) *)
 rewrite simplify_correct.
-rewrite /=.
+simpl.
 by [].
+Qed.
+
+Lemma ex4 (x : nat) : (x * 0) * x = 0.
+Proof.
+pose AST : expr := Mult (Mult (Extra x) Zero) (Extra x).
+rewrite -[LHS]/(interp AST). (* replace the LHS with (interp AST) *)
+by rewrite simplify_correct.
 Qed.
 
 End A.
@@ -142,6 +151,8 @@ End A.
 
 *** Let's add more simplification rules!
 
+The rule we want is #$$n - n = 0$$# when n is a number.
+
 #<div>#
 *)
 Module B.
@@ -150,15 +161,8 @@ Inductive expr :=
   | Zero
   | Minus (x : expr) (y : expr)
   | Extra (stuff : nat).
-(**
-#</div>#
 
-The rule we want is #$n - n = 0$# when n is a number
-
-#<div>#
-*)
-
-Fixpoint simplify e :=
+Fixpoint simplify (e : expr) : expr :=
   match e with
   | Minus x y =>
       match simplify x, simplify y with
@@ -185,7 +189,7 @@ Let's make this map explicit.
 
 #<div>#
 *)
-Fixpoint interp e :=
+Fixpoint interp (e : expr) : nat :=
   match e with
   | Zero => 0
   | Minus x y => (interp x) - (interp y)
@@ -216,26 +220,26 @@ Now let's try to take advantage of it
 #<div>#
 *)
 
-Lemma ex3 x : x - x = 0.
+Lemma ex3 (x : nat) : x - x = 0.
 Proof.
 pose AST : expr := Minus (Extra x) (Extra x).
 rewrite -[LHS]/(interp AST).
 rewrite simplify_correct.
-rewrite /=.
+simpl.
 Abort.
-
 
 End B.
 (**
 #</div>#
 
-What went wrong...
+What went wrong is that we did not completely move variables
+away from the syntax we manipulate. But it is easy to fix.
 
 #</div>#
 ----------------------------------------------------------
 #<div class="slide">#
 
-*** Let's add more simplification rules!
+*** Let's give a syntax to variables.
 
 #<div>#
 *)
@@ -245,9 +249,9 @@ Module C.
 Inductive expr :=
   | Zero
   | Minus (x : expr) (y : expr)
-  | Var (n : nat).
+  | Var (n : nat). (* Extra stuff is not here, this is just an index *)
 
-Fixpoint simplify e :=
+Fixpoint simplify (e : expr) : expr :=
   match e with
   | Minus x y =>
       match simplify x, simplify y with
@@ -260,15 +264,23 @@ Fixpoint simplify e :=
       end
   | y => y
   end.
+(**
+#</div>#
 
-Fixpoint interp (e : expr) (c : list nat) :=
+Interpretation now takes a map [c] from the ids of variables
+to arbitrary terms in out target type.
+
+#<div>#
+*)
+
+Fixpoint interp (e : expr) (c : list nat) : nat :=
   match e with
   | Zero => 0
   | Minus x y => (interp x c) - (interp y c)
   | Var x => nth 0 c x
   end.
 
-  (* Syntax of (3 - 3 *)
+  (* Syntax of (3 - 3) in a map C(0) -> 3 *)
 Definition T : expr := Minus (Var 0) (Var 0).
 Definition C : list nat := [:: 3].
 Eval lazy delta [T C interp nth] iota beta in interp T C.
@@ -280,14 +292,13 @@ case: (simplify x) Hx => [|x1 x2|n] -> //; case: (simplify y) Hy => [|y1 y2|m] -
 by case: eqP => [->|//]; rewrite subnn.
 Qed.
 
-
-Lemma ex3 x : x - x = 0.
+Lemma ex3 (x : nat) : x - x = 0.
 Proof.
 pose AST : expr := Minus (Var 0) (Var 0).
 pose CTX : list nat := [:: x].
 rewrite -[LHS]/(interp AST CTX).
 rewrite simplify_correct.
-rewrite /=.
+simpl.
 by [].
 Qed.
 
@@ -296,24 +307,21 @@ End C.
 (*
 #</div>#
 
-- computation is powerful on closed terms
-- proof size is constant
-
-
 #</div>#
 ----------------------------------------------------------
 #<div class="slide vfill">#
 
 ** To sum up
 
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
-
-#<div class="note">(notes)<div class="note-text">#
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-#<a href="https://github.com/ejgallego/jscoq">jsCoq</a>#.
-#</div></div>#
+- computation is well define on any term, including terms with variables
+- computation is _complete_ on closed terms (you reach a normal form
+  that is made of constructors)
+- computation happens _inside_ the logic (terms are quotiented wrt computation)
+- computation can be very fast (decades of research in CS)
+- applications to this technique
+  + simplification in a ring
+  + 4 color theorem
+  + Pocklington primality test
 
 #</div>#
 ----------------------------------------------------------

@@ -385,7 +385,7 @@ Fixpoint eqn (n : nat) (m : nat) : bool :=
   | S p, S q => eqn p q
   | _, _ => false
   end.
-Infix "==" := eqn.
+Infix "==" := eqn : bool_scope.
 Eval lazy in 3 == 4.
 </textarea></div>
 <div><p>
