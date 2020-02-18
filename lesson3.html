@@ -45,30 +45,146 @@ Unset Printing Implicit Defensive.
 
 <div class="slide">
 <p>
+<h1>
+ Dependent Type Theory
+</h1>
+
 <h2>
- Type Theory: the fundation of Coq
+ (a brief introduction to Coq's logical foundations)
 </h2>
 
 <p>
-some text
+</div>
+<hr/>
+
+<div class="slide vfill">
 <p>
-<a href="https://example.com">some html link</a>
+<h2>
+ Types, typing judgments
+</h2>
+
 <p>
-This is inline Coq code <tt>fun x => x</tt> and now some block Coq code
+A typing judgment is a ternary relation between two terms t and T, 
+and a context Γ, which is itself a list of pairs, variable-type :
+<p>
+$$\Gamma ⊢\ t\ :\ T$$
+<p>
+Typing rules provide an inductive definition of well-formed typing judgments.
+For instance, a context provides a type to every variable it stores:
+<p>
+$$\Gamma ⊢\ x\ :\ T \quad (x, T) \in Γ$$
+<p>
+A type is a term T which occurs on the right of a colon, 
+in a well-formed typing judgment.
+<p>
+Here is an example of context, and of judgment checking:
 <p>
 <div>
 </div>
 <div><textarea id='coq-ta-2'>
-Check (fun n => 1 + n + 1).
+Section ContextExample.
+
+Variables (n : nat) (b : bool).
+
+Lemma context_example (k : nat) : k = k.
+Check n : nat.
+Fail Check n : bool.
+Check n + n : nat.
+by [].
+Qed.
 </textarea></div>
 <div><p>
 </div>
 <p>
-You cna also put latex math here
+Contexts also log the current hypotheses: 
 <p>
-$$ \sum_{i=1}^n (i * 2 - 1) = n ^ 2 $$
+<div>
+</div>
+<div><textarea id='coq-ta-3'>
+Lemma context_example_hyp (k : nat) (primek : prime k) : k = k.
+Check primek : prime k.
+Check k + k.
+by [].
+Qed.
+
+</textarea></div>
+<div><p>
+</div>
 <p>
-finally some notes, hover to unravel
+The fact that the command for stating lemma also involves a colon is no 
+ coincidence.
+<div>
+</div>
+<div><textarea id='coq-ta-4'>
+Lemma two_plus_two : 2 + 2 = 4.
+Proof. by []. Qed.
+
+Check two_plus_two : 2 + 2 = 4.
+
+End ContextExample.
+</textarea></div>
+<div><p>
+</div>
+<p>
+In fact, statements are types, proofs are terms (of a prescribed type) and 
+typing rules encode rules for verifying proofs.
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ Terms, types, sorts
+</h2>
+
+<p>
+A type is a term, and therefore it can be typed in a typing judgment. 
+A sort s is the type of a type:
+<p>
+$$\Gamma ⊢\ t\ :\ T \quad \quad \Gamma ⊢\ T\ :\ s $$
+<p>
+The sort <tt>Prop</tt> is the type of statements:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-5'>
+Check 2 + 2 = 4.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Warning: well-typed statements are not necessarily provable.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-6'>
+Check 2 + 2 = 5.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Types used as data structures live in a different sort, called <tt>Set</tt>.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-7'>
+Check nat.
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ Propositions, implications, universal quantification
+</h2>
+
+<p>
+a slide that is vfilled, if you click on (1) or next-slide
+in the toolbar up-right to the coq document you get it centered.
 <p>
 <div class="note">(notes)<div class="note-text">
 You don't need to install Coq in order to follow this
@@ -78,11 +194,64 @@ class, you just need a recent browser thanks to
 <p>
 </div>
 <hr/>
-
 <div class="slide vfill">
 <p>
 <h2>
- This is another title
+  
+</h2>
+
+<p>
+a slide that is vfilled, if you click on (1) or next-slide
+in the toolbar up-right to the coq document you get it centered.
+<p>
+<div class="note">(notes)<div class="note-text">
+You don't need to install Coq in order to follow this
+class, you just need a recent browser thanks to
+<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
+</div></div>
+<p>
+</div>
+<hr/>
+<div class="slide vfill">
+<p>
+<h2>
+  
+</h2>
+
+<p>
+a slide that is vfilled, if you click on (1) or next-slide
+in the toolbar up-right to the coq document you get it centered.
+<p>
+<div class="note">(notes)<div class="note-text">
+You don't need to install Coq in order to follow this
+class, you just need a recent browser thanks to
+<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
+</div></div>
+<p>
+</div>
+<hr/>
+<div class="slide vfill">
+<p>
+<h2>
+  
+</h2>
+
+<p>
+a slide that is vfilled, if you click on (1) or next-slide
+in the toolbar up-right to the coq document you get it centered.
+<p>
+<div class="note">(notes)<div class="note-text">
+You don't need to install Coq in order to follow this
+class, you just need a recent browser thanks to
+<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
+</div></div>
+<p>
+</div>
+<hr/>
+<div class="slide vfill">
+<p>
+<h2>
+  
 </h2>
 
 <p>
@@ -99,10 +268,11 @@ class, you just need a recent browser thanks to
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-3'>
+<div><textarea id='coq-ta-8'>
 </textarea></div>
 <script type="text/javascript">
- var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3'];
+ var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
+                  'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8'];
 </script>
 <hr />
 
