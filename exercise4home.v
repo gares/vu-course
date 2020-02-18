@@ -1,5 +1,7 @@
 (* ignore these directives *)
-From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun div bigop seq prime.
+From mathcomp Require Import mini_ssreflect mini_ssrfun mini_ssrbool.
+From mathcomp Require Import mini_eqtype mini_ssrnat mini_div mini_seq.
+From mathcomp Require Import mini_prime mini_sum.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
@@ -86,23 +88,24 @@ suff equ12 d u1 u2 : balanced u1 -> balanced u2 ->
 
 *** Exercise 2:
 
- Let #$a , n \ge 2$# 1 integers.
- - Show that if #$a ^ n − 1 = (a - 1) \sum_{i = 0}^{n-1} a^i$#.
+ Let #\(a \ge 0\)# and #\(n \ge 1\)# be integers.
+ - Show that #\[a ^ n − 1 = (a - 1) \sum_{i = 0}^{n-1} a^i.\]#
 
 #<div>#
 *)
+
 Lemma subX1_factor a n : 1 <= n ->
    a ^ n - 1 = (a - 1) * \sum_(0 <= i < n) a ^ i.
 Proof.
-(*D*)case: n => [//|n] _; rewrite mulnBl mul1n big_distrr/=.
-(*D*)rewrite big_nat_recr//= big_nat_recl//= addnC -expnS expn0.
-(*D*)by rewrite (eq_bigr (fun i => a ^ (S i))) ?subnDr// => i; rewrite expnS.
+(*D*)case: n => [//|n] _; rewrite mulnBl mul1n muln_sumr.
+(*D*)rewrite sum_recr//= sum_recl//= addnC -expnS expn0.
+(*D*)by rewrite (eqn_sum (fun i => a ^ (S i))) ?subnDr// => i; rewrite expnS.
 (*A*)Qed.
 (**
 #</div>#
 
- Let #$a , n \ge 2$# b integers.
- - Show that if #$a ^ n −1$# is prime, then #$a = 2$# and #$n$# is prime.
+ Let $a , n \ge 2$ be integers.
+ - Show that if #\(a ^ n − 1\)# is prime, then #\(a = 2\)# and #\(n\)# is prime.
    Complete the following proofschrip
 
 #<div>#
@@ -137,16 +140,17 @@ have := mP _ dvddm; rewrite gtn_eqF/=; last first.
 (**
 #</div>#
 
-- We write #$M_n = 2 ^ n − 1 $# the #$n^{\tt th}$# "Mersenne" number.
-  Show that #$M_{1000}$# is not prime.
+- We write #\(M_n = 2 ^ n − 1\)# the #\(n^{\textrm{th}}\)# Mersenne number.
+  Show that #\(M_{100}\)# is not prime.
 
-  WARNING: do not substitute [n = 1000] in an expression where you have [2 ^ n],
-  otherwise the computation will take "forever" and possibly crash your computer,
-  you should use the previous lemma.
+  WARNING: do not substitute [n = 100] in an expression where you have [2 ^ n],
+  otherwise the computation will take "forever" and possibly crash your jscoq
+  (in which case you will need to "Reset worker" or reload the page), hence
+  you must use the previous lemma.
 
 #<div>#
 *)
-Lemma M12_not_prime n : n = 1000 -> ~~ prime (2 ^ n - 1).
+Lemma M12_not_prime n : n = 100 -> ~~ prime (2 ^ n - 1).
 Proof.
 (*D*)by move=> eq_n; apply: (contraNN (subX1_prime _ _)); rewrite ?eq_n.
 (*A*)Qed.

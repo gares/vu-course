@@ -1,4 +1,5 @@
-From mathcomp Require Import all_ssreflect.
+From mathcomp Require Import mini_ssreflect mini_ssrfun mini_ssrbool.
+From mathcomp Require Import mini_eqtype mini_ssrnat mini_seq mini_div.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

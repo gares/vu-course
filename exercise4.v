@@ -19,7 +19,7 @@ just move the mouse there.
 (** *** Exercise 1
 
 Let us prove directly formula
-#$$ \sum_{i=0}^{n-1} (2 i + 1) = n ^ 2 $$#
+#\[ \sum_{i=0}^{n-1} (2 i + 1) = n ^ 2 \]#
 from lesson 1, slightly modified.
 
 Let us first recall custom sum operator:
@@ -32,7 +32,7 @@ Notation "\sum_ ( m <= i < n ) F" := (sum m n (fun i => F))
            format "'[' \sum_ ( m  <=  i  <  n ) '/  '  F ']'").
 (**
 #</div>#
-- First prove a very useful lemma about iota (you can use iota_add) (Easy)
+- First prove a very useful lemma about [iota] (you can use [iota_add]) (Easy)
 #<div>#
 *)
 Lemma iotaSr m n : iota m (S n) = iota m n ++ [:: m + n].
@@ -42,7 +42,7 @@ Proof. by rewrite -addn1 iota_add /=. Qed.
 - Then prove a very useful lemma about summation. (Medium)
 #<div>#
 *)
-Lemma sum_recl m n F : m <= n ->
+Lemma sum_recr m n F : m <= n ->
   \sum_(m <= i < n.+1) F i = \sum_(m <= i < n) F i + F n.
 Proof.
 pose addFi i a := F i + a; move=> le_mn.
@@ -55,12 +55,12 @@ have foldr0 s x : foldr addFi x s = foldr addFi 0 s + x.
 (*D*)Qed.
 (**
 #</div>#
-- Now use the previous result to get the main result (Easy+)
+- Now use the previous result to get the main result (Easy - Medium)
 #<div>#
 *)
 Lemma sum_odds n : \sum_(0 <= i < n) (2 * i + 1) = n ^ 2.
 Proof.
-(*D*)elim: n => // n IHn; rewrite sum_recl// IHn.
+(*D*)elim: n => // n IHn; rewrite sum_recr// IHn.
 (*D*)by rewrite -[n.+1]addn1 sqrnD muln1 addnAC addnA.
 (*A*)Qed.
 (**
@@ -69,9 +69,9 @@ Proof.
 #</div>#
 ---------------------------------------------------
 
-*** Exercise 2 (Easy)
+*** Exercise 2
 
-Prove that the equation #$$ 8y = 6x + 1 $$# has no solution.
+Prove that the equation #\[ 8y = 6x + 1 \]# has no solution. (Easy)
 - Hint 1: take the modulo 2 of the equation (using [suff]).
 - Hint 2: [Search _ "contra" in MC] and use the view [eqP].
 - Hint 3: [Search _ modn addn in MC] and [Search _ modn muln in MC]
@@ -92,12 +92,12 @@ Proof.
 *** Exercise 3:
 
 The ultimate Goal of this exercise is to find the solutions of the equation
-#$$ 2^n = a^2 + b^2,$$# where n is fixed and a and b unkwown.
+#\[ 2^n = a^2 + b^2,\]# where n is fixed and a and b unkwown.
 We hence study the following predicate:
 #<div># *)
 Definition sol n a b := [&& a > 0, b > 0 & 2 ^ n == a ^ 2 + b ^ 2].
 (** #</div>#
-- We give the set of solutions for #$n =0$# or #$1$#
+- We give the set of solutions for #\(n = 0\)# or #\(1\)#
 #<div># *)
 (* no solution for `n = 0` *)
 Lemma sol0 a b : ~~ sol 0 a b.
@@ -107,7 +107,7 @@ Proof. by move: a b => [|[|a]] []. Qed.
 Lemma sol1 a b : sol 1 a b = (a == 1) && (b == 1).
 Proof. by move: a b => [|[|[|a]]] [|[]]. Qed.
 (** #</div>#
-- Now prove a little lemma that will guarantee that a and b are even. (Medium+)
+- Now prove a little lemma that will guarantee that a and b are even. (Medium - Hard)
   - Hint: [Search _ (_ ^ 2) (_ + _) in MC].
   - Hint: [Search ((_ * _) ^ _) in MC].
   - ...

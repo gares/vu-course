@@ -25,11 +25,11 @@ similar.html : similar.v
 
 # Exercises
 exercise%.html: exercise%.html.tmp
-	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^(\*a\*).*$$/  admit./'  $< > $@
+	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^\(.*\)(\*a\*).*$$/\1admit./'  $< > $@
 exercise%-solution.html: exercise%.html.tmp
 	@cp $< $@
 exercise%-todo.v: exercise%.v
-	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^(\*a\*).*$$/  admit./'  $< > $@
+	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^\(.*\)(\*a\*).*$$/\1admit./'  $< > $@
 
 jscoq.stamp: jscoq.tgz
 	tar -xzf jscoq.tgz
