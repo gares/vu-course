@@ -427,7 +427,7 @@ Fixpoint foldr A T (f : T -> A -> A) (a : A) (s : list T) :=
 #</div>#
 
 The best way to understand what [foldr] does 
-is to postulate a virable [f] and compute. 
+is to postulate a variable [f] and compute. 
 
 #<div>#
 *)
