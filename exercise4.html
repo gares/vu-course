@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+    <link rel="stylesheet" href="jscoq/node_modules/bootstrap/dist/css/bootstrap.min.css" />
+
+    <title>Machine-Checked Mathematics</title>
+    <link rel="stylesheet" href="local.css" />
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'
+        async></script>
+    <script src="Blob.js" type="text/javascript"></script>
+    <script src="FileSaver.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+    <div id="ide-wrapper" class="toggled">
+        <div id="code-wrapper">
+            <div id="document">
+                <p>
+                Use ALT-(up-arrow) and ALT-(down-arrow) to process this document inside your browser, line-by-line. 
+		Use ALT-(right-arrow) to go to the cursor. 
+                You can
+                <span class="save-button" onClick="save_coq_snippets()">save your edits</span>
+                inside your browser and
+                <span class="save-button" onClick="load_coq_snippets()">load them back</span>.
+                <!-- (edits are also saved when you close the window) -->
+                Finally, you can
+                <span class="save-button" onClick="download_coq_snippets()">download</span>
+                your working copy of the file, e.g., for sending it to teachers.
+                <hl />
+                </p>
+<div><textarea id='coq-ta-1'>
+From mathcomp Require Import mini_ssreflect mini_ssrfun mini_ssrbool.
+From mathcomp Require Import mini_eqtype mini_ssrnat mini_seq mini_div.
+
+Set Implicit Arguments.
+Unset Strict Implicit.
+Unset Printing Implicit Defensive.
+</textarea></div>
+<div><p>
+<p>
+what follows is a slide, it creates an index item next to the scroll bar,
+just move the mouse there.
+<hr/>
+
+<div class="slide">
+<p>
+<h1>
+ Induction and structured proofs
+</h1>
+
+<p>
+<h3>
+ Exercise 1
+</h3>
+
+<p>
+Let us prove directly formula
+$$ \sum_{i=0}^{n-1} (2 i + 1) = n ^ 2 $$
+from lesson 1, slightly modified.
+<p>
+Let us first recall custom sum operator:
+<div>
+</div>
+<div><textarea id='coq-ta-2'>
+Definition sum m n F := (foldr (fun i a => F i + a) 0 (iota m (n - m))).
+
+Notation "\sum_ ( m <= i < n ) F" := (sum m n (fun i => F))
+  (at level 41, F at level 41, i, m, n at level 50,
+           format "'[' \sum_ ( m  <=  i  <  n ) '/  '  F ']'").
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> First prove a very useful lemma about iota (you can use iota_add) (Easy)
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-3'>
+Lemma iotaSr m n : iota m (S n) = iota m n ++ [:: m + n].
+Proof. by rewrite -addn1 iota_add /=. Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Then prove a very useful lemma about summation. (Medium)
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-4'>
+Lemma sum_recl m n F : m <= n ->
+  \sum_(m <= i < n.+1) F i = \sum_(m <= i < n) F i + F n.
+Proof.
+pose addFi i a := F i + a; move=> le_mn.
+have foldr0 s x : foldr addFi x s = foldr addFi 0 s + x.
+Admitted.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Now use the previous result to get the main result (Easy+)
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-5'>
+Lemma sum_odds n : \sum_(0 <= i < n) (2 * i + 1) = n ^ 2.
+Proof.
+Admitted.
+</textarea></div>
+<div><p>
+</div>
+<p><br/><p>
+</div>
+<hr/>
+
+<p>
+<h3>
+ Exercise 2 (Easy)
+</h3>
+
+<p>
+Prove that the equation $$ 8y = 6x + 1 $$ has no solution.
+<p>
+<ul class="doclist">
+  <li> Hint 1: take the modulo 2 of the equation (using <tt>suff</tt>).
+
+  </li>
+<li> Hint 2: <tt>Search _ "contra" in MC</tt> and use the view <tt>eqP</tt>.
+
+</li>
+<li> Hint 3: <tt>Search _ modn addn in MC</tt> and <tt>Search _ modn muln in MC</tt>
+
+</li>
+</ul>
+<br/><div> </div>
+<div><textarea id='coq-ta-6'>
+Lemma ex2 x y : 8 * y != 6 * x + 1.
+Proof.
+Admitted.
+
+</textarea></div>
+<div><p>
+</div>
+<hr/>
+
+<p>
+<h3>
+ Exercise 3:
+</h3>
+
+<p>
+The ultimate Goal of this exercise is to find the solutions of the equation
+$$ 2^n = a^2 + b^2,$$ where n is fixed and a and b unkwown.
+We hence study the following predicate:
+<div> </div>
+<div><textarea id='coq-ta-7'>
+Definition sol n a b := [&& a > 0, b > 0 & 2 ^ n == a ^ 2 + b ^ 2].
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> We give the set of solutions for $n =0$ or $1$
+
+  </li>
+</ul>
+<div> </div>
+<div><textarea id='coq-ta-8'>
+(* no solution for `n = 0` *)
+Lemma sol0 a b : ~~ sol 0 a b.
+Proof. by move: a b => [|[|a]] []. Qed.
+
+(* The only solution for `n = 1` is `(a = 1, b = 1)` *)
+Lemma sol1 a b : sol 1 a b = (a == 1) && (b == 1).
+Proof. by move: a b => [|[|[|a]]] [|[]]. Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Now prove a little lemma that will guarantee that a and b are even. (Medium+)
+<ul class="doclist">
+    <li> Hint: <tt>Search _ (_ ^ 2) (_ + _) in MC</tt>.
+
+    </li>
+  <li> Hint: <tt>Search ((_ * _) ^ _) in MC</tt>.
+
+  </li>
+  <li> ...
+
+  </li>
+  <li> Hint: <tt>About divn_eq</tt> to substitute a and b (rewrite {1}(div_eq ...))
+
+  </li>
+  <li> Hint: <tt>Search _ modn odd in MC</tt>.
+<p>
+  
+  </li>
+  </ul>
+  
+  </li>
+<li> Do it on paper first!
+
+</li>
+</ul>
+<div> </div>
+<div><textarea id='coq-ta-9'>
+Lemma mod4Dsqr_even a b : (a ^ 2 + b ^ 2) %% 4 = 0 -> (~~ odd a) && (~~ odd b).
+Proof.
+have sqr_x2Dy_mod4 x y : (x * 2 + y) ^ 2 = y ^ 2 %[mod 4].
+Admitted.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Deduce that if n is greater than 2 and a and b are solutions, then they are even. (HARD)
+
+  </li>
+</ul>
+<div> </div>
+<div><textarea id='coq-ta-10'>
+Lemma sol_are_even n a b : n > 1 -> sol n a b -> (~~ odd a) && (~~ odd b).
+Proof.
+Admitted.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Prove that the solutions for n are the halves of the solutions for n + 2.
+<ul class="doclist">
+    <li> Hint: <tt>Search _ odd double</tt> and <tt>Search _ "eq" "mul"</tt>.
+
+    </li>
+  </ul>
+  
+  </li>
+</ul>
+<div> </div>
+<div><textarea id='coq-ta-11'>
+Lemma sol_add2 n a b : sol (2 + n) a b -> sol n (half a) (half b).
+Proof.
+Admitted.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Prove there are no solutions for n even (Easy)
+<ul class="doclist">
+    <li> Hint: Use <tt>sol0</tt> and <tt>solSS</tt>.
+
+    </li>
+  </ul>
+  
+  </li>
+</ul>
+<div> </div>
+<div><textarea id='coq-ta-12'>
+Lemma sol_even a b n : ~~ sol (2 * n) a b.
+Proof.
+Admitted.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Certify the only solution when n is odd. (SUPER HARD)
+<ul class="doclist">
+    <li> Hint 1: Use <tt>sol1</tt>, <tt>solSS</tt> and <tt>sol_are_even</tt>.
+
+    </li>
+  <li> Hint 2: Really sketch it on paper first!
+
+  </li>
+  </ul>
+  
+  </li>
+</ul>
+<div> </div>
+<div><textarea id='coq-ta-13'>
+Lemma sol_odd a b n : sol (2 * n + 1) a b = (a == 2 ^ n) && (b == 2 ^ n).
+Proof.
+Admitted.
+</textarea></div>
+<script type="text/javascript">
+ var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
+                  'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
+                  'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
+                  'coq-ta-13'];
+</script>
+<hr />
+
+<script type="text/javascript">
+
+  function load_coq_snippets() {
+    for (i = 0; i < coqdoc_ids.length; ++i) {
+      document.getElementById(coqdoc_ids[i]).nextSibling.CodeMirror.setValue(
+        localStorage.getItem('coq-snippet-' + coqdoc_ids[i]));
+    }
+  }
+
+  function save_coq_snippets() {
+    for (i = 0; i < coqdoc_ids.length; ++i) {
+      localStorage.setItem('coq-snippet-' + coqdoc_ids[i], document.getElementById(coqdoc_ids[i]).nextSibling.CodeMirror.getValue());
+    }
+    alert("Coq snippets saved.");
+  }
+
+  function download_coq_snippets() {
+    var chunks = []
+    for (i = 0; i < coqdoc_ids.length; ++i) {
+      chunks.push(document.getElementById(coqdoc_ids[i]).nextSibling.CodeMirror.getValue())
+    }
+    var data = new Blob(chunks, { type: "text/plain;charset=utf-8" });
+    saveAs(data, 'source.v');
+  }
+
+
+
+  alignWithTop = true;
+  current = 0;
+  slides = [];
+  function select_current() {
+    for (var i = 0; i < slides.length; i++) {
+      var s = document.getElementById('slideno' + i);
+      if (i == current) {
+        s.setAttribute('class', 'slideno selected');
+      } else {
+        s.setAttribute('class', 'slideno');
+      }
+    }
+  }
+
+  function mk_tooltip(label, text) {
+    var t = document.createElement("div");
+    t.setAttribute('class', 'slide-tooltip');
+    t.innerHTML = label;
+
+    var s = document.createElement("span");
+    s.setAttribute('class', 'slide-tooltiptext slide-tooltip-left');
+    s.innerHTML = text;
+
+    t.appendChild(s);
+    return t;
+  }
+
+  function find_hx(e) {
+    for (var i = 0; i < e.children.length; i++) {
+      var x = e.children[i];
+      if (x.tagName == "H1" ||
+        x.tagName == "H2" ||
+        x.tagName == "H3" ||
+        x.tagName == "H4") return x.textContent;
+    }
+    return null;
+  }
+
+  function init_slides() {
+    var toolbar = document.getElementById('document');
+    if (toolbar) {
+      var tools = document.createElement("div");
+      var tprev = document.createElement("div");
+      var tnext = document.createElement("div");
+      tools.setAttribute('id', 'tools');
+      tprev.setAttribute('id', 'prev');
+      tprev.setAttribute('onclick', 'prev_slide();');
+      tnext.setAttribute('id', 'next');
+      tnext.setAttribute('onclick', 'next_slide();');
+      toolbar.prepend(tools);
+      tools.appendChild(tprev);
+      tools.appendChild(tnext);
+
+      slides = document.getElementsByClassName('slide');
+      for (var i = 0; i < slides.length; i++) {
+        var s = document.createElement("div");
+        s.setAttribute('id', 'slideno' + i);
+        s.setAttribute('class', 'slideno');
+        s.setAttribute('onclick', 'goto_slide(' + i + ');');
+        var title = find_hx(slides[i]);
+        if (title == null) {
+          title = "goto slide " + i;
+        }
+        var t = mk_tooltip(i, title);
+        s.appendChild(t)
+        tools.appendChild(s);
+      }
+      select_current();
+    } else {
+      //retry later
+      setTimeout(init_slides, 100);
+    }
+  }
+  function on_screen(rect) {
+    return (
+      rect.top >= 0 &&
+      rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+    );
+  }
+  function update_scrolled() {
+    for (var i = slides.length - 1; i >= 0; i--) {
+      var rect = slides[i].getBoundingClientRect();
+      if (on_screen(rect)) {
+        current = i;
+        select_current();
+      }
+    }
+  }
+  function goto_slide(n) {
+    current = n;
+    var element = slides[current];
+    console.log(element);
+    element.scrollIntoView(alignWithTop);
+    select_current();
+  }
+  function next_slide() {
+    current++;
+    if (current >= slides.length) { current = slides.length - 1; }
+    var element = slides[current];
+    console.log(element);
+    element.scrollIntoView(alignWithTop);
+    select_current();
+  }
+  function prev_slide() {
+    current--;
+    if (current < 0) { current = 0; }
+    var element = slides[current];
+    element.scrollIntoView(alignWithTop);
+    select_current();
+  }
+
+  window.onload = init_slides;
+  window.onbeforeunload = save_coq_snippets;
+  window.onscroll = update_scrolled;
+</script>
+
+</div> <!-- /#document     -->
+</div> <!-- /#code-wrapper -->
+</div> <!-- /#ide-wrapper  -->
+
+<script src="./jscoq/ui-js/jscoq-loader.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var coq;
+
+  loadJsCoq('./jscoq/')
+    .then(loadJs("./jscoq/node_modules/codemirror/addon/runmode/runmode"))
+    .then(loadJs("./jscoq/node_modules/codemirror/addon/runmode/colorize"))
+    .then(function () {
+      var coqInline = document.getElementsByClassName("inline-coq");
+      CodeMirror.colorize(coqInline);
+    })
+    .then(function () {
+      coq = new CoqManager(coqdoc_ids,
+        { base_path: './jscoq/',
+          init_pkgs: ['init'],
+          all_pkgs: ['init','math-comp']
+         }
+      );
+    });
+</script>
+</body>
+
+</html>
