@@ -89,10 +89,10 @@ suff equ12 d u1 u2 : balanced u1 -> balanced u2 ->
 
  Let #\(a \ge 0\)# and #\(n \ge 1\)# be natural numbers.
  - Show that #\[a ^ n − 1 = (a - 1) \sum_{i = 0}^{n-1} a^i.\]#
-
+ - Hint [Search _ sum in MC].
+ - Hint do as many [have] as needed.
 #<div>#
 *)
-
 Lemma subX1_factor a n : 1 <= n ->
    a ^ n - 1 = (a - 1) * \sum_(0 <= i < n) a ^ i.
 Proof.

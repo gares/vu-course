@@ -146,7 +146,7 @@ Proof.
 (*D*)Qed.
 (** #</div>#
 - Prove that the solutions for n are the halves of the solutions for n + 2.
-  - Hint: [Search _ odd double] and [Search _ "eq" "mul"].
+  - Hint: [Search _ odd double in MC] and [Search _ "eq" "mul" in MC].
 #<div># *)
 Lemma sol_add2 n a b : sol (2 + n) a b -> sol n (half a) (half b).
 Proof.

@@ -148,12 +148,16 @@ Admitted.
   <li> Show that \[a ^ n − 1 = (a - 1) \sum_{i = 0}^{n-1} a^i.\]
 
   </li>
+<li> Hint <tt>Search _ sum in MC</tt>.
+
+</li>
+<li> Hint do as many <tt>have</tt> as needed.
+
+</li>
 </ul>
-<p>
 <div>
 </div>
 <div><textarea id='coq-ta-7'>
-
 Lemma subX1_factor a n : 1 <= n ->
    a ^ n - 1 = (a - 1) * \sum_(0 <= i < n) a ^ i.
 Proof.
