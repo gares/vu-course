@@ -1,4 +1,4 @@
-From mathcomp Require Import all_ssreflect.
+From mathcomp Require Import mini_ssreflect.
 
 (* ignore these directives *)
 Set Implicit Arguments.
@@ -66,8 +66,8 @@ Contexts also log the current hypotheses:
 
 #<div>#
 *)
-Lemma context_example_hyp (k : nat) (primek : prime k) : k = k.
-Check primek : prime k.
+Lemma context_example_hyp (k : nat) (oddk : odd k) : k = k.
+Check oddk : odd k.
 Check k + k.
 by [].
 Qed.
