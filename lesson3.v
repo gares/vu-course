@@ -480,6 +480,8 @@ The [eq_ind] principle states that an equality statement can be used to perform 
 
 It is in fact sufficient to justify the symmetry and transitivity properties
 of equalities.
+
+Note how restoring the coercion from [bool] to [Prop] helps with readability.
 #<div>#
 *)
 
@@ -496,8 +498,7 @@ Qed.
 #</div>#
 
 But this is quite inconvenient: the [rewrite] tactic offers support for
-applying [eq_ind] conveniently. Note how restauring the coercion from [bool]
-to [Prop] helps with readability.
+applying [eq_ind] conveniently. 
 
 #<div>#
 *)

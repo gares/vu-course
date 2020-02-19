@@ -602,6 +602,8 @@ The <tt>eq_ind</tt> principle states that an equality statement can be used to p
 <p>
 It is in fact sufficient to justify the symmetry and transitivity properties
 of equalities.
+<p>
+Note how restoring the coercion from <tt>bool</tt> to <tt>Prop</tt> helps with readability.
 <div>
 </div>
 <div><textarea id='coq-ta-30'>
@@ -620,7 +622,7 @@ Qed.
 </div>
 <p>
 But this is quite inconvenient: the <tt>rewrite</tt> tactic offers support for
-applying <tt>eq_ind</tt> conveniently.
+applying <tt>eq_ind</tt> conveniently. 
 <p>
 <div>
 </div>
