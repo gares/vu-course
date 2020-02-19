@@ -102,7 +102,7 @@ Proof.
 (**
 #</div>#
 
- Let $a , n \ge 2$ be natural numbers.
+ Let #\(a , n \ge 2\)# be natural numbers.
  - Show that if #\(a ^ n − 1\)# is prime, then #\(a = 2\)# and #\(n\)# is prime.
    Complete the following proof script
 
