@@ -85,7 +85,7 @@ where "s1 ++ s2" := (cat s1 s2) : seq_scope.
 
 Lemma cat0s (s : list A) : [::] ++ s = s.
 Proof.  (* fill this in *)
-(* D *) by []. 
+(*D*) by []. 
 Qed.
 
 (** *** Exercise 6
@@ -93,9 +93,9 @@ Qed.
 
 Lemma cats0 (s : list A) : s ++ [::] = s.
 Proof.  (* fill this in *)
-(* D *) elim: s => [| x s ihs] /=.
-(* D *) - by [].
-(* D *) - by rewrite ihs.
+(*D*) elim: s => [| x s ihs] /=.
+(*D*) - by [].
+(*D*) - by rewrite ihs.
 Qed.
 
 (** *** Exercise 7
@@ -103,9 +103,9 @@ Qed.
 
 Lemma cats1 (s : list A) (z : A) : s ++ [:: z] = rcons s z.
 Proof.  (* fill this in *)
-(* D *) elim: s => [| x s ihs] /=.
-(* D *) - by [].
-(* D *) - by rewrite ihs.
+(*D*) elim: s => [| x s ihs] /=.
+(*D*) - by [].
+(*D*) - by rewrite ihs.
 Qed.
 
 (** *** Exercise 8
@@ -113,9 +113,9 @@ Qed.
 
 Lemma catA (s1 s2 s3 : list A)  : s1 ++ s2 ++ s3 = (s1 ++ s2) ++ s3.
 Proof.  (* fill this in *)
-(* D *) elim: s1 => [| x s1 ihs1] /=. 
-(* D *) - by [].
-(* D *) - by rewrite ihs1.
+(*D*) elim: s1 => [| x s1 ihs1] /=. 
+(*D*) - by [].
+(*D*) - by rewrite ihs1.
 Qed.
 
 (** *** Exercise 9. 
@@ -124,7 +124,7 @@ Qed.
 
 Lemma cat_rcons x s1 s2 : rcons s1 x ++ s2 = s1 ++ x :: s2.
 Proof.  (* fill this in *)
-(* D *) by rewrite -cats1 -catA. 
+(*D*) by rewrite -cats1 -catA. 
 Qed.
 
 (** *** Exercise 10.
@@ -137,13 +137,13 @@ Proof.
 move=> Hnil Hlast s. 
 suff hcat : forall m, P m -> P (m ++ s).  
   (* fill this in *)
-(* D *) rewrite -(cat0s s). apply: hcat. 
+(*D*) rewrite -(cat0s s). apply: hcat. 
   by [].
 (* fill this in *)
-(* D *) elim: s => [|x s2 IHs] m Pm; first by rewrite cats0.
-(* D *) rewrite -cat_rcons. 
-(* D *) apply: IHs.
-(* D *) apply: Hlast.
+(*D*) elim: s => [|x s2 IHs] m Pm; first by rewrite cats0.
+(*D*) rewrite -cat_rcons. 
+(*D*) apply: IHs.
+(*D*) apply: Hlast.
 by [].
 Qed.
 
