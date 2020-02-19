@@ -399,8 +399,14 @@ Lemma two_plus_three : 2 + 3 = 5. Proof. by []. Qed.
 #<div>#
 *)
 
-Lemma addn_eq0 m n : (m + n == 0) = (m == 0) && (n == 0).
-Proof. by case: m; case: n. Qed.
+Lemma addn_eq01 m n : (m + n == 0) = (m == 0) && (n == 0).
+Proof. 
+case: m => [| k] /=. (* Observe the effect of /= *)
+- case: n => [| l].
+  + by [].
+  + by [].
+- by [].
+Qed.
 
 (**
 #</div>#
@@ -542,7 +548,12 @@ See the #<a href="cheat_sheet.html">Coq cheat sheet</a># for more connectives:
 - Each atomic logical step corresponds to a typing rule, and to a tactic.
 - But Coq provides help to ease the desctiption of bureaucracy.
 - Matching/unification and computation also help with mundane, computational parts.
-
+- New tactics:
+  - apply.
+  - [case: b], [case: n => [| n] /=]; [case: l => [| x l] /=]
+  - [elim: n => [| n]] ; [elim: l => [| x l]] 
+  - [elim: n => [| n] /=], [elim: l => [| x l] /=]
+  - [rewrite]
 #</div>#
 ----------------------------------------------------------
 *)

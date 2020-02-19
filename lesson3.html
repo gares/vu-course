@@ -508,8 +508,14 @@ Lemma two_plus_three : 2 + 3 = 5. Proof. by []. Qed.
 </div>
 <div><textarea id='coq-ta-26'>
 
-Lemma addn_eq0 m n : (m + n == 0) = (m == 0) && (n == 0).
-Proof. by case: m; case: n. Qed.
+Lemma addn_eq01 m n : (m + n == 0) = (m == 0) && (n == 0).
+Proof.
+case: m => [| k] /=. (* Observe the effect of /= *)
+- case: n => [| l].
+  + by [].
+  + by [].
+- by [].
+Qed.
 
 </textarea></div>
 <div><p>
@@ -709,6 +715,26 @@ See the <a href="cheat_sheet.html">Coq cheat sheet</a> for more connectives:
 
 </li>
 <li> Matching/unification and computation also help with mundane, computational parts.
+
+</li>
+<li> New tactics:
+<ul class="doclist">
+  <li> apply.
+
+  </li>
+<li> <tt>case: b</tt>, <tt>case: n => [| n] /=</tt>; <tt>case: l => [| x l] /=</tt>
+
+</li>
+<li> <tt>elim: n => [| n]</tt> ; <tt>elim: l => [| x l]</tt> 
+
+</li>
+<li> <tt>elim: n => [| n] /=</tt>, <tt>elim: l => [| x l] /=</tt>
+
+</li>
+<li> <tt>rewrite</tt>
+
+</li>
+</ul>
 
 </li>
 </ul>
