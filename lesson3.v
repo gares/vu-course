@@ -548,9 +548,9 @@ See the #<a href="cheat_sheet.html">Coq cheat sheet</a># for more connectives:
 - Each atomic logical step corresponds to a typing rule, and to a tactic.
 - But Coq provides help to ease the desctiption of bureaucracy.
 - Matching/unification and computation also help with mundane, computational parts.
-- New tactics:
-  - apply.
-  - [case: b], [case: n => [| n] /=]; [case: l => [| x l] /=]
+- New tactic idioms:
+  - [apply]
+  - [case: n => [| n] /=]; [case: l => [| x l] /=]
   - [elim: n => [| n ihn]] ; [elim: l => [| x l ihl]] 
   - [elim: n => [| n ihn] /=], [elim: l => [| x l ihl] /=]
   - [rewrite]
