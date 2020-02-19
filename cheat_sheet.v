@@ -806,6 +806,12 @@ Proof.
 move=> e. rewrite [X in X + _ = _]e. by [].
 Qed.
 
+(* Unfolding a definition, here the x defined above.
+   This unfolding is not needed in the proof:
+   by [] alone closes the goal. *)
+Lemma unfolding : DefinitionExamples.x = 5.
+Proof. rewrite /DefinitionExamples.x. by []. Qed.
+
 (* Congruence tactic *)
 Lemma congr (a b c k : nat) : a = b -> b + c = k -> a + (b + c) = b + k.
 Proof.
