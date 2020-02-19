@@ -86,7 +86,7 @@ suff equ12 d u1 u2 : balanced u1 -> balanced u2 ->
 
 *** Exercise 2:
 
- Let #\(a \ge 0\)# and #\(n \ge 1\)# be integers.
+ Let #\(a \ge 0\)# and #\(n \ge 1\)# be natural numbers.
  - Show that #\[a ^ n − 1 = (a - 1) \sum_{i = 0}^{n-1} a^i.\]#
 
 #<div>#
@@ -102,9 +102,9 @@ Proof.
 (**
 #</div>#
 
- Let $a , n \ge 2$ be integers.
+ Let $a , n \ge 2$ be natural numbers.
  - Show that if #\(a ^ n − 1\)# is prime, then #\(a = 2\)# and #\(n\)# is prime.
-   Complete the following proofschrip
+   Complete the following proof script
 
 #<div>#
 *)
