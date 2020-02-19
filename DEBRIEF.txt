@@ -30,3 +30,4 @@ varia:
 - introduce an Ltac 'prove_reflect' for apply: (iffP idP).
 - do insist on the stack model
 - remove the coercion from bool to nat.
+- do something for erefl...
