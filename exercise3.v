@@ -14,7 +14,7 @@ Remove Printing If bool.
 Print maxn.
 Search maxn.
 
-(** **** We define the maxinum of three number as  folllows  
+(** **** We define the maximum of three number as  folllows  
 *)
 
 Definition max3n a b c :=
