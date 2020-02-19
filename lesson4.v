@@ -90,6 +90,8 @@ move=> xl pnxl.
 Fail move: xl.
 move: ci Fk.
 Abort.
+
+End GoalModel.
 (**
 #</div>#
 #<div class="note">(notes)<div class="note-text">#
@@ -498,7 +500,7 @@ Check (1 <= 3).
 #<div>#
 *)
 Check edivn.
-Search _ edivn.
+Search _ edivn in MC.
 Check edivn_eq.
 (* forall d q r : nat, r < d -> edivn (q * d + r) d = (q, r) *)
 
@@ -522,7 +524,7 @@ Print dvdn.
 Check (2 %| 4).
 Eval compute in (2 %| 4).
 
-Search muln dvdn.
+Search muln dvdn in MC.
 (*
 dvdnP: forall d m : nat, reflect (exists k : nat, m = k * d) (d %| m)
 dvdn_mull: forall d m n : nat, d %| n -> d %| m * n
@@ -537,7 +539,7 @@ dvdn_mulr: forall d m n : nat, d %| m -> d %| m * n
 The notation [m = n %[mod d]] is an abbreviation for [m %% d = n %% d].
 #<div>#
 *)
-Search _ (_ = _ %[mod _]).
+Search _ (_ = _ %[mod _]) in MC.
 (*
 modn_mod: forall m d : nat, m %% d = m %[mod d]
 modnMDl: forall p m d : nat, p * d + m = m %[mod d]
@@ -552,7 +554,7 @@ modnDr: forall m d : nat, m + d = m %[mod d]
 #<div>#
 *)
 Check gcdn.
-Search _ gcdn dvdn.
+Search _ gcdn dvdn in MC.
 (*
 dvdn_gcd: forall p m n : nat, (p %| gcdn m n) = (p %| m) && (p %| n)
 gcdn_def:
@@ -566,7 +568,7 @@ Print coprime.
 (* coprime m n := gcdn m n == 1 *)
 
 Check prime.
-Search _ prime.
+Search _ prime in MC.
 (*
 primeP:
   forall p : nat,
