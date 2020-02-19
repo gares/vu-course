@@ -1,8 +1,13 @@
 From mathcomp Require Import all_ssreflect.
 
+(* ignore these directives *)
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
+Add Printing Coercion is_true.
+Notation "x '= true'" := (is_true x) (x at level 100, at level 0, only printing).
+Remove Printing If bool.
+
 (**
 ----------------------------------------------------------
 #<div class="slide">#
@@ -41,6 +46,7 @@ Here is an example of context, and of judgment checking using the [Check] comman
 
 #<div>#
 *)
+
 Section ContextExample.
 
 Variables (n : nat) (b : bool).
@@ -51,6 +57,7 @@ Fail Check n : bool.
 Check n + n : nat.
 by [].
 Qed.
+
 (**
 #</div>#
 
@@ -99,6 +106,7 @@ The sort [Prop] is the type of statements:
 #<div>#
 *)
 Check 2 + 2 = 4.
+Fail Check 2 = [:: 2].
 (**
 #</div>#
 
@@ -428,13 +436,13 @@ Qed.
 
 Lemma leqnSn2 n : n <= S n = true.
 Proof.
-elim/nat_ind: n.
+elim/nat_ind: n => [| k].
 - by [].
 - by [].
 Qed.
 
 Lemma leqnSn3 n : n <= S n = true.
-Proof. by elim: n. Qed.
+Proof. by elim: n => [| k]. Qed.
 
 
 (**
@@ -475,11 +483,11 @@ of equalities.
 #<div>#
 *)
 
-Lemma subst_example1 (n m : nat) : n <= 17 -> n = m -> m <= 17.
+Lemma subst_example1 (n m : nat) : n <= 17 = true -> n = m -> m <= 17 = true.
 Proof.
 move=> len17.
 Fail apply: eq_ind.
-pose Q k := k <= 17.
+pose Q k := k <= 17 = true.
 About eq_ind.
 apply: (eq_ind n Q).
 by [].
