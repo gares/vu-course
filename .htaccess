@@ -1,1 +1,0 @@
-RedirectMatch "(*.v)$" index.html
