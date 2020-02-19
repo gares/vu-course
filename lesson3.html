@@ -54,6 +54,11 @@ Unset Printing Implicit Defensive.
 </h2>
 
 <p>
+<div class="note">(notes)<div class="note-text">
+This lesson mostly follows Chapter 3 of the reference book
+<a href="https://math-comp.github.io/mcb/">Mathematical Components</a>.
+</div></div>
+<p>
 </div>
 <hr/>
 
@@ -64,20 +69,20 @@ Unset Printing Implicit Defensive.
 </h2>
 
 <p>
-A typing judgment is a ternary relation between two terms t and T, 
+A <i>typing judgment</i> is a ternary relation between two terms t and T, 
 and a context Γ, which is itself a list of pairs, variable-type :
 <p>
 $$\Gamma ⊢\ t\ :\ T$$
 <p>
-Typing rules provide an inductive definition of well-formed typing judgments.
-For instance, a context provides a type to every variable it stores:
+<i>Typing rules</i> provide an inductive definition of well-formed typing 
+judgments. For instance, a context provides a type to every variable it stores:
 <p>
 $$\Gamma ⊢\ x\ :\ T \quad (x, T) \in Γ$$
 <p>
-A type is a term T which occurs on the right of a colon, 
+A <i>type</i> is a term T which occurs on the right of a colon, 
 in a well-formed typing judgment.
 <p>
-Here is an example of context, and of judgment checking:
+Here is an example of context, and of judgment checking using the <tt>Check</tt> command:
 <p>
 <div>
 </div>
@@ -127,7 +132,7 @@ End ContextExample.
 </div>
 <p>
 In fact, statements are types, proofs are terms (of a prescribed type) and 
-typing rules encode rules for verifying proofs.
+typing rules encode rules for verifying the well-formedness of proofs.
 </div>
 <hr/>
 
@@ -138,8 +143,8 @@ typing rules encode rules for verifying proofs.
 </h2>
 
 <p>
-A type is a term, and therefore it can be typed in a typing judgment. 
-A sort s is the type of a type:
+A type is a term, and therefore it can also be typed in a typing judgment. 
+A <i>sort</i> s is the type of a type:
 <p>
 $$\Gamma ⊢\ t\ :\ T \quad \quad \Gamma ⊢\ T\ :\ s $$
 <p>
@@ -173,6 +178,121 @@ Check nat.
 <div><p>
 </div>
 <p>
+Of course, a sort also has a type:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-8'>
+Check Set.
+</textarea></div>
+<div><p>
+</div>
+<p>
+And there is in fact a tour of sorts, for consistency reasons which 
+are beyond the scope of today's lecture:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-9'>
+Set Printing Universes.
+Check Type : Type.
+Unset Printing Universes.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Non atomic types are types of functions: the source of the arrow prescribes 
+the type of the argument, and the codomain gives the type of the application 
+of the function to its argument.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-10'>
+Check nat -> bool.
+Check addn.
+Check addn 2 3.
+Fail Check addn 2 addn.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Reminder: Lesson 2 introduced <i>polymorphic</i> data types, e.g. <tt>list</tt>:
+<div>
+</div>
+<div><textarea id='coq-ta-11'>
+Print list.
+
+Check list nat.
+
+Check list bool.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Polymorphic type are types of functions with a <tt>Type</tt> source:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-12'>
+
+Check list.
+Check option.
+</textarea></div>
+<div><p>
+</div>
+<p>
+A <i>dependent type</i> is a function whose co-domain is <tt>Type</tt>, and which
+takes at least one of its arguments in a data type, like <tt>nat</tt> or <tt>bool</tt>.
+<p>
+Here is for instance a type which could represent matrices 
+(for a fixed type of coefficients), with size presecribed by its arguments:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-13'>
+Section DependentType.
+
+Variable matrix : nat -> nat -> Type.
+</textarea></div>
+<div><p>
+</div>
+<p>
+And here is a function which uses this type as co-domain:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-14'>
+Variable zero_matrix : forall n : nat, forall m : nat, matrix n m.
+Check zero_matrix.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+The typing rule for application prescribes the type of arguments:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-15'>
+
+Check zero_matrix 2 3.
+Fail Check zero_matrix 2 zero_matrix.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Note that our arrow <tt>-></tt> is just a notation for
+the type of functions with a non-dependent codomain:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-16'>
+
+Check forall n : nat, bool.
+End DependentType.
+</textarea></div>
+<div><p>
+</div>
 </div>
 <hr/>
 
@@ -183,96 +303,431 @@ Check nat.
 </h2>
 
 <p>
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
+What is an arrow type bewteen two types in <tt>Prop</tt>, i.e., between two 
+statements?
 <p>
-<div class="note">(notes)<div class="note-text">
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
-</div></div>
+<div>
+</div>
+<div><textarea id='coq-ta-17'>
+
+Section ImplicationForall.
+
+Variables A B : Prop.
+
+Check A -> B.
+</textarea></div>
+<div><p>
+</div>
 <p>
+It is an implication statement: the proof of an implication <quote>maps</quote> any proof
+of the premise to a proof of the conclusion.
+<p>
+The tactic <tt>move=></tt> is used to <i>prove</i> an implication, by
+ <i>introducing</i> its premise, i.e. adding it to the current context:
+<div>
+</div>
+<div><textarea id='coq-ta-18'>
+Lemma tauto1 : A -> A.
+Proof.
+move=> hA.
+by [].
+Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+The tactic <tt>apply:</tt> allows to make use of an implication hypothesis 
+in a proof. Its variant <tt>exact:</tt> fails if this proof step does not
+close the current goal.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-19'>
+Lemma modus_ponens1 : (A -> B) -> A -> B.
+Proof.
+move=> hAB. move=> hA.
+apply: hAB.
+exact: hA.
+Qed.
+
+Lemma modus_ponens2 : (A -> B) -> A -> B.
+Proof.
+move=> hAB hA.
+exact: (hAB hA).
+Qed.
+
+Lemma modus_ponens3 : (A -> B) -> A -> B.
+Proof.
+exact: (fun hAB hA => hAB hA).
+Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+The <tt>apply:</tt> tactic is also used to specialize a lemma:
+<div>
+</div>
+<div><textarea id='coq-ta-20'>
+
+Lemma leq_add3 n : n <= n + 3.
+Proof.
+About leq_addr.
+Check (leq_addr 3).
+Check (leq_addr 3 n).
+apply: leq_addr.
+Qed.
+
+End ImplicationForall.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Note how Coq did conveniently compute the appropriate instance
+by matching the statement against the current formula to be proved.
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ Inductive types
+</h2>
+
+<p>
+So far, we have only (almost) rigorously explained types <tt>Type</tt>, <tt>Prop</tt>, and 
+<tt>forall x : A, B</tt>. But we have also casually used other constants like <tt>bool</tt> or
+ <tt>nat</tt>.
+<p>
+The following declaration:
+<pre>
+Inductive bool : Set :=  true : bool | false : bool
+</pre>
+<p>
+in fact introduces new constants in the language:
+<p>
+$$\vdash \textsf{bool} : \textsf{Set} \quad \vdash \textsf{true} : \textsf{bool} \quad \vdash \textsf{false} : \textsf{bool} $$
+<p>
+Term <tt>bool</tt> is a type, and the terms <tt>true</tt> and <tt>false</tt> are 
+called <i>constructors</i>. 
+<p>
+The closed (i.e. variable-free) terms of type bool are <i>freely</i> 
+generated by <tt>true</tt> and <tt>false</tt>, i.e. they are exactly <tt>true</tt> and <tt>false</tt>.
+<p>
+This is the intuition behind the definition by (exhaustive) pattern matching
+used in Lesson 2:
+<div>
+</div>
+<div><textarea id='coq-ta-21'>
+Definition andb (b1 : bool) (b2 : bool) : bool :=
+  match b1 with true => b2   | false => false end.
+</textarea></div>
+<div><p>
+</div>
+<p>
+The following declaration:
+<pre>
+Inductive nat : Set :=  O : nat | S (n : nat)
+</pre>
+<p>
+in fact introduces new constants in the language:
+<p>
+$$\vdash \textsf{nat} : \textsf{Set} \quad \vdash \textsf{O} : \textsf{nat} \quad \vdash \textsf{S} : \textsf{nat} \rightarrow \textsf{nat} $$
+<p>
+Term <tt>nat</tt> is a type, and the terms <tt>O</tt> and <tt>S</tt> are 
+called <i>constructors</i>. 
+<p>
+The closed (i.e. variable-free) terms of type bool are <i>freely</i> 
+generated by <tt>O</tt> and <tt>S</tt>, i.e. they are exactly <tt>O</tt> and terms <tt>S (S ... (S O))</tt>.
+<p>
+This is the intuition behind the definition by induction used in Lesson 2:
+<div>
+</div>
+<div><textarea id='coq-ta-22'>
+
+Fixpoint addn (n : nat) (m : nat) : nat :=
+  match n with
+  | 0 => m
+  | S p => S (addn p m)
+  end.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+More precisely, an <i>induction scheme</i> is attached to the definition of
+an inductive type:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-23'>
+Module IndScheme.
+Inductive nat : Set := O: nat | S : nat -> nat.
+
+About nat_ind.
+
+End IndScheme.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Quiz: what is this type used for:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-24'>
+Inductive foo : Set := bar1 : foo | bar2 : foo -> foo | bar3 : foo -> foo.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Let us now review the three natures of proofs that involve a term of
+an inductive type:
+<p>
+<ul class="doclist">
+  <li> Proofs by computation make use of the reduction rule attached to <tt>match t with ... end</tt> terms:
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-25'>
+Lemma two_plus_three : 2 + 3 = 5. Proof. by []. Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Proofs by case analysis go by exhaustive pattern matching. They usually involve a pinch of computation as well.
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-26'>
+
+Lemma addn_eq0 m n : (m + n == 0) = (m == 0) && (n == 0).
+Proof. by case: m; case: n. Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+<ul class="doclist">
+  <li> Proofs by induction on the (inductive) definition. Coq has a dedicated <tt>elim</tt> tactic for this purpose.
+
+  </li>
+</ul>
+<div>
+</div>
+<div><textarea id='coq-ta-27'>
+
+Lemma leqnSn1 n : n <= S n = true.
+Proof.
+About nat_ind.
+Fail apply: nat_ind.
+pose Q k := k <= S k = true.
+apply: (nat_ind Q).
+- by [].
+- by [].
+Qed.
+
+Lemma leqnSn2 n : n <= S n = true.
+Proof.
+elim/nat_ind: n.
+- by [].
+- by [].
+Qed.
+
+Lemma leqnSn3 n : n <= S n = true.
+Proof. by elim: n. Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ Equality and rewriting
+</h2>
+
+<p>
+Equality is a polymorphic, binary relation on terms:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-28'>
+Check 2 = 3.
+Check true = false.
+
+About eq.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+It comes with an introduction rule, to build proofs of equalities, and with an elimination rule, to use equality statements.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-29'>
+Check erefl 3.
+
+About eq_ind.
+</textarea></div>
+<div><p>
+</div>
+<p>
+The <tt>eq_ind</tt> principle states that an equality statement can be used to perform right to left substitutions.
+<p>
+It is in fact sufficient to justify the symmetry and transitivity properties
+of equalities.
+<div>
+</div>
+<div><textarea id='coq-ta-30'>
+
+Lemma subst_example1 (n m : nat) : n <= 17 -> n = m -> m <= 17.
+Proof.
+move=> len17.
+Fail apply: eq_ind.
+pose Q k := k <= 17.
+About eq_ind.
+apply: (eq_ind n Q).
+by [].
+Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+But this is quite inconvenient: the <tt>rewrite</tt> tactic offers support for
+applying <tt>eq_ind</tt> conveniently.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-31'>
+
+Lemma subst_example2 (n m : nat) : n <= 17 -> n = m -> m <= 17.
+Proof.
+move=> len17 enm.
+rewrite -enm. (* we can also rewrite left to right.*)
+Show Proof.
+by [].
+Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+Digression: <tt>eq</tt> being polymorphic, nothing prevents us from stating
+equalities on equality types:
+<div>
+</div>
+<div><textarea id='coq-ta-32'>
+Section EqualityTypes.
+
+Variables (b1 b2 : bool) (p1 p2 : b1 = b2).
+
+Check b1 = b2.
+
+About eq_irrelevance.
+
+End EqualityTypes.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ More connectives
+</h2>
+
+<p>
+See the <a href="cheat_sheet.html">Coq cheat sheet</a> for more connectives:
+<p>
+<ul class="doclist">
+  <li> conjunction <tt>A /\ B</tt>
+
+  </li>
+<li> disjunction <tt>A \/ B</tt>
+
+</li>
+<li> <tt>False</tt>
+
+</li>
+<li> negation <tt>~ A</tt>, which unfolds to <tt>A -> False</tt>
+
+</li>
+</ul>
 </div>
 <hr/>
 <div class="slide vfill">
 <p>
 <h2>
-  
+ Lesson 2: sum up
 </h2>
 
 <p>
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
-<p>
-<div class="note">(notes)<div class="note-text">
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
-</div></div>
-<p>
-</div>
-<hr/>
-<div class="slide vfill">
-<p>
-<h2>
-  
-</h2>
+<h3>
+ A formalism based on functions and types
+</h3>
 
 <p>
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
-<p>
-<div class="note">(notes)<div class="note-text">
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
-</div></div>
-<p>
-</div>
-<hr/>
-<div class="slide vfill">
-<p>
-<h2>
-  
-</h2>
+<ul class="doclist">
+  <li> Coq's proof checker verifies typing judgments according to the rules defining the formalism.
+
+  </li>
+<li> Statements are types, and proof are terms of the corresponding type
+
+</li>
+<li> Proving an implication is describing a function from proofs of the premise to proofs of the conclusion, proving a conjunction is providing a pair of proofs, etc. This is called the Curry-Howard correspondance.
+
+</li>
+<li> Inductive types introduce types that are not (necessarily) types of functions: they are an important formalization instrument.
+
+</li>
+</ul>
+<h3>
+ Tactics
+</h3>
 
 <p>
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
-<p>
-<div class="note">(notes)<div class="note-text">
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
-</div></div>
-<p>
-</div>
-<hr/>
-<div class="slide vfill">
-<p>
-<h2>
-  
-</h2>
+<ul class="doclist">
+  <li> Each atomic logical step corresponds to a typing rule, and to a tactic.
 
-<p>
-a slide that is vfilled, if you click on (1) or next-slide
-in the toolbar up-right to the coq document you get it centered.
-<p>
-<div class="note">(notes)<div class="note-text">
-You don't need to install Coq in order to follow this
-class, you just need a recent browser thanks to
-<a href="https://github.com/ejgallego/jscoq">jsCoq</a>.
-</div></div>
-<p>
+  </li>
+<li> But Coq provides help to ease the desctiption of bureaucracy.
+
+</li>
+<li> Matching/unification and computation also help with mundane, computational parts.
+
+</li>
+</ul>
 </div>
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-8'>
+<div><textarea id='coq-ta-33'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
-                  'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8'];
+                  'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
+                  'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
+                  'coq-ta-13',  'coq-ta-14',  'coq-ta-15',  'coq-ta-16', 
+                  'coq-ta-17',  'coq-ta-18',  'coq-ta-19',  'coq-ta-20', 
+                  'coq-ta-21',  'coq-ta-22',  'coq-ta-23',  'coq-ta-24', 
+                  'coq-ta-25',  'coq-ta-26',  'coq-ta-27',  'coq-ta-28', 
+                  'coq-ta-29',  'coq-ta-30',  'coq-ta-31',  'coq-ta-32', 
+                  'coq-ta-33'];
 </script>
 <hr />
 
