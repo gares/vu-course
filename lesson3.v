@@ -551,8 +551,8 @@ See the #<a href="cheat_sheet.html">Coq cheat sheet</a># for more connectives:
 - New tactics:
   - apply.
   - [case: b], [case: n => [| n] /=]; [case: l => [| x l] /=]
-  - [elim: n => [| n]] ; [elim: l => [| x l]] 
-  - [elim: n => [| n] /=], [elim: l => [| x l] /=]
+  - [elim: n => [| n ihn]] ; [elim: l => [| x l ihl]] 
+  - [elim: n => [| n ihn] /=], [elim: l => [| x l ihl] /=]
   - [rewrite]
 #</div>#
 ----------------------------------------------------------

@@ -725,10 +725,10 @@ See the <a href="cheat_sheet.html">Coq cheat sheet</a> for more connectives:
 <li> <tt>case: b</tt>, <tt>case: n => [| n] /=</tt>; <tt>case: l => [| x l] /=</tt>
 
 </li>
-<li> <tt>elim: n => [| n]</tt> ; <tt>elim: l => [| x l]</tt> 
+<li> <tt>elim: n => [| n ihn]</tt> ; <tt>elim: l => [| x l ihl]</tt> 
 
 </li>
-<li> <tt>elim: n => [| n] /=</tt>, <tt>elim: l => [| x l] /=</tt>
+<li> <tt>elim: n => [| n ihn] /=</tt>, <tt>elim: l => [| x l ihl] /=</tt>
 
 </li>
 <li> <tt>rewrite</tt>
