@@ -177,9 +177,9 @@ Qed.
 #</div>#
 
 This script can be abbreviated
-[[
+<<
 Proof. by elim: s1 z0 => [//|x xs IH] acc /=; rewrite IH. Qed.
-]]
+>>
 
 #<p><br/><p>#
 

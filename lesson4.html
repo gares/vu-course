@@ -325,9 +325,9 @@ Qed.
 </div>
 <p>
 This script can be abbreviated
-<pre class="inline-coq" data-lang="coq">
-Proof. </pre>by elim: s1 z0 => <tt>//|x xs IH</tt> acc /=; rewrite IH. Qed.
-]]
+<pre>
+Proof. by elim: s1 z0 => [//|x xs IH] acc /=; rewrite IH. Qed.
+</pre>
 <p>
 <p><br/><p>
 <p>
