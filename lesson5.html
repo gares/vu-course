@@ -70,6 +70,49 @@ Unset Printing Implicit Defensive.
 
 <div class="slide vfill">
 <p>
+<h3>
+ Conversion rule
+</h3>
+
+<p>
+The conversion rule (for the machine):
+<p>
+$$
+\frac{\Gamma \vdash t : \forall a:A, B \qquad
+      \Gamma \vdash u : A' \qquad
+      \Gamma \vdash A \equiv A'}{\Gamma \vdash t~u : B[x \gets u]}
+$$
+<p>
+The conversion rule (from a human):
+<p>
+<p style="text-align: center;">
+types are <em>quotiented</em> by <em>computation</em>
+</p>
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-2'>
+
+Section ConversionRecap.
+
+Variable win : Prop.
+Variable lem : forall n m, n <= m = true -> win.
+Arguments lem : clear implicits.
+
+Check erefl true : true = true.
+Check erefl true : 3 <= 7 = true.
+Check lem 3 7 (erefl true).
+
+End ConversionRecap.
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
 <h2>
  Recap: computation and variables
 </h2>
@@ -85,7 +128,7 @@ Unset Printing Implicit Defensive.
 </ul>
 <div>
 </div>
-<div><textarea id='coq-ta-2'>
+<div><textarea id='coq-ta-3'>
 Lemma ex1 (x : nat) : 0 * x = 0.
 Proof. by []. Qed.
 
@@ -100,6 +143,8 @@ Admitted.
 <p>
 We used the lemma <tt>muln0</tt> before. Can't we explain Coq
 to use it for us?
+<p>
+Yes!
 <p>
 </div>
 <hr/>
@@ -125,7 +170,7 @@ to use it for us?
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-3'>
+<div><textarea id='coq-ta-4'>
 Module A. (* A module is a box for Coq code, ignore this *)
 
 Inductive expr :=
@@ -145,7 +190,7 @@ the simplication rule $$n * 0 = 0$$ and $$0 * n = 0$$.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-4'>
+<div><textarea id='coq-ta-5'>
 
 Fixpoint simplify (e : expr) : expr :=
   match e with
@@ -172,7 +217,7 @@ Let's make this map explicit.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-5'>
+<div><textarea id='coq-ta-6'>
 Fixpoint interp (e : expr) : nat :=
   match e with
   | Zero => 0
@@ -190,7 +235,7 @@ What would it mean for <tt>simplify</tt> to be correct?
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-6'>
+<div><textarea id='coq-ta-7'>
 
 Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
 Proof.
@@ -207,7 +252,7 @@ Now let's take advantage of our program
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-7'>
+<div><textarea id='coq-ta-8'>
 
 Lemma ex3 (x : nat) : x * 0 = 0.
 Proof.
@@ -244,7 +289,7 @@ The rule we want is $$n - n = 0$$ when n is a number.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-8'>
+<div><textarea id='coq-ta-9'>
 Module B.
 
 Inductive expr :=
@@ -280,7 +325,7 @@ Let's make this map explicit.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-9'>
+<div><textarea id='coq-ta-10'>
 Fixpoint interp (e : expr) : nat :=
   match e with
   | Zero => 0
@@ -297,7 +342,7 @@ What would it mean for <tt>simplify</tt> to be correct?
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-10'>
+<div><textarea id='coq-ta-11'>
 
 Lemma simplify_correct (e : expr) : interp e = interp (simplify e).
 Proof.
@@ -314,7 +359,7 @@ Now let's try to take advantage of it
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-11'>
+<div><textarea id='coq-ta-12'>
 
 Lemma ex3 (x : nat) : x - x = 0.
 Proof.
@@ -344,7 +389,7 @@ away from the syntax we manipulate. But it is easy to fix.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-12'>
+<div><textarea id='coq-ta-13'>
 
 Module C.
 
@@ -375,7 +420,7 @@ to arbitrary terms in out target type.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-13'>
+<div><textarea id='coq-ta-14'>
 
 Fixpoint interp (e : expr) (c : list nat) : nat :=
   match e with
@@ -408,33 +453,52 @@ Qed.
 
 End C.
 
-(*
+</textarea></div>
+<div><p>
 </div>
+<p>
+</div>
+<hr/>
 
-</div>
-----------------------------------------------------------
 <div class="slide vfill">
+<p>
+<h2>
+ To sum up
+</h2>
 
-** To sum up
+<p>
+<ul class="doclist">
+  <li> computation is well define on any term, including terms with variables
 
-- computation is well define on any term, including terms with variables
-- computation is _complete_ on closed terms (you reach a normal form
+  </li>
+<li> computation is <em>complete</em> on closed terms (you reach a normal form
   that is made of constructors)
-- computation happens _inside_ the logic (terms are quotiented wrt computation)
-- computation can be very fast (decades of research in CS)
-- applications to this technique
+
+</li>
+<li> computation happens <em>inside</em> the logic (terms are quotiented wrt computation)
+
+</li>
+<li> computation can be very fast (decades of research in CS)
+
+</li>
+<li> applications of this technique
   + simplification in a ring
   + 4 color theorem
   + Pocklington primality test
 
+</li>
+</ul>
 </div>
-----------------------------------------------------------
-*)</textarea></div>
+<hr/>
+
+</div>
+<div><textarea id='coq-ta-15'>
+</textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
                   'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
                   'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
-                  'coq-ta-13'];
+                  'coq-ta-13',  'coq-ta-14',  'coq-ta-15'];
 </script>
 <hr />
 

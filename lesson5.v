@@ -18,6 +18,43 @@ Unset Printing Implicit Defensive.
 ----------------------------------------------------------
 #<div class="slide vfill">#
 
+*** Conversion rule
+
+The conversion rule (for the machine):
+
+#$$
+\frac{\Gamma \vdash t : \forall a:A, B \qquad
+      \Gamma \vdash u : A' \qquad
+      \Gamma \vdash A \equiv A'}{\Gamma \vdash t~u : B[x \gets u]}
+$$#
+
+The conversion rule (from a human):
+
+#<p style="text-align: center;">#
+types are _quotiented_ by _computation_
+#</p>#
+
+#<div>#
+*)
+
+Section ConversionRecap.
+
+Variable win : Prop.
+Variable lem : forall n m, n <= m = true -> win.
+Arguments lem : clear implicits.
+
+Check erefl true : true = true.
+Check erefl true : 3 <= 7 = true.
+Check lem 3 7 (erefl true).
+
+End ConversionRecap.
+(**
+#</div>#
+
+#</div>#
+----------------------------------------------------------
+#<div class="slide vfill">#
+
 ** Recap: computation and variables
 
 - Why is the first goal trivial by computation?
@@ -38,6 +75,8 @@ Admitted.
 
 We used the lemma [muln0] before. Can't we explain Coq
 to use it for us?
+
+Yes!
 
 #</div>#
 ----------------------------------------------------------
@@ -304,7 +343,7 @@ Qed.
 
 End C.
 
-(*
+(**
 #</div>#
 
 #</div>#
@@ -318,7 +357,7 @@ End C.
   that is made of constructors)
 - computation happens _inside_ the logic (terms are quotiented wrt computation)
 - computation can be very fast (decades of research in CS)
-- applications to this technique
+- applications of this technique
   + simplification in a ring
   + 4 color theorem
   + Pocklington primality test

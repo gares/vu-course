@@ -242,5 +242,3 @@ End Ex3.
 #</div>#
 ----------------------------------------------------------
 *)
-(** When you are done, click the Download link at the top of the page
-    and send us your homework by email: Assia.Mahboubi@inria.fr *)
