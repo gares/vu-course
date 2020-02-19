@@ -347,10 +347,10 @@ move=> n.
 move: n m.
 (* introducing several items at once *)
 move=> n m.
-(* generalizing a subterm *)
-move: (n + m). Undo.
+(* generalizing a subterm: the name of the bound variable is chosen by Coq *)
+move: (n + m). 
 (* generalizing a subterm and introducing it in one go *)
-move: (n + m) => k. Undo.
+move: (n + m) => i. 
 (* Same, and clearing m in passing *)
 move: (n + m) => k {m}.
 Admitted.
