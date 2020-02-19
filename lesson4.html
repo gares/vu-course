@@ -34,7 +34,9 @@
                 <hl />
                 </p>
 <div><textarea id='coq-ta-1'>
-From mathcomp Require Import all_ssreflect.
+From mathcomp Require Import mini_ssreflect mini_ssrfun mini_ssrbool.
+From mathcomp Require Import mini_eqtype mini_ssrnat mini_seq mini_div.
+From mathcomp Require Import mini_prime.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -111,8 +113,6 @@ Fk : Pk ci
 =================
 forall (xl : Tl) (* top of the stack *)
 …,
-let ym := bm in  (* mth element of the stack *)
-…
 Pn xl ->         (* nth element of the stack *)
 … ->
 Conclusion       (* bottom of the stack = no more elements *)
@@ -126,12 +126,13 @@ Conclusion       (* bottom of the stack = no more elements *)
 <div>
 </div>
 <div><textarea id='coq-ta-2'>
-Axiom (Ti Tj Tl : Type) (ej bm : Tj).
-Axiom (Pk : Ti -> Type) (Pn : Tl -> Type).
-Axiom (Conclusion : Ti -> Tj -> Tj -> Tl -> Type).
+Section GoalModel.
+Variables (Ti Tj Tl : Type) (ej : Tj).
+Variables (Pk : Ti -> Type) (Pn : Tl -> Type).
+Variables (Conclusion : Ti -> Tj -> Tl -> Type).
 
 Lemma goal_model_example (ci : Ti) (dj : Tj := ej) (Fk : Pk ci) :
-  forall (xl : Tl), let ym := bm in Pn xl -> Conclusion ci dj ym xl.
+  forall (xl : Tl), Pn xl -> Conclusion ci dj xl.
 Abort.
 </textarea></div>
 <div><p>
@@ -166,9 +167,10 @@ This slide corresponds to section
 </div>
 <div><textarea id='coq-ta-3'>
 Lemma goal_model_example (ci : Ti) (dj : Tj := ej) (Fk : Pk ci) :
-  forall (xl : Tl), let ym := bm in Pn xl -> Conclusion ci dj ym xl.
+  forall (xl : Tl), Pn xl -> Conclusion ci dj xl.
 Proof.
-move=> xl ym pnxl.
+move=> xl pnxl.
+Fail move: xl.
 move: ci Fk.
 Abort.
 </textarea></div>
@@ -194,9 +196,6 @@ You can write
     <li> <tt>x</tt> a name, or
 
     </li>
-  <li> <tt>?</tt> name chosen by the system, no user access, or
-
-  </li>
   <li> <tt>_</tt> remove the top of the stack (if possible), or
 
   </li>
@@ -213,9 +212,6 @@ You can write
 
   </li>
   <li> <tt><-</tt> same but right to left, or
-
-  </li>
-  <li> <tt>{x}</tt> clear name <tt>x</tt> from the context, or
 
   </li>
   <li> <tt> [i_items|…|i_items] </tt> introductions on various sub-goals
@@ -252,45 +248,19 @@ You can write
 </div>
 <hr/>
 
-<div class="slide">
-<h3>
- Example
-</h3>
-
-<div>
-</div>
-<div><textarea id='coq-ta-4'>
-Lemma goal_model_example (ci : Ti) (dj : Tj := ej) (Fk : Pk ci) :
-  forall (xl : Tl), let ym := bm in Pn xl -> Conclusion ci dj ym xl.
-Proof.
-move=> xl /= pnxl.
-Fail move=> {xl}.
-Fail move=> {dj}.
-rewrite /dj {dj}.
-move: ci Fk.
-move=> {pnxl}.
-move=> ci _.
-Abort.
-</textarea></div>
-<div><p>
-</div>
-<p><br/><p>
-</div>
-<hr/>
-
-<div class="slide vfill" id="Elim">
+<div class="slide" id="Elim">
 <p>
 <h2>
- Proof by induction <a href="#Outline">↑</a>
+ Proof by induction: generalizing the induction hypothesis <a href="#Outline">↑</a>
 </h2>
 
 <p>
 <h3>
- Tactics <tt>elim</tt> and <tt>case</tt> work on the top of the stack
+ Tactics <tt>elim</tt> work on the top of the stack
 </h3>
 
 <p>
-Indeed, <tt>elim: x y z => [t u v | w] </tt> is the same as
+Indeed, <tt>elim: x y z => [t| u v w] </tt> is the same as
 <p>
 <ul class="doclist">
   <li> <tt>move: x y z.</tt>
@@ -299,22 +269,16 @@ Indeed, <tt>elim: x y z => [t u v | w] </tt> is the same as
 <li> <tt>elim.</tt>
 
 </li>
-<li> <tt>move=> t u v.</tt> in one sub-goal, <tt>move=> w.</tt> in the other.
+<li> <tt>move=> t.</tt> in one sub-goal, <tt>move=> u v w.</tt> in the other.
 
 </li>
 </ul>
 Examples:
 <div>
 </div>
-<div><textarea id='coq-ta-5'>
+<div><textarea id='coq-ta-4'>
 Lemma addnA m n p : m + (n + p) = (m + n) + p.
-Proof. by elim: m => // m IHm; rewrite !addSn IHm. Restart.
-Proof. by elim: m => // m; rewrite !addSn => ->. Qed.
-
-Lemma andbC : commutative andb.
-Proof. move=> b1 b2; case: b1; case: b2. Restart.
-Proof. by case; case. Restart.
-Proof. by move=> [] []. Qed.
+Proof. by elim: m => [|m IHm]//=; rewrite !addSn IHm. Qed.
 </textarea></div>
 <div><p>
 </div>
@@ -332,11 +296,18 @@ Sometimes, we have to generalize the induction hypothesis, and in such cases, we
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-6'>
+<div><textarea id='coq-ta-5'>
 Lemma subnDA m n p : n - (m + p) = (n - m) - p.
-Proof. by move: m n; elim=> [//|m IHm]; case. Restart.
-Proof. by elim: m n => [|m IHm] []. Qed.
+Proof.
+have: forall m n, n - (m + p) = (n - m) - p.
+  by elim=> [|m' IHm]// [].
+Abort.
 
+(* this can be rewritten like this: *)
+Lemma subnDA m n p : n - (m + p) = (n - m) - p.
+Proof. by elim: m n => [|m IHm]// []. Qed.
+
+(* More complicated example *)
 Lemma foldl_cat' T R f (z0 : R) (s1 s2 : seq T) :
   foldl f z0 (s1 ++ s2) = foldl f (foldl f z0 s1) s2.
 Proof.
@@ -347,13 +318,17 @@ move=> x xs IH.
 move=> acc.
 rewrite /=.
 by rewrite IH.
+Qed.
 
-Restart.
-
-Proof. by elim: s1 z0 => [//|x xs IH] acc /=; rewrite IH. Qed.
 </textarea></div>
 <div><p>
 </div>
+<p>
+This script can be abbreviated
+<pre class="inline-coq" data-lang="coq">
+Proof. </pre>by elim: s1 z0 => <tt>//|x xs IH</tt> acc /=; rewrite IH. Qed.
+]]
+<p>
 <p><br/><p>
 <p>
 </div>
@@ -362,7 +337,7 @@ Proof. by elim: s1 z0 => [//|x xs IH] acc /=; rewrite IH. Qed.
 <div class="slide vfill" id="Views">
 <p>
 <h2>
- Using views, forward and backward. <a href="#Outline">↑</a>
+ Using views. <a href="#Outline">↑</a>
 </h2>
 
 <p>
@@ -378,7 +353,7 @@ There are two types of connectives.
 </ul>
 <div>
 </div>
-<div><textarea id='coq-ta-7'>
+<div><textarea id='coq-ta-6'>
 Section Connectives.
 
 (* Locate "/\". *)
@@ -409,7 +384,7 @@ End Connectives.
 
 </div><div>
 </div>
-<div><textarea id='coq-ta-8'>
+<div><textarea id='coq-ta-7'>
 Lemma test_and (P : bool) :
   True /\ P -> P. (* true && P -> P. *)
 Proof.
@@ -446,12 +421,9 @@ Abort.
 
 <p>
 <ul class="doclist">
-  <li> provide computation,
+  <li> provide computation.
 
   </li>
-<li> other things out of the scope of this course.
-
-</li>
 </ul>
 <h4>
  We want the best of the two worlds, and a way to link them: views.
@@ -476,24 +448,19 @@ To link a concept in bool and one in Prop we typically
 use the <tt>reflect P b</tt> predicate, which is a specialisation
 of equivalence <tt>P <-> b</tt>,
 where one side is in <tt>Prop</tt> and the other in <tt>bool</tt>.
-To prove <tt>reflect</tt> we use the <tt>iffP</tt> lemma that
-turns it into a two implication.
+To prove <tt>reflect</tt> we use the tactic <tt>prove_reflect</tt>.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-9'>
-About iffP.
-About idP.
+<div><textarea id='coq-ta-8'>
 
 Lemma eqnP {n m : nat} :
   reflect (n = m) (eqn n m).
 Proof.
-apply: (iffP idP).
+prove_reflect.
   elim: n m => [|n IH] m; case: m => // m Hm.
   by rewrite (IH m Hm).
-move=> def_n; rewrite {}def_n.
-Undo.
-move=> ->. (* move + rewrite + clear idiom *)
+move=> def_n; rewrite def_n {def_n}. (* clears `def_n` *)
 by elim: m.
 Qed.
 </textarea></div>
@@ -509,7 +476,7 @@ sections 4.1.1 and 4.1.2 of
 
 <div class="slide">
 <h3>
- Using views forwards
+ Using views in forward chaining
 </h3>
 
 <p>
@@ -517,16 +484,25 @@ The syntax <tt>/view</tt> can be put in intro patterns
 to modify the top assumption using <tt>view</tt>
 <div>
 </div>
-<div><textarea id='coq-ta-10'>
+<div><textarea id='coq-ta-9'>
 About andP.
 
 Lemma example n m k : k <= n ->
   (n <= m) && (m <= k) -> n = k.
 Proof.
-move=> lekn /andP H; case: H => lenm lemk.
-Undo.
-move=> lekn /andP[lenm lemk]. (* view + case idiom *)
+move=> lekn /andP nmk; case: nmk => lenm lemk.
 Abort.
+
+About negPf.
+
+Lemma test_negPf n m (P : pred nat) : ~~ P n -> ~~ P m -> P n = P m.
+Proof.
+move=> /negPf.
+move=> Pn_eq_false.
+rewrite Pn_eq_false.
+move=> /negPf->.
+by [].
+Qed.
 </textarea></div>
 <div><p>
 </div>
@@ -535,7 +511,7 @@ Abort.
 
 <div class="slide">
 <h3>
- Using views forwards
+ Using view in backward chaining
 </h3>
 
 <p>
@@ -543,7 +519,7 @@ The <tt>apply:</tt> tactic accepts a <tt>/view</tt> flag
 to modify the goal using <tt>view</tt>.
 <div>
 </div>
-<div><textarea id='coq-ta-11'>
+<div><textarea id='coq-ta-10'>
 Lemma leq_total m n : (m <= n) || (m >= n).
 Proof.
 (* About implyNb.*)
@@ -566,7 +542,7 @@ sections 4.1.3 and 4.1.4 of
 
 <div class="slide">
 <h3>
- Using views  with non reflexive lemmas
+ Using views  with other lemmas
 </h3>
 
 <p>
@@ -580,31 +556,18 @@ sections 4.1.3 and 4.1.4 of
 <li> If the lemma states <tt>A -> B</tt>, we can use it as a function to get a proof of <tt>B</tt> from a proof of <tt>A</tt>.
 
 </li>
-<li> If the lemma states <tt>A <-> B</tt>, the view mechanisms tries the first of <tt>A -> B</tt> and <tt>B -> A</tt> that succeeds.
-
-</li>
-<li> One can also chain multiple views on the same stack item.
-
-</li>
 </ul>
 <div>
 </div>
-<div><textarea id='coq-ta-12'>
+<div><textarea id='coq-ta-11'>
 About prime_gt1.
 
 Lemma example_2 x y  : prime x -> odd y -> 2 < y + x.
 Proof.
 move=> /prime_gt1 x_gt_1. (* view through prime_gt1 *)
-Undo.
-move=> /prime_gt1/ltnW.
+move: x_gt_1 => /ltnW.
 Abort.
 
-Lemma example_3 A B  (V: A <-> B): B -> A .
-Proof.
-move=>b.
-apply/V.
-by [].
-Qed.
 </textarea></div>
 <div><p>
 </div>
@@ -624,7 +587,7 @@ section 4.2 of
 
 <p>
 <ul class="doclist">
-  <li> <tt>reflect</tt> and <tt>iffP</tt>
+  <li> <tt>reflect</tt> and <tt>prove_reflect</tt>
 
   </li>
 <li> <tt>move=> /v H</tt> forward chaining with a view (new <tt>i_item</tt>)
@@ -667,48 +630,24 @@ the result which is on the top of the stack.
 cf <a href="https://coq.inria.fr/refman/proof-engine/ssreflect-proof-language.html?highlight=stack#the-have-tactic">ssreflect documentation on rewrite</a>
 <div>
 </div>
-<div><textarea id='coq-ta-13'>
+<div><textarea id='coq-ta-12'>
 Lemma test_have n :
-  reflect (exists x y z, x ^ n + y ^ n == z ^ n) ((n == 1) || (n == 2)).
+  reflect (exists x y z, (x != 0) && (y != 0) && (z != 0) && (x ^ n + y ^ n == z ^ n))
+          ((n == 1) || (n == 2)).
 Proof.
 have test0 : forall x y z, x ^ 0 + y ^ 0 != z ^ 0 by [].
-have test1 : exists x y z, x ^ 1 + y ^ 1 = z ^ 1 by exists 0, 0, 0.
-have test2 : exists x y z, x ^ 2 + y ^ 2 = z ^ 2 by exists 3, 4, 5.
-suff test m : m >= 3 -> forall x y z, x ^ m + y ^ m != z ^ m.
-  case: n => [|[|[|n]]]//=; constructor.
-  - by move=> [x [y [z]]]; rewrite (negPf (test0 _ _ _)).
-  - by have [x [y [z /eqP]]] := test1; exists x, y, z.
-  - by have [x [y [z /eqP]]] := test2; exists x, y, z.
-  - by move=> [x [y [z]]]; rewrite (negPf (test _ _ _ _ _)).
+have test1 : exists x y z, (x != 0) && (y != 0) && (z != 0)
+  /\ x ^ 1 + y ^ 1 = z ^ 1 by exists 1, 1, 2.
+have test2 : exists x y z, (x != 0) && (y != 0) && (z != 0)
+  /\ x ^ 2 + y ^ 2 = z ^ 2 by exists 3, 4, 5.
+suff test m : m >= 3 -> forall x y z, (x != 0) && (y != 0) && (z != 0) ->
+  x ^ m + y ^ m != z ^ m.
+  admit.
 (* The rest of the proof fits in a margin *)
 Abort.
 </textarea></div>
 <div><p>
 </div>
-</div>
-<hr/>
-
-<div class="slide">
-<h3>
- Example: Infinitude of primes
-</h3>
-
-<div>
-</div>
-<div><textarea id='coq-ta-14'>
-Lemma prime_above (m : nat) : exists p, (prime p) && (m < p).
-Proof.
-have: 1 < m`! + 1 by rewrite addn1 ltnS fact_gt0.
-move=> /pdivP[q pr_q q_dv_m1].
-exists q; rewrite pr_q /= ltnNge.
-apply: contraL q_dv_m1 => q_le_m.
-by rewrite dvdn_addr ?dvdn_fact ?prime_gt0 // gtnNdvd ?prime_gt1.
-Qed.
-
-</textarea></div>
-<div><p>
-</div>
-<p><br/><p>
 </div>
 <hr/>
 
@@ -732,7 +671,7 @@ Qed.
 </ul>
 <div>
 </div>
-<div><textarea id='coq-ta-15'>
+<div><textarea id='coq-ta-13'>
 Lemma test m n k : (2 + n + 52) * m = k.
 Proof.
 pose x := (_ + n + _) * m.
@@ -764,7 +703,7 @@ e.g.
 </ul>
 <div>
 </div>
-<div><textarea id='coq-ta-16'>
+<div><textarea id='coq-ta-14'>
 Lemma change_example (P : nat -> nat -> bool) :
   (forall m n k, P (m + n) (k + n) = P (m + k) (n + m)) ->
    P 2 3 -> P 3 1.
@@ -795,7 +734,7 @@ The main functions symbols
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-17'>
+<div><textarea id='coq-ta-15'>
 Check edivn.
 Search _ edivn.
 Check edivn_eq.
@@ -820,7 +759,7 @@ Check ltn_mod.
 
 <div>
 </div>
-<div><textarea id='coq-ta-18'>
+<div><textarea id='coq-ta-16'>
 Print dvdn.
 (* dvdn d m := m  d == 0 *)
 Check (2 %| 4).
@@ -841,7 +780,7 @@ dvdnP: forall d m : nat, reflect (exists k : nat, m = k * d) (d | n -> d | m -> 
 The notation <tt>m = n %[mod d]</tt> is an abbreviation for <tt>m %% d = n %% d</tt>.
 <div>
 </div>
-<div><textarea id='coq-ta-19'>
+<div><textarea id='coq-ta-17'>
 Search _ (_ = _ %[mod _]).
 (*
 modn_mod: forall m d : nat, m  d = m <tt>mod d</tt>
@@ -858,7 +797,7 @@ modnDl: forall m d : nat, d + m = m <tt>mod d</tt>
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-20'>
+<div><textarea id='coq-ta-18'>
 Check gcdn.
 Search _ gcdn dvdn.
 (*
@@ -884,15 +823,14 @@ primeP:
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-21'>
+<div><textarea id='coq-ta-19'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
                   'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
                   'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
                   'coq-ta-13',  'coq-ta-14',  'coq-ta-15',  'coq-ta-16', 
-                  'coq-ta-17',  'coq-ta-18',  'coq-ta-19',  'coq-ta-20', 
-                  'coq-ta-21'];
+                  'coq-ta-17',  'coq-ta-18',  'coq-ta-19'];
 </script>
 <hr />
 
