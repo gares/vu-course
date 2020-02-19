@@ -496,7 +496,8 @@ Qed.
 #</div>#
 
 But this is quite inconvenient: the [rewrite] tactic offers support for
-applying [eq_ind] conveniently.
+applying [eq_ind] conveniently. Note how restauring the coercion from [bool]
+to [Prop] helps with readability.
 
 #<div>#
 *)
