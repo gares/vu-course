@@ -67,7 +67,7 @@ Outline:
 <li> 3. <a href="#Views">Using views, forward <tt>=> /view</tt> and backward <tt>apply/view</tt>.</a>
 
 </li>
-<li> 4. <a href="#Have">Organizing your proof: <tt>have</tt>, <tt>suff</tt>, <tt>rewrite -/</tt>, <tt>set</tt> and <tt>pose</tt>.</a>
+<li> 4. <a href="#Have">Organizing your proof: <tt>have</tt>, <tt>suff</tt>, <tt>set</tt>, <tt>pose</tt> and <tt>rewrite</tt> variants.</a>
 
 </li>
 <li> 5. <a href="#Arithmetic">A few steps into the arithmetic library: <tt>mini_div</tt>.</a>
@@ -196,7 +196,7 @@ You can write
     <li> <tt>x</tt> a name, or
 
     </li>
-  <li> <tt>_</tt> remove the top of the stack (if possible), or
+  <li> <tt>_</tt> to remove the top of the stack (if possible), or
 
   </li>
   <li> <tt>//</tt> close trivial subgoals, or
@@ -685,8 +685,46 @@ Abort.
 
 <div class="slide">
 <h3>
- With <tt>-[pattern]/term</tt> to replace a term by a convertible one.
+ Variants of the <tt>rewrite</tt> tactic.
 </h3>
+
+<p>
+<h4>
+ Use <tt>rewrite -equation</tt> to rewrite right to left.
+</h4>
+
+<div>
+</div>
+<div><textarea id='coq-ta-14'>
+Section RtoL.
+Variables (P : nat -> Prop) (n : nat) (P_addn1 : P (n + 1)).
+Lemma RtoL_example : P (S n).
+Proof.
+rewrite -addn1.
+by [].
+Qed.
+End RtoL.
+</textarea></div>
+<div><p>
+<h4>
+ Use <tt>rewrite [pattern]equation</tt> to select what you want to rewrite.
+</h4>
+
+<div>
+</div>
+<div><textarea id='coq-ta-15'>
+Lemma pattern_example (m n : nat) : n + 1 = 1 + m -> n + 1 = m + 1.
+Proof.
+rewrite [m + 1]addnC.
+by [].
+Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+<h4>
+ Use <tt>-[pattern]/term</tt> to replace a term by a convertible one.
+</h4>
 
 e.g.
 <p>
@@ -703,13 +741,14 @@ e.g.
 </ul>
 <div>
 </div>
-<div><textarea id='coq-ta-14'>
+<div><textarea id='coq-ta-16'>
 Lemma change_example (P : nat -> nat -> bool) :
   (forall m n k, P (m + n) (k + n) = P (m + k) (n + m)) ->
    P 2 3 -> P 3 1.
 Proof.
 move=> Pmn P31.
-rewrite -[3]/(2 + 1) -{3}[1]/(0 + 1).
+rewrite -[3]/(2 + 1).
+rewrite -[X in P _ X]/(0 + 1).
 by rewrite Pmn.
 Qed.
 </textarea></div>
@@ -725,7 +764,27 @@ Qed.
 </h2>
 
 <p>
-The main functions symbols
+The main functions symbols (besides <tt>addn</tt>, <tt>muln</tt>, <tt>subn</tt>, ...)
+<p>
+<h3>
+ Large and Strict comparison.
+</h3>
+
+<div>
+</div>
+<div><textarea id='coq-ta-17'>
+Check leq.
+Check (1 <= 3).
+(* 1 <= 3 *)
+
+Print ltn. (* autosimplifying, never expect to see it *)
+Notation "n < m" := (S n <= m) (only printing).
+
+Check (1 <= 3).
+(* 0 < 3 *)
+</textarea></div>
+<div><p>
+</div>
 <p>
 <h3>
  Euclidean division <tt>edivn</tt> and its quotient <tt>divn</tt> and remainder <tt>modn</tt>
@@ -734,17 +793,17 @@ The main functions symbols
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-15'>
+<div><textarea id='coq-ta-18'>
 Check edivn.
 Search _ edivn.
 Check edivn_eq.
 (* forall d q r : nat, r < d -> edivn (q * d + r) d = (q, r) *)
 
 Print divn.
-(* divn m d := (edivn m d).1 *)
+(* divn m d := fst (edivn m d) *)
 Check modn.
 Check modn_def.
-(* m  d = (edivn m d).2 *)
+(* m  d = snd (edivn m d) *)
 
 Check ltn_mod.
 (* forall m d : nat, (m  d < d) = (0 < d) *)
@@ -759,7 +818,7 @@ Check ltn_mod.
 
 <div>
 </div>
-<div><textarea id='coq-ta-16'>
+<div><textarea id='coq-ta-19'>
 Print dvdn.
 (* dvdn d m := m  d == 0 *)
 Check (2 %| 4).
@@ -780,7 +839,7 @@ dvdnP: forall d m : nat, reflect (exists k : nat, m = k * d) (d | n -> d | m -> 
 The notation <tt>m = n %[mod d]</tt> is an abbreviation for <tt>m %% d = n %% d</tt>.
 <div>
 </div>
-<div><textarea id='coq-ta-17'>
+<div><textarea id='coq-ta-20'>
 Search _ (_ = _ %[mod _]).
 (*
 modn_mod: forall m d : nat, m  d = m <tt>mod d</tt>
@@ -797,7 +856,7 @@ modnDl: forall m d : nat, d + m = m <tt>mod d</tt>
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-18'>
+<div><textarea id='coq-ta-21'>
 Check gcdn.
 Search _ gcdn dvdn.
 (*
@@ -823,14 +882,15 @@ primeP:
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-19'>
+<div><textarea id='coq-ta-22'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
                   'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
                   'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
                   'coq-ta-13',  'coq-ta-14',  'coq-ta-15',  'coq-ta-16', 
-                  'coq-ta-17',  'coq-ta-18',  'coq-ta-19'];
+                  'coq-ta-17',  'coq-ta-18',  'coq-ta-19',  'coq-ta-20', 
+                  'coq-ta-21',  'coq-ta-22'];
 </script>
 <hr />
 

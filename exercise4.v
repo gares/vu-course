@@ -1,10 +1,12 @@
 From mathcomp Require Import mini_ssreflect mini_ssrfun mini_ssrbool.
 From mathcomp Require Import mini_eqtype mini_ssrnat mini_seq mini_div.
 
-
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
+
+Notation "n < m" := (S n <= m) (only printing).
+
 (**
 
 what follows is a slide, it creates an index item next to the scroll bar,

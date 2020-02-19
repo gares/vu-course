@@ -5,6 +5,7 @@ From mathcomp Require Import mini_prime mini_sum.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
+Notation "n < m" := (S n <= m) (only printing).
 
 (** *** Exercise 1:
 

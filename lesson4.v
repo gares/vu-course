@@ -20,7 +20,7 @@ Outline:
 - 1. #<a href="##Stack">#How to manage your Goal: [move=>] and [move:]#</a>#
 - 2. #<a href="##Elim">#Proof by induction, generalizing the induction hypothesis with [elim:].#</a>#
 - 3. #<a href="##Views">#Using views, forward [=> /view] and backward [apply/view].#</a>#
-- 4. #<a href="##Have">#Organizing your proof: [have], [suff], [rewrite -/], [set] and [pose].#</a>#
+- 4. #<a href="##Have">#Organizing your proof: [have], [suff], [set], [pose] and [rewrite] variants.#</a>#
 - 5. #<a href="##Arithmetic">#A few steps into the arithmetic library: [mini_div].#</a>#
 
 #</div>#
@@ -103,7 +103,7 @@ Abort.
 You can write
 - [tactic=> i_items] where [i_items] is a list of "intro items", where each [i_item] can be either,
   - [x] a name, or
-  - [_] remove the top of the stack (if possible), or
+  - [_] to remove the top of the stack (if possible), or
   - [//] close trivial subgoals, or
   - [/=] perform simplifications, or
   - [//=] do both the previous, or
@@ -425,7 +425,32 @@ Abort.
 
 ----------------------------------------------------------
 #<div class="slide">#
-*** With [-[pattern]/term] to replace a term by a convertible one.
+*** Variants of the [rewrite] tactic.
+
+**** Use [rewrite -equation] to rewrite right to left.
+#<div>#
+*)
+Section RtoL.
+Variables (P : nat -> Prop) (n : nat) (P_addn1 : P (n + 1)).
+Lemma RtoL_example : P (S n).
+Proof.
+rewrite -addn1.
+by [].
+Qed.
+End RtoL.
+(**
+**** Use [rewrite [pattern]equation] to select what you want to rewrite.
+#<div>#
+*)
+Lemma pattern_example (m n : nat) : n + 1 = 1 + m -> n + 1 = m + 1.
+Proof.
+rewrite [m + 1]addnC.
+by [].
+Qed.
+(**
+#</div>#
+
+**** Use [-[pattern]/term] to replace a term by a convertible one.
 e.g.
 - [-[2]/(1 + 1)] replaces [2] by [1 + 1],
 - [-[2 ^ 2]/4] replaces [2 ^ 2] by [4],
@@ -438,7 +463,8 @@ Lemma change_example (P : nat -> nat -> bool) :
    P 2 3 -> P 3 1.
 Proof.
 move=> Pmn P31.
-rewrite -[3]/(2 + 1) -{3}[1]/(0 + 1).
+rewrite -[3]/(2 + 1).
+rewrite -[X in P _ X]/(0 + 1).
 by rewrite Pmn.
 Qed.
 (**
@@ -450,7 +476,22 @@ Qed.
 
 ** A few steps into the arithmetic library. #<a href="##Outline">#↑#</a>#
 
-The main functions symbols
+The main functions symbols (besides [addn], [muln], [subn], ...)
+
+*** Large and Strict comparison.
+#<div>#
+*)
+Check leq.
+Check (1 <= 3).
+(* 1 <= 3 *)
+
+Print ltn. (* autosimplifying, never expect to see it *)
+Notation "n < m" := (S n <= m) (only printing).
+
+Check (1 <= 3).
+(* 0 < 3 *)
+(**
+#</div>#
 
 *** Euclidean division [edivn] and its quotient [divn] and remainder [modn]
 
@@ -462,10 +503,10 @@ Check edivn_eq.
 (* forall d q r : nat, r < d -> edivn (q * d + r) d = (q, r) *)
 
 Print divn.
-(* divn m d := (edivn m d).1 *)
+(* divn m d := fst (edivn m d) *)
 Check modn.
 Check modn_def.
-(* m %% d = (edivn m d).2 *)
+(* m %% d = snd (edivn m d) *)
 
 Check ltn_mod.
 (* forall m d : nat, (m %% d < d) = (0 < d) *)
