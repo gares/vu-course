@@ -78,7 +78,7 @@ Unset Printing Implicit Defensive.
 The conversion rule (for the machine):
 <p>
 $$
-\frac{\Gamma \vdash t : \forall a:A, B \qquad
+\frac{\Gamma \vdash t : (\forall x:A, B) \qquad
       \Gamma \vdash u : A' \qquad
       \Gamma \vdash A \equiv A'}{\Gamma \vdash t~u : B[x \gets u]}
 $$
@@ -107,6 +107,10 @@ End ConversionRecap.
 </textarea></div>
 <div><p>
 </div>
+<p>
+Remark: <tt>erefl true</tt> works as a proof for <tt>e = true</tt>
+no matter how many reduction steps it takes to normalize
+<tt>e</tt> to <tt>true</tt>.
 <p>
 </div>
 <hr/>
@@ -177,6 +181,9 @@ Inductive expr :=
   | Zero
   | Mult (x : expr) (y : expr)
   | Extra (stuff : nat).
+
+(* Syntax of (3 * 0) * 4 *)
+Definition T : expr := Mult (Mult (Extra 3) Zero) (Extra 4).
 </textarea></div>
 <div><p>
 </div>
@@ -202,9 +209,6 @@ Fixpoint simplify (e : expr) : expr :=
       end
   | x => x
   end.
-
-(* Syntax of (3 * 0) * 4 *)
-Definition T : expr := Mult (Mult (Extra 3) Zero) (Extra 4).
 
 Eval lazy in simplify T. (* = Zero *)
 </textarea></div>

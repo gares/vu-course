@@ -23,7 +23,7 @@ Unset Printing Implicit Defensive.
 The conversion rule (for the machine):
 
 #$$
-\frac{\Gamma \vdash t : \forall a:A, B \qquad
+\frac{\Gamma \vdash t : (\forall x:A, B) \qquad
       \Gamma \vdash u : A' \qquad
       \Gamma \vdash A \equiv A'}{\Gamma \vdash t~u : B[x \gets u]}
 $$#
@@ -50,6 +50,10 @@ Check lem 3 7 (erefl true).
 End ConversionRecap.
 (**
 #</div>#
+
+Remark: [erefl true] works as a proof for [e = true]
+no matter how many reduction steps it takes to normalize
+[e] to [true].
 
 #</div>#
 ----------------------------------------------------------
@@ -95,6 +99,9 @@ Inductive expr :=
   | Zero
   | Mult (x : expr) (y : expr)
   | Extra (stuff : nat).
+
+(* Syntax of (3 * 0) * 4 *)
+Definition T : expr := Mult (Mult (Extra 3) Zero) (Extra 4).
 (**
 #</div>#
 
@@ -119,8 +126,6 @@ Fixpoint simplify (e : expr) : expr :=
   | x => x
   end.
 
-(* Syntax of (3 * 0) * 4 *)
-Definition T : expr := Mult (Mult (Extra 3) Zero) (Extra 4).
 
 Eval lazy in simplify T. (* = Zero *)
 (**
@@ -352,7 +357,7 @@ End C.
 
 ** To sum up
 
-- computation is well define on any term, including terms with variables
+- computation is well defined on any term, including terms with variables
 - computation is _complete_ on closed terms (you reach a normal form
   that is made of constructors)
 - computation happens _inside_ the logic (terms are quotiented wrt computation)
