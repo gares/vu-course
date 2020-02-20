@@ -1,6 +1,6 @@
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype choice ssrnat.
 From mathcomp Require Import seq div fintype bigop ssralg finset fingroup zmodp.
-From mathcomp Require Import poly polydiv ssrnum matrix mxalgebra vector.
+From mathcomp Require Import perm poly polydiv ssrnum matrix mxalgebra vector.
 From mathcomp Require Import mxpoly.
 
 Set Implicit Arguments.
@@ -173,12 +173,14 @@ Notation "A ~ B" := (A ~_ xpredT B).
 Lemma real_similar n (A B : 'M[C]_n) : A \is a realmx -> B \is a realmx ->
   A ~ B -> A ~_realmx B.
 Proof.
+Locate " 'M_ n ". About matrix.
 case=> Areal Breal [P /=]; rewrite (mxCrect P).
 set Pr := P ^ Re; set Pi := P ^ Im.
 pose Q x := Pr + x *: Pi; rewrite -/(Q 'i) => Qi_unit eq_AP_PB.
 pose p := \det (Pr ^ polyC + 'X *: Pi ^ polyC).
+Locate "\det". Print determinant.
 have Qunit x : Q x \in unitmx = (p.[x] != 0).
-  have polyCK : horner_eval x \o polyC =1 id by move=> ?; apply: hornerC.
+  have polyCK : horner_eval x \o polyC =1 id by move=> ?; apply: hornerC. (**)
   rewrite /p -horner_evalE -det_map_mx map_mxD map_mxZ/= horner_evalE hornerX.
   by rewrite -![(_ ^ polyC) ^ _]map_mx_comp !eq_map_mx_id// unitmxE unitfE.
 have pi_neq0 : p.['i] != 0 by rewrite -Qunit.

@@ -69,11 +69,11 @@ Today:
 <div class="slide vfill">
 <p>
 <h2>
- Redundant annotations
+ Redundant annotations: polymorphism
 </h2>
 
 <p>
-Here is a toy copy of the (polymorphic) type of lists:
+Remember, from Lesson 2, the definition of the (polymorphic) type of lists, of which we make an isomorphic copy here:
 <p>
 <div>
 </div>
@@ -89,7 +89,9 @@ About cons.
 <div><p>
 </div>
 <p>
-A well-typed term features many copies of the polymorphic parameter:
+Except that our copy is not (yet) configured: it 
+behaves <quote>as on a black board</quote>.
+In fact, a well-typed term of type <tt>list A</tt> features many copies of the polymorphic parameter <tt>A</tt>:
 <p>
 <div>
 </div>
@@ -99,7 +101,7 @@ Check cons nat 3 (cons nat 2 (nil nat)).
 <div><p>
 </div>
 <p>
-Although the proof assistant can infer these values from the type of elements:
+Yet the proof assistant is able to infer the value of this parameter, from the type of elements stored in the list:
 <p>
 <div>
 </div>
@@ -109,7 +111,8 @@ Check cons _ 3 (cons _ 2 (nil _)).
 <div><p>
 </div>
 <p>
-Therefore we can configure the definition:
+Therefore, we can configure the definition, so that we do not even have
+to mention the holes:
 <div>
 </div>
 <div><textarea id='coq-ta-5'>
@@ -120,6 +123,7 @@ Fail Check cons _ 3 (cons _ 2 (nil _)).
 Check cons 3 (cons 2 nil).
 
 End ImplicitsForLists.
+
 </textarea></div>
 <div><p>
 </div>
@@ -134,66 +138,42 @@ End ImplicitsForLists.
 </h2>
 
 <p>
-Tactics use information from the goal, to compute relevant instances of lemmas.
+In Lesson 3, we have seen that tactics use information from the goal, to compute relevant instances of lemmas.
 <p>
-Reminder: the apply tactic:
+This is typically the case with the apply tactic:
 <div>
 </div>
 <div><textarea id='coq-ta-6'>
 Module Tactics.
-
 Import mini_ssreflect.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
-Lemma apply_example1 (n m : nat) (P : nat ->Prop) : (forall k, P k) -> P 4.
+Variable (P : nat ->Prop).
+Lemma apply_example1 (n m : nat)  : (forall k, P k) -> P 4.
 Proof.
 move=> h.
 apply: h.
-Qed.
-
-Lemma apply_example2 (n m : nat) (P : nat ->Prop) : (forall k, P (2 * k)) -> P 4.
-Proof.
-move=> h.
-Fail apply: h.
-apply: (h 2).
 Qed.
 
 </textarea></div>
 <div><p>
 </div>
 <p>
-</div>
-<hr/>
-
-<div class="slide vfill">
+Although it cannot guess arbitrary information, as balance has to be 
+maintained between automation and efficiency:
 <p>
-<h2>
- Matching and unification
-</h2>
-
-<p>
-Tactics use information from the goal, to compute relevant instances of lemmas.
-<p>
-Reminder: the elim tactic:
 <div>
 </div>
 <div><textarea id='coq-ta-7'>
-
-About last_ind.
-
-Section FoldLeft.
-
-Variables (T R : Type) (f : R -> T -> R).
-
-(* Lemma foldl_rev (z : R) (s : list T) : foldl f z (rev s) = foldr (fun x z => f z x) z s. *)
-(* Proof. *)
-(* elim/last_ind: s z. => // s x IHs z. rewrite rev_rcons -cats1 foldr_cat -IHs. *)
-(* Qed. *)
-
-End FoldLeft.
+Lemma apply_example2 : (forall k l , P (k * l)) -> P 6.
+Proof.
+move=> h.
+Fail apply: h.
+apply: (h 2 3).
+Qed.
 
 End Tactics.
 </textarea></div>
@@ -210,23 +190,144 @@ End Tactics.
 </h2>
 
 <p>
-(so far only from the context, now from the user)
+So far, the information inferred by the proof assistant was based on
+constraints coming from typing rules and matching.
 <p>
-bool -> Prop
+But the user can also add extra inference features, based on the content of the libraries.
 <p>
+This is what we have done in Lecture 2 and 3 when discussing how terms of type <tt>bool</tt> could be promoted to the status of statement, i.e., terms of type <tt>Prop</tt>.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-8'>
+
+Module Coercion.
+
+Fail Check true : Prop.
+
+Import mini_ssreflect.
+
+Check false : Prop.
+
+Set Printing Coercions.
+
+Check false : Prop.
+
+Print is_true.
+
+Variables (A B : Set) (a : A).
+
+Variable f : A -> B.
+
+Fail Check a : B.
+
+Coercion f : A >-> B.
+
+Check a : B.
+
+Unset Printing Notations.
+
+End Coercion.
+
+Print pair.
+</textarea></div>
+<div><p>
+<div>
+<p>
+Caveat: use with care, as it can obfuscate statements...
 </div>
 <hr/>
 
 <div class="slide vfill">
 <p>
 <h2>
- Coercions
+ Coercions and dependent pairs
 </h2>
 
 <p>
-(so far only from the context, now from the user)
+In Lesson 3, we have discussed the extension of a dependently typed lambda calculus with inductive types, so as to better represent constructions, e.g. natural numbers, booleans, etc.
 <p>
-First projection of a dependent pair (val).
+Here is an important example of extension, introducing dependent pairs. Let us start with the introduction (typing) rule:
+<p>
+$$\frac{\Gamma \vdash T\ :\ Set \quad \Gamma \vdash P\ :\ T \rightarrow Prop}{\Gamma \vdash \Sigma x\ :\ T, p\ x : Set} $$
+<p>
+Using Coq's inductive types, this becomes:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-9'>
+Module InductiveDependentPairs.
+
+Section InductiveDependentPairs.
+
+Variables (T : Set) (P :  T -> Prop).
+
+Inductive dep_pair : Set := MkPair (t : T) (p : P t).
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+And here are the projections of a pair onto its components:
+<div>
+</div>
+<div><textarea id='coq-ta-10'>
+
+Definition proj1 (p : dep_pair) : T :=
+  match p with
+  |MkPair x px => x
+  end.
+
+About proj1.
+
+Definition proj2 (p : dep_pair) : P (proj1 p) :=
+  match p with
+  |MkPair x px => px
+  end.
+
+About proj2.
+
+End InductiveDependentPairs.
+
+About proj1.
+
+About proj2.
+
+End InductiveDependentPairs.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Coq provides a specific syntax to define a dependent pair and its projections in one go:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-11'>
+
+Section RecordDependentPair.
+
+Variables (T : Set) (P :  T -> Prop).
+
+Record dep_pair : Set := MkPair {proj1 : T; proj2 : P proj1}.
+
+About MkPair.
+
+About proj1.
+
+About proj2.
+
+End RecordDependentPair.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Dependent pairs can be used to define a sub-type, i.e., a type for a sub-collection of elements in a given type. Here is a type for strictly positive natural numbers:
+<div>
+<p>
+<p>
+</div>
 <p>
 </div>
 <hr/>
@@ -242,7 +343,8 @@ Pairs of data:
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-8'>
+<div><textarea id='coq-ta-12'>
+
 Variables A1 B1 C1 : Type.
 Check A1 -> B1 -> C1.
 Check A1 * B1 -> C1.
@@ -253,7 +355,7 @@ Check A1 * B1 -> C1.
 Pairs of proofs:
 <div>
 </div>
-<div><textarea id='coq-ta-9'>
+<div><textarea id='coq-ta-13'>
 Variables A2 B2 C2 : Prop.
 Check A2 -> B2 -> C2.
 Check A2 /\ B2 -> C2.
@@ -275,7 +377,7 @@ A pair of a data (a number) and a proof (of positivity)
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-10'>
+<div><textarea id='coq-ta-14'>
 Module PosNat.
 
 From mathcomp Require Import all_ssreflect.
@@ -289,7 +391,7 @@ Which defines projections as well in one go.
 <p>
 <div>
 </div>
-<div><textarea id='coq-ta-11'>
+<div><textarea id='coq-ta-15'>
 About nval.
 
 About vnalP.
@@ -308,7 +410,7 @@ About vnalP.
 Now.
 <div>
 </div>
-<div><textarea id='coq-ta-12'>
+<div><textarea id='coq-ta-16'>
 Variable P : nat -> Prop.
 
 Check forall n : nat, 0 < n -> P n.
@@ -323,13 +425,14 @@ End PosNat.
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-13'>
+<div><textarea id='coq-ta-17'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
                   'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
                   'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
-                  'coq-ta-13'];
+                  'coq-ta-13',  'coq-ta-14',  'coq-ta-15',  'coq-ta-16', 
+                  'coq-ta-17'];
 </script>
 <hr />
 
