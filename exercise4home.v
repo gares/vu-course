@@ -36,6 +36,7 @@ Proof.
 (*D*)  by elim: t1 => [|l1 IHl1 r1 IHr1]//=; rewrite IHl1 IHr1.
 (*D*)elim: t1 t2 => [|l1 IHl1 r1 IHr1] [|l2 r2]//=.
 (*D*)by move=> /andP[eql1l2 eqr1r2]; rewrite (IHl1 l2)// (IHr1 r2).
+(*A*)Qed.
 (**
 #</div>#
 
