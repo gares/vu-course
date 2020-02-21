@@ -249,7 +249,7 @@ elim: e => //= x Hx y Hy.
   (* fill in *)
 Qed.
 
-Lemma test (x : nat) (y : nat) : x - x - (y * 0) = 0.
+Lemma test (x : nat) (y : nat) : x - (x * 1) - (y * 0) = 0.
 Proof.
 pose AST : expr := (* fill me *)
 pose CTX : list nat := (* fill me *)

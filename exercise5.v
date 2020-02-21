@@ -222,10 +222,10 @@ elim: e => //= x Hx y Hy.
 (*D*) by case: eqP => [->|//]; rewrite subnn.
 Qed.
 
-Lemma test (x : nat) (y : nat) : x - x - (y * 0) = 0.
+Lemma test (x : nat) (y : nat) : x - (x * 1) - (y * 0) = 0.
 Proof.
 pose AST : expr := (* fill me *)
-(*D*)Minus (Minus (Var 0) (Var 0)) (Mult (Var 1) Zero).
+(*D*)Minus (Minus (Var 0) (Mult (Var 0) One)) (Mult (Var 1) Zero).
 pose CTX : list nat := (* fill me *)
 (*D*)[:: x; y].
 rewrite -[LHS]/(interp AST CTX).
