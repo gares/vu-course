@@ -85,7 +85,9 @@ Section Def.
 
 Variables (n : nat) (T : Type).
 
-Structure tuple : Type := Tuple {tval :> seq T; valP : size tval == n}.
+Record tuple : Type := Tuple {tval : list T; valP : size tval == n}.
+
+Coercion tval : tuple >-> list.
 
 Lemma size_tuple (t : tuple) : size t = n.
 (* Something goes here *)
@@ -103,7 +105,7 @@ End Def.
 
 Section TupleTest.
 
-Variable P : seq nat -> Prop.
+Variable P : list nat -> Prop.
 Variable hP : forall n, forall t : tuple (S n) nat, P t.
 
 Lemma test2 : P (cons 2 nil).
@@ -127,7 +129,7 @@ End MapTuple.
 
 Section TupleTest.
 
-Variable P : seq bool -> Prop.
+Variable P : list bool -> Prop.
 Variable hP : forall n, forall t : tuple (S n) bool, P t.
 
 Lemma test3 (f : nat -> bool) : P (map f (cons 2 nil)).
