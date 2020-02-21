@@ -55,9 +55,9 @@ by case: eqP => [->|//]; rewrite subnn.
 Qed.
 
 
-Lemma test (x : nat) : x - x - 0 = 0.
+Lemma test (x : nat) : x - (x - x) = x.
 Proof.
-pose AST : expr := Minus (Minus (Var 0) (Var 0)) Zero.
+pose AST : expr := Minus (Var 0) (Minus (Var 0) (Var 0)).
 pose CTX : list nat := [:: x].
 rewrite -[LHS]/(interp AST CTX).
 rewrite simplify_correct.
