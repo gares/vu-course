@@ -91,7 +91,8 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
-Variable (P : nat ->Prop).
+Variable (P : nat -> Prop).
+
 Lemma apply_example1 (n m : nat)  : (forall k, P k) -> P 4.
 Proof.
 move=> h. 
@@ -190,6 +191,8 @@ Section InductiveDependentPairs.
 Variables (T : Set) (P :  T -> Prop).
 
 Inductive dep_pair : Set := MkPair (t : T) (p : P t).
+
+Check MkPair.
 
 (**
 #</div>#
@@ -376,7 +379,7 @@ About posP2.
 (**
 #</div>#
 
-Now, let us prove a toy corollay of this property, using the two 
+Now, let us prove a toy corollary of this property, using the two 
 different variants. First using [posP1]:
 
 #<div>#
@@ -427,7 +430,7 @@ from the sole value of its first component:
 which is an instance of the following problem:
 
 <<
-    P (n + m) ~ P (val ?)         ? : pos_nat
+    n + m ~  val ?         ? : pos_nat
 >>
 
 Now if [n] and [m] are not arbitrary terms, but themselves
@@ -459,9 +462,9 @@ Qed.
 (**
 #</div>#
 
-This worked because Coq was able to infer a solution:
+This worked because Coq was able to infer a solution of the form:
 <<
-    P (val x) (val y) ~ P (val (pos_nat_add x y))
+   (val x) + (val y) ~ val (pos_nat_add x y)
 >>
 
 #<div>#
@@ -584,7 +587,7 @@ Dependent tuples ressemble contexts, i.e., sequences of variables paired with ty
 
 In Lesson 2, we defined an infix notation [==] for equality on type [nat]. 
 More generally, we can make this notation available on instances of the
-[eqType] structure, for types equiped with an effective equality test.
+[eqType] structure, for types endowed with an effective equality test.
 
 #<div>#
 *)
@@ -702,6 +705,14 @@ End EqType.
 (**
 #</div>#
 
+#<p><br/><p>#
+
+#<div class="note">(notes)<div class="note-text">#
+
+For more about these hints for unification, and the way they can be
+used to implement hierarchies of structures, you might refer to:
+#<a href="https://hal.inria.fr/hal-00816703v2">this</a># tutorial.
+#</div></div>#
 
 #</div>#
 

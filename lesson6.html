@@ -156,7 +156,8 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
-Variable (P : nat ->Prop).
+Variable (P : nat -> Prop).
+
 Lemma apply_example1 (n m : nat)  : (forall k, P k) -> P 4.
 Proof.
 move=> h.
@@ -267,6 +268,8 @@ Section InductiveDependentPairs.
 Variables (T : Set) (P :  T -> Prop).
 
 Inductive dep_pair : Set := MkPair (t : T) (p : P t).
+
+Check MkPair.
 
 </textarea></div>
 <div><p>
@@ -480,7 +483,7 @@ About posP2.
 <div><p>
 </div>
 <p>
-Now, let us prove a toy corollay of this property, using the two 
+Now, let us prove a toy corollary of this property, using the two 
 different variants. First using <tt>posP1</tt>:
 <p>
 <div>
@@ -538,7 +541,7 @@ from the sole value of its first component:
 which is an instance of the following problem:
 <p>
 <pre>
-    P (n + m) ~ P (val ?)         ? : pos_nat
+    n + m ~  val ?         ? : pos_nat
 </pre>
 <p>
 Now if <tt>n</tt> and <tt>m</tt> are not arbitrary terms, but themselves
@@ -574,9 +577,9 @@ Qed.
 <div><p>
 </div>
 <p>
-This worked because Coq was able to infer a solution:
+This worked because Coq was able to infer a solution of the form:
 <pre>
-    P (val x) (val y) ~ P (val (pos_nat_add x y))
+   (val x) + (val y) ~ val (pos_nat_add x y)
 </pre>
 <p>
 <div>
@@ -711,7 +714,7 @@ Dependent tuples ressemble contexts, i.e., sequences of variables paired with ty
 <p>
 In Lesson 2, we defined an infix notation <tt>==</tt> for equality on type <tt>nat</tt>. 
 More generally, we can make this notation available on instances of the
-<tt>eqType</tt> structure, for types equiped with an effective equality test.
+<tt>eqType</tt> structure, for types endowed with an effective equality test.
 <p>
 <div>
 </div>
@@ -840,6 +843,15 @@ End EqType.
 </textarea></div>
 <div><p>
 </div>
+<p>
+<p><br/><p>
+<p>
+<div class="note">(notes)<div class="note-text">
+<p>
+For more about these hints for unification, and the way they can be
+used to implement hierarchies of structures, you might refer to:
+<a href="https://hal.inria.fr/hal-00816703v2">this</a> tutorial.
+</div></div>
 <p>
 </div>
 <hr/>
