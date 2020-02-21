@@ -142,7 +142,7 @@ End ImplicitsForLists.
 <p>
 In Lesson 3, we have seen that tactics use information from the goal, to compute relevant instances of lemmas.
 <p>
-This is typically the case with the apply tactic:
+This is typically the case with the <tt>apply:</tt> tactic:
 <div>
 </div>
 <div><textarea id='coq-ta-6'>
@@ -448,7 +448,7 @@ End Curry.
 </h2>
 
 <p>
-Dependent pairs also allow to phrase statements in a curry- or uncurry-tyle. 
+Dependent pairs also allow to phrase statements in a curry- or uncurry-style. 
 <p>
 For instance, consider a predicate (a property) P on natural numbers,
 which holds for any strictly positive number.
@@ -662,10 +662,10 @@ Module EqType.
 
 Import mini_ssrfun mini_ssrbool.
 
-Definition eq_axiom (T : Type) (op : T -> T -> bool) :=
+Definition eq_axiom (T : Type) (op : T -> T -> bool) : Prop :=
    forall x y : T, reflect (x = y) (op x y) .
 
-Record eqType := 
+Record eqType : Type := 
   EqType {car : Type; eq_op : car -> car -> bool; eqP : eq_axiom _ eq_op}.
 
 </textarea></div>
@@ -680,9 +680,9 @@ and prescribed properties on these data.
 </div>
 <div><textarea id='coq-ta-27'>
 
-Record monoid := 
+Record monoid : Set := 
   Monoid {
-      mon_car : Type; 
+      mon_car : Set; 
       mon_op : mon_car -> mon_car -> mon_car;
       mon_e : mon_car;
       mon_opA : associative mon_op;

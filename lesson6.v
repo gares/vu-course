@@ -78,7 +78,7 @@ End ImplicitsForLists.
 
 In Lesson 3, we have seen that tactics use information from the goal, to compute relevant instances of lemmas.
 
-This is typically the case with the apply tactic:
+This is typically the case with the [apply:] tactic:
 #<div>#
 *)
 Module Tactics.
@@ -348,7 +348,7 @@ End Curry.
 
 ** Uncurry
 
-Dependent pairs also allow to phrase statements in a curry- or uncurry-tyle. 
+Dependent pairs also allow to phrase statements in a curry- or uncurry-style. 
 
 For instance, consider a predicate (a property) P on natural numbers,
 which holds for any strictly positive number.
@@ -488,7 +488,7 @@ Now the problem has been turned into:
 >>
 
 But once again, these problems do not have intrinsic solutions: we
-have to inform the unification algorithm of the lemma [pos_nat_S]
+have to inform the unification algorithm of the lemma [pos_nat_S].
 
 #<div>#
 *)
@@ -541,10 +541,10 @@ Module EqType.
 
 Import mini_ssrfun mini_ssrbool.
 
-Definition eq_axiom (T : Type) (op : T -> T -> bool) :=
+Definition eq_axiom (T : Type) (op : T -> T -> bool) : Prop :=
    forall x y : T, reflect (x = y) (op x y) .
 
-Record eqType := 
+Record eqType : Type := 
   EqType {car : Type; eq_op : car -> car -> bool; eqP : eq_axiom _ eq_op}.
 
 (**
@@ -557,9 +557,9 @@ and prescribed properties on these data.
 #<div>#
 *)
 
-Record monoid := 
+Record monoid : Set := 
   Monoid {
-      mon_car : Type; 
+      mon_car : Set; 
       mon_op : mon_car -> mon_car -> mon_car;
       mon_e : mon_car;
       mon_opA : associative mon_op;
