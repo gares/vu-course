@@ -51,10 +51,7 @@ pose addFi i a := F i + a; move=> le_mn.
 have foldr0 s x : foldr addFi x s = foldr addFi 0 s + x.
 (*D*)  by elim: s x => [//|y s IHs] x; rewrite /= IHs /addFi addnA.
 (*D*)by rewrite /sum subSn// iotaSr foldr_cat/= subnKC// addn0 foldr0.
-(*A*)Restart. (* Shorter proof script: *)
-(*D*)move=> leq_mn; rewrite /sum subSn// -addn1 iota_add subnKC// foldr_cat/=.
-(*D*)by elim: iota (F n) => [|x s IHs] k; rewrite -?addnA -?IHs ?addn0.
-(*D*)Qed.
+(*A*)Qed. (* Shorter proof script: *)
 (**
 #</div>#
 - Now use the previous result to get the main result (Easy - Medium)
@@ -83,10 +80,7 @@ Proof.
 (*D*)suff: 8 * y != 6 * x + 1 %[mod 2].
 (*D*)  by apply: contraNN; move=> /eqP ->.
 (*D*)by rewrite -modnMml mul0n -modnDml -modnMml.
-(*A*)Restart. (* shorter proof script *)
-(*D*)apply/negP => /eqP /(congr1 (modn^~ 2)).
-(*D*)by rewrite -modnMml mul0n -modnDml -modnMml.
-(*D*)Qed.
+(*A*)Qed.
 
 (** #</div>#
 ---------------------------------------------------
@@ -125,13 +119,7 @@ have sqr_x2Dy_mod4 x y : (x * 2 + y) ^ 2 = y ^ 2 %[mod 4].
 (*D*)  by rewrite sqrnD expnMn xy4E addnC !modnMDl.
 (*D*)rewrite {1}(divn_eq a 2) {1}(divn_eq b 2) -modnDm !sqr_x2Dy_mod4.
 (*D*)by rewrite modnDm !modn2; case: (odd a); case: (odd b).
-(*A*)Restart. (* shorter proof script *)
-(*D*)have sqr_x2Dy_mod4 x y : (x * 2 + y) ^ 2 = y ^ 2 %[mod 4].
-(*D*)  rewrite sqrnD addnAC mulnAC [2 * _]mulnC -mulnA -[2 * 2]/4.
-(*D*)  by rewrite expnMn -[2 ^ 2]/4 -mulnDl -modnDml modnMl.
-(*D*)rewrite {1}(divn_eq a 2) {1}(divn_eq b 2) -modnDm.
-(*D*)by rewrite !sqr_x2Dy_mod4 modnDm !modn2; do 2!case: odd.
-(*D*)Qed.
+(*A*)Qed.
 (** #</div>#
 - Deduce that if n is greater than 2 and a and b are solutions, then they are even. (HARD)
 #<div># *)
@@ -140,10 +128,7 @@ Proof.
 (*D*)move=> n_gt1; rewrite /sol => /andP[a_ge1 /andP[b_ge1 /eqP eq_a2Db2]].
 (*D*)apply: mod4Dsqr_even; rewrite -eq_a2Db2.
 (*D*)by rewrite -(subnK n_gt1) expnD modnMl.
-(*A*)Restart. (* shorter proof script: *)
-(*D*)case: n => [|[|n]]// _; rewrite /sol => /and3P[_ _ /eqP eq_a2Db2].
-(*D*)by rewrite mod4Dsqr_even// -eq_a2Db2 !expnS mulnA modnMr.
-(*D*)Qed.
+(*A*)Qed.
 (** #</div>#
 - Prove that the solutions for n are the halves of the solutions for n + 2.
   - Hint: [Search _ odd double in MC] and [Search _ "eq" "mul" in MC].

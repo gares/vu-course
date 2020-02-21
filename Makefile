@@ -1,6 +1,7 @@
 COQC=coqc
 VFILES=$(wildcard *.v)
-HTML=$(VFILES:%.v=%.html)
+VEXERCISES=$(wildcard exercise*.v)
+HTML=$(VFILES:%.v=%.html) $(VEXERCISES:%.v=%-solution.html)
 
 html: $(HTML)
 
@@ -27,7 +28,7 @@ similar.html : similar.v
 exercise%.html: exercise%.html.tmp
 	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^\(.*\)(\*a\*).*$$/\1admit./'  $< > $@
 exercise%-solution.html: exercise%.html.tmp
-	@cp $< $@
+	@sed -e 's/^(\*D\*)//' -e 's/^(\*A\*)//' -e 's/(\*a\*)//'  $< > $@
 exercise%-todo.v: exercise%.v
 	@sed -e '/^(\*D\*).*$$/d' -e 's/^(\*A\*).*$$/Admitted./' -e 's/^\(.*\)(\*a\*).*$$/\1admit./'  $< > $@
 
