@@ -74,7 +74,7 @@ From mathcomp Require Import mini_ssreflect 〈other mini mathcomp libs〉.
 However, in this cheat sheet, which is more complete, we use:
 #<div>#
 *)
-From mathcomp Require Import all_ssreflect.
+From mathcomp Require Import mini_ssreflect.
 (**
 #</div>#
 #</div>#
@@ -844,40 +844,40 @@ End RewriteExamples.
 Module SearchExamples.
 
   (* simple statements : you can search about functions or about already-defined
-     terms like `2`, or even expressions like `1 + 1`. *)
-  Search _ muln.
+     terms like `2`, or even expressions like `1 + 1` and restrict to some
+     libraries (which is mandatory for efficiency reasons if you run Coq in 
+     your browser. *)
+  Search _ muln in mini_ssrnat.
   (* restricts the search to occurrences in the conclusion *)
-  Search _ logn.
+  Search _ odd in mini_ssrnat.
   Search 2.
 
-  (* You can restrict to some given libraries *)
-  Search muln in prime.
 
 
   (* You can also `Search` for things containing multiple expressions *)
-  Search muln logn.
+  Search muln odd in mini_ssrnat.
 
 
   (* We can also `Search` types, like `nat` and `list`, to get every function or
   definition with that type as a subset of its type signature, and every lemma
   that has the type in its proof statement. *)
   Search nat.
-  Search list in seq. (* the Mathematical Components library for lists *)
+  Search list in mini_seq. (* the library for lists *)
   Search (seq nat). (* look for lemmas/functions about lists of natural numbers *)
-  Search _ (nat -> nat -> bool). (* look for functions that take in two natural
+  Search _ (nat -> nat -> bool) in mini_ssrnat. (* look for functions that take in two natural
                                   numbers and return a boolean *)
 
 
   (* Extremely usefully, `Search` allows you to leave "blanks" in expressions
      using underscores. *)
-  Search _ (_ + (_ + _)).
-  Search _ (logn _ _ = 0). (* find any lemma that says something about
-                               `logn` that are `0` *)
+  Search _ (_ + (_ + _)) in mini_ssrnat.
+  Search _ (_ * _ == 0). (* find any lemma that says something about
+                               products that are `0` in the mini_ssrnat library *)
 
   (* You can also use `?` to define variables, which lets you repeat them within
      the expression to narrow down your search. *)
-  Search _ (?x * ?x).
-  Search _ (?x * _ <= ?x * _).
+  Search _ (?x * ?x) in mini_ssrnat.
+  Search _ (?x * _ <= ?x * _)  in mini_ssrnat.
 
   (* you can attach scope delimiters to `Search` expressions, which means that in
      this `Search` the `1`  and `*` are interpreted as the *integer* 1 and the
