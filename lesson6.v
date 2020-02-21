@@ -1,5 +1,7 @@
 From mathcomp Require mini_ssreflect.
 
+Reserved Notation "x == y" (at level 70, no associativity).
+
 (* Set Implicit Arguments. *)
 (* Unset Strict Implicit. *)
 (* Unset Printing Implicit Defensive. *)
@@ -82,6 +84,9 @@ This is typically the case with the apply tactic:
 Module Tactics.
 Import mini_ssreflect.
 
+(* do not care about these declarations, they are
+   just here to have as many implicit arguments as possible. *)
+
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
@@ -153,7 +158,7 @@ Coercion f : A >-> B.
 
 Check a : B.
 
-Unset Printing Notations.
+Unset Printing Coercions.
 
 End Coercion.
 
@@ -248,7 +253,7 @@ Module PosNat.
 
 Import mini_ssreflect.
 
-Record pos_nat : Set := PosNat {val : nat; pos_val : 0 < val}.
+Record pos_nat : Set := PosNat {val : nat; pos_val : 1 <= val}.
 (**
 #</div>#
 
@@ -257,7 +262,7 @@ And here is a way to build terms of type [pos_nat]:
 #<div>#
 *)
 
-Lemma pos_S (x : nat) : 0 < S x.
+Lemma pos_S (x : nat) : 1 <= S x.
 Proof. by []. Qed.
 
 Definition pos_nat_S (n : nat) : pos_nat := PosNat (S n) (pos_S n).
@@ -265,58 +270,36 @@ Definition pos_nat_S (n : nat) : pos_nat := PosNat (S n) (pos_S n).
 (**
 #</div>#
 
-#</div>#
-----------------------------------------------------------
-#<div class="slide vfill">#
-
-** Reminder: currification
-
-
-Pairs of data:
+Still, this is a sub-type, and not a sub-set: functions expecting
+arguments in [nat] do not apply:
 
 #<div>#
 *)
 
-Variables A1 B1 C1 : Type.
-Check A1 -> B1 -> C1.
-Check A1 * B1 -> C1.
+Fail Lemma pos_nat_add (x y : pos_nat) : 1 <= x + y.
+
 (**
 #</div>#
 
-Pairs of proofs:
+But we can correct this using a coercion.
+
 #<div>#
 *)
-Variables A2 B2 C2 : Prop.
-Check A2 -> B2 -> C2.
-Check A2 /\ B2 -> C2.
+
+Coercion val : pos_nat >-> nat.
+
+Lemma pos_add (x y : pos_nat) : 1 <= x + y.
+Proof. by rewrite addn_gt0; case: x => x ->. Qed.
+
 (**
 #</div>#
 
-#</div>#
-----------------------------------------------------------
-#<div class="slide vfill">#
-
-** Currification, the dependent case
-
-A pair of a data (a number) and a proof (of positivity)
+And we can use this lemma to define a new term of type [pos_nat], 
+from two existing ones:
 
 #<div>#
 *)
-Module PosNat.
-
-From mathcomp Require Import all_ssreflect.
-
-Record posnat : Type := Posnat {nval : nat; nvalP : 0 < nval}.
-
-(**
-#</div>#
-Which defines projections as well in one go.
-
-#<div>#
-*)
-About nval.
-
-About vnalP.
+Definition pos_nat_add (x y : pos_nat) : pos_nat := PosNat _ (pos_add x y).
 (**
 #</div>#
 
@@ -324,18 +307,401 @@ About vnalP.
 #</div>#
 ----------------------------------------------------------
 #<div class="slide vfill">#
-** Next
-Now.
+
+** Currying
+
 #<div>#
 *)
+(**
+#</div>#
+
+As you may have noticed, we have been stating lemmas using chains 
+of implications rather than conjunctions.
+
+This is because a conjunction is a pair of facts, and most of the
+time we will have to break this pair, in order to use each hypothesis.
+
+#<div>#
+*)
+
+Section Curry.
+
+Variables A B C : Prop.
+Hypothesis hAC : A -> C.
+
+Lemma uncurry : A /\ B -> C.
+Proof. move=> hAB. apply: hAC. case: hAB => hA hB. by []. Qed.
+
+Lemma curry : A -> B -> C.
+Proof. move=> hA hB. apply: hAC. by []. Qed.
+
+End Curry.
+(**
+#</div>#
+
+#</div>#
+----------------------------------------------------------
+#<div class="slide vfill">#
+
+** Uncurry
+
+Dependent pairs also allow to phrase statements in a curry- or uncurry-tyle. 
+
+For instance, consider a predicate (a property) P on natural numbers,
+which holds for any strictly positive number.
+
+#<div>#
+*)
+
+Section PosNatAutomation.
+
 Variable P : nat -> Prop.
 
-Check forall n : nat, 0 < n -> P n.
-Check forall x : posnat, P (nval x).
-
-End PosNat.
 (**
 #</div>#
+
+We can phrase this property on P in two different style:
+
+#<div>#
+*)
+
+Hypothesis posP1 : forall n : nat, 0 < n -> P n.
+
+Hypothesis posP2 : forall p : pos_nat, P p.
+
+Set Printing Coercions.
+
+About posP2.
+
+(**
+#</div>#
+
+Now, let us prove a toy corollay of this property, using the two 
+different variants. First using [posP1]:
+
+#<div>#
+*)
+
+Lemma Pexample1 (x : nat) : P (S x + 3).
+Proof.
+apply: posP1.
+rewrite addn_gt0.
+by [].
+Qed.
+
+(**
+#</div>#
+
+The proof possibly requires using one step per symbol used in the
+expression, provided the symbol refers to an operation preserving
+strict positivity, like [+].
+
+This calls for some automation, implemented as a dedicated tactic.
+#</div>#
+
+----------------------------------------------------------
+
+#<div class="slide vfill">#
+
+** Augmenting unification
+
+Let us now see how things work with the second version of the hypothesis. In fact, it stops quite soon:
+#<div>#
+*)
+
+Lemma Pexample2 (x : nat) : P ((S x) + 3).
+Proof.
+Fail apply: posP2.
+Abort.
+(**
+#</div>#
+
+The problem here is that unifying [P ((S x) + 3] with the conclusion
+of [posP2] does not work, as it requires guessing the value of a pair
+from the sole value of its first component:
+
+<<
+    P ((S x) + 3) ~ P (val ?)         ? : pos_nat
+>>
+
+which is an instance of the following problem:
+
+<<
+    P (n + m) ~ P (val ?)         ? : pos_nat
+>>
+
+Now if [n] and [m] are not arbitrary terms, but themselves
+projections of terms in [pos_nat], we have a candidate solution 
+at hand:
+
+#<div>#
+*)
+
+Goal forall x y : pos_nat, val x + val y = val (pos_nat_add x y).
+by [].
+Qed.
+(**
+#</div>#
+
+We just need to inform Coq that we want this solution to be used
+to solve this otherwise unsolvable problem:
+
+#<div>#
+*)
+
+Canonical pos_nat_add.
+
+Lemma Pexample2' (x y : pos_nat) : P (x + y).
+Proof.
+apply: posP2.
+Qed.
+
+(**
+#</div>#
+
+This worked because Coq was able to infer a solution:
+<<
+    P (val x) (val y) ~ P (val (pos_nat_add x y))
+>>
+
+#<div>#
+*)
+
+Lemma Pexample2 (x : nat) : P ((S x) + 3).
+Proof.
+Fail apply: posP2.
+Abort.
+
+(**
+#</div>#
+
+Now the problem has been turned into:
+
+<<
+    P ((S x) + 3) ~ P (val (pos_nat_add ?1 ?2)         ?1, ?2 : pos_nat
+    S x ~ val ?1
+    3   ~ val ?2
+
+>>
+
+But once again, these problems do not have intrinsic solutions: we
+have to inform the unification algorithm of the lemma [pos_nat_S]
+
+#<div>#
+*)
+
+Goal forall n : nat, S n = val (pos_nat_S n).
+Proof. by []. Qed.
+
+Canonical pos_nat_S.
+
+Lemma Pexample2'' (n : nat) : P (S n).
+Proof.
+apply: posP2.
+Qed.
+
+Lemma Pexample2 (x : nat) : P ((S x) + 3).
+Proof.
+apply: posP2.
+Abort.
+
+End PosNatAutomation.
+
+End PosNat.
+
+(**
+#</div>#
+
+#</div>#
+
+----------------------------------------------------------
+
+#<div class="slide vfill">#
+** Structures as dependent tuples
+
+Dependent pairs generalize to dependent tuples:
+
+#$$ \Sigma x_1\ :\ T_1 \Sigma x_2\ :\ T_2\ x_1 \dots \Sigma x_{n+1}\ :\ T_{n +1} x_1\ \dots\ x_n $$#
+
+Just like sequences \( (x_1, x_2 \dots, x_n) \) 
+flatten nested pairs \( (x_1, (x_2, (\dots, x_n)) \), 
+dependent tuples flatten dependent pairs.
+
+Dependent tuples are represented by inductive types with a single constructor, and \(n\) arguments. Here is an example:
+
+#<div>#
+*)
+
+Module EqType.
+
+
+
+Import mini_ssrfun mini_ssrbool.
+
+Definition eq_axiom (T : Type) (op : T -> T -> bool) :=
+   forall x y : T, reflect (x = y) (op x y) .
+
+Record eqType := 
+  EqType {car : Type; eq_op : car -> car -> bool; eqP : eq_axiom _ eq_op}.
+
+(**
+#</div>#
+
+Dependent tuples can indeed model mathematical structures, which
+bundle a carrier set (here a type) with subsets, operations, 
+and prescribed properties on these data.
+
+#<div>#
+*)
+
+Record monoid := 
+  Monoid {
+      mon_car : Type; 
+      mon_op : mon_car -> mon_car -> mon_car;
+      mon_e : mon_car;
+      mon_opA : associative mon_op;
+      mon_opem : left_id mon_e mon_op;
+      mon_opme : right_id mon_e mon_op
+    }.
+
+(**
+#</div>#
+
+#<p><br/><p>#
+
+#<div class="note">(notes)<div class="note-text">#
+
+Dependent tuples ressemble contexts, i.e., sequences of variables paired with types, with dependencies coming in order. Such a sequence is sometimes also refered to as a <i>telescope</i>, a terminology introduced by de Bruijn in
+#<a href="https://www.win.tue.nl/automath/archive/pdf/aut103.pdf">this</a># paper.
+#</div></div>#
+
+#</div>#
+
+----------------------------------------------------------
+
+#<div class="slide vfill">#
+** Sharing notations and theory
+
+In Lesson 2, we defined an infix notation [==] for equality on type [nat]. 
+More generally, we can make this notation available on instances of the
+[eqType] structure, for types equiped with an effective equality test.
+
+#<div>#
+*)
+
+Notation "a == b" := (eq_op _ a b).
+
+Section eqTypeTheory.
+
+Variables (E : eqType) (x y : car E).
+
+Check x == y.
+
+(**
+#</div>#
+
+Instances of a same structure share a <i>theory</i>, i.e., a corpus of results that follow from the axioms of the structure.
+
+#<div>#
+*)
+
+Lemma eq_op_refl : x == x.
+Proof. apply/eqP. by []. Qed.
+
+End eqTypeTheory.
+
+(**
+#</div>#
+
+Some of these results are about the preservation of the structure.
+
+#<div>#
+*)
+Section OptioneqType.
+
+Variables (E : eqType).
+
+Definition option_eq (x y : option (car E)) : bool :=
+  match x, y with
+  |Some u, Some v => eq_op _ u v
+  |None, None => true
+  |_, _ => false
+  end.
+
+Lemma option_eqP : eq_axiom _ option_eq.
+Proof.
+case=> [a|] [b|]; prove_reflect => //=.
+- by move/eqP->.
+- case=> ->. apply: eq_op_refl.
+Qed.
+
+Definition option_eqType : eqType := EqType _ option_eq option_eqP.
+
+End OptioneqType.
+
+Check option_eqType.
+
+(**
+#</div>#
+
+We can define base case instances of the structure, for instance 
+using the lemmas proved in Lesson 4.
+
+#<div>#
+*)
+
+Fixpoint eqn m n {struct m} :=
+  match m, n with
+  | 0, 0 => true
+  | S m', S n' => eqn m' n'
+  | _, _ => false
+  end.
+
+Lemma eqnP : eq_axiom _ eqn.
+Proof.
+move=> n m; prove_reflect => [|<-]; last by elim n.
+by elim: n m => [|n IHn] [|m] //= /IHn->.
+Qed.
+
+Definition nat_eqType : eqType := EqType _ _ eqnP.
+
+(**
+#</div>#
+
+But this is not enough.
+
+#<div>#
+*)
+
+Fail Check 2 == 3.
+
+(**
+#</div>#
+
+This is a similar problem to the one of inferring positivity proofs,
+and it can be solved the same way.
+
+#<div>#
+*)
+
+Canonical nat_eqType.
+
+Check 2 == 3.
+
+Fail Check Some 2 == Some 3.
+
+Canonical option_eqType.
+
+Check Some 2 == Some 3.
+
+Goal Some (Some 2) == Some (Some 2).
+apply: eq_op_refl.
+Qed.
+
+End EqType.
+(**
+#</div>#
+
 
 #</div>#
 

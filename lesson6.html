@@ -36,6 +36,8 @@
 <div><textarea id='coq-ta-1'>
 From mathcomp Require mini_ssreflect.
 
+Reserved Notation "x == y" (at level 70, no associativity).
+
 (* Set Implicit Arguments. *)
 (* Unset Strict Implicit. *)
 (* Unset Printing Implicit Defensive. *)
@@ -147,6 +149,9 @@ This is typically the case with the apply tactic:
 Module Tactics.
 Import mini_ssreflect.
 
+(* do not care about these declarations, they are
+   just here to have as many implicit arguments as possible. *)
+
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
@@ -203,7 +208,7 @@ This is what we have done in Lecture 2 and 3 when discussing how terms of type <
 
 Module Coercion.
 
-Fail Check true : Prop.
+Fail Check false : Prop.
 
 Import mini_ssreflect.
 
@@ -225,11 +230,10 @@ Coercion f : A >-> B.
 
 Check a : B.
 
-Unset Printing Notations.
+Unset Printing Coercions.
 
 End Coercion.
 
-Print pair.
 </textarea></div>
 <div><p>
 <div>
@@ -241,7 +245,7 @@ Caveat: use with care, as it can obfuscate statements...
 <div class="slide vfill">
 <p>
 <h2>
- Coercions and dependent pairs
+ Dependent pairs
 </h2>
 
 <p>
@@ -325,76 +329,68 @@ End RecordDependentPair.
 <p>
 Dependent pairs can be used to define a sub-type, i.e., a type for a sub-collection of elements in a given type. Here is a type for strictly positive natural numbers:
 <div>
-<p>
-<p>
-</div>
-<p>
-</div>
-<hr/>
-
-<div class="slide vfill">
-<p>
-<h2>
- Reminder: currification
-</h2>
-
-<p>
-Pairs of data:
-<p>
-<div>
 </div>
 <div><textarea id='coq-ta-12'>
 
-Variables A1 B1 C1 : Type.
-Check A1 -> B1 -> C1.
-Check A1 * B1 -> C1.
+Module PosNat.
+
+Import mini_ssreflect.
+
+Record pos_nat : Set := PosNat {val : nat; pos_val : 1 <= val}.
 </textarea></div>
 <div><p>
 </div>
 <p>
-Pairs of proofs:
+And here is a way to build terms of type <tt>pos_nat</tt>:
+<p>
 <div>
 </div>
 <div><textarea id='coq-ta-13'>
-Variables A2 B2 C2 : Prop.
-Check A2 -> B2 -> C2.
-Check A2 /\ B2 -> C2.
+
+Lemma pos_S (x : nat) : 1 <= S x.
+Proof. by []. Qed.
+
+Definition pos_nat_S (n : nat) : pos_nat := PosNat (S n) (pos_S n).
+
 </textarea></div>
 <div><p>
 </div>
 <p>
-</div>
-<hr/>
-
-<div class="slide vfill">
-<p>
-<h2>
- Currification, the dependent case
-</h2>
-
-<p>
-A pair of a data (a number) and a proof (of positivity)
+Still, this is a sub-type, and not a sub-set: functions expecting
+arguments in <tt>nat</tt> do not apply:
 <p>
 <div>
 </div>
 <div><textarea id='coq-ta-14'>
-Module PosNat.
 
-From mathcomp Require Import all_ssreflect.
-
-Record posnat : Type := Posnat {nval : nat; nvalP : 0 < nval}.
+Fail Lemma pos_nat_add (x y : pos_nat) : 1 <= x + y.
 
 </textarea></div>
 <div><p>
 </div>
-Which defines projections as well in one go.
+<p>
+But we can correct this using a coercion.
 <p>
 <div>
 </div>
 <div><textarea id='coq-ta-15'>
-About nval.
 
-About vnalP.
+Coercion val : pos_nat >-> nat.
+
+Lemma pos_add (x y : pos_nat) : 1 <= x + y.
+Proof. by rewrite addn_gt0; case: x => x ->. Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+And we can use this lemma to define a new term of type <tt>pos_nat</tt>, 
+from two existing ones:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-16'>
+Definition pos_nat_add (x y : pos_nat) : pos_nat := PosNat _ (pos_add x y).
 </textarea></div>
 <div><p>
 </div>
@@ -403,20 +399,444 @@ About vnalP.
 <hr/>
 
 <div class="slide vfill">
+<p>
 <h2>
- Next
+ Currying
 </h2>
 
-Now.
+<p>
+<div>
+<p>
+</div>
+<p>
+As you may have noticed, we have been stating lemmas using chains 
+of implications rather than conjunctions.
+<p>
+This is because a conjunction is a pair of facts, and most of the
+time we will have to break this pair, in order to use each hypothesis.
+<p>
 <div>
 </div>
-<div><textarea id='coq-ta-16'>
+<div><textarea id='coq-ta-17'>
+
+Section Curry.
+
+Variables A B C : Prop.
+Hypothesis hAC : A -> C.
+
+Lemma uncurry : A /\ B -> C.
+Proof. move=> hAB. apply: hAC. case: hAB => hA hB. by []. Qed.
+
+Lemma curry : A -> B -> C.
+Proof. move=> hA hB. apply: hAC. by []. Qed.
+
+End Curry.
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<div class="slide vfill">
+<p>
+<h2>
+ Uncurry
+</h2>
+
+<p>
+Dependent pairs also allow to phrase statements in a curry- or uncurry-tyle. 
+<p>
+For instance, consider a predicate (a property) P on natural numbers,
+which holds for any strictly positive number.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-18'>
+
+Section PosNatAutomation.
+
 Variable P : nat -> Prop.
 
-Check forall n : nat, 0 < n -> P n.
-Check forall x : posnat, P (nval x).
+</textarea></div>
+<div><p>
+</div>
+<p>
+We can phrase this property on P in two different style:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-19'>
+
+Hypothesis posP1 : forall n : nat, 0 < n -> P n.
+
+Hypothesis posP2 : forall p : pos_nat, P p.
+
+Set Printing Coercions.
+
+About posP2.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Now, let us prove a toy corollay of this property, using the two 
+different variants. First using <tt>posP1</tt>:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-20'>
+
+Lemma Pexample1 (x : nat) : P (S x + 3).
+Proof.
+apply: posP1.
+rewrite addn_gt0.
+by [].
+Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+The proof possibly requires using one step per symbol used in the
+expression, provided the symbol refers to an operation preserving
+strict positivity, like <tt>+</tt>.
+<p>
+This calls for some automation, implemented as a dedicated tactic.
+</div>
+<hr/>
+
+<p>
+<div class="slide vfill">
+<p>
+<h2>
+ Augmenting unification
+</h2>
+
+<p>
+Let us now see how things work with the second version of the hypothesis. In fact, it stops quite soon:
+<div>
+</div>
+<div><textarea id='coq-ta-21'>
+
+Lemma Pexample2 (x : nat) : P ((S x) + 3).
+Proof.
+Fail apply: posP2.
+Abort.
+</textarea></div>
+<div><p>
+</div>
+<p>
+The problem here is that unifying <tt>P ((S x) + 3</tt> with the conclusion
+of <tt>posP2</tt> does not work, as it requires guessing the value of a pair
+from the sole value of its first component:
+<p>
+<pre>
+    P ((S x) + 3) ~ P (val ?)         ? : pos_nat
+</pre>
+<p>
+which is an instance of the following problem:
+<p>
+<pre>
+    P (n + m) ~ P (val ?)         ? : pos_nat
+</pre>
+<p>
+Now if <tt>n</tt> and <tt>m</tt> are not arbitrary terms, but themselves
+projections of terms in <tt>pos_nat</tt>, we have a candidate solution 
+at hand:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-22'>
+
+Goal forall x y : pos_nat, val x + val y = val (pos_nat_add x y).
+by [].
+Qed.
+</textarea></div>
+<div><p>
+</div>
+<p>
+We just need to inform Coq that we want this solution to be used
+to solve this otherwise unsolvable problem:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-23'>
+
+Canonical pos_nat_add.
+
+Lemma Pexample2' (x y : pos_nat) : P (x + y).
+Proof.
+apply: posP2.
+Qed.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+This worked because Coq was able to infer a solution:
+<pre>
+    P (val x) (val y) ~ P (val (pos_nat_add x y))
+</pre>
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-24'>
+
+Lemma Pexample2 (x : nat) : P ((S x) + 3).
+Proof.
+Fail apply: posP2.
+Abort.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Now the problem has been turned into:
+<p>
+<pre>
+    P ((S x) + 3) ~ P (val (pos_nat_add ?1 ?2)         ?1, ?2 : pos_nat
+    S x ~ val ?1
+    3   ~ val ?2
+
+</pre>
+<p>
+But once again, these problems do not have intrinsic solutions: we
+have to inform the unification algorithm of the lemma <tt>pos_nat_S</tt>
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-25'>
+
+Goal forall n : nat, S n = val (pos_nat_S n).
+Proof. by []. Qed.
+
+Canonical pos_nat_S.
+
+Lemma Pexample2'' (n : nat) : P (S n).
+Proof.
+apply: posP2.
+Qed.
+
+Lemma Pexample2 (x : nat) : P ((S x) + 3).
+Proof.
+apply: posP2.
+Abort.
+
+End PosNatAutomation.
 
 End PosNat.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+</div>
+<hr/>
+
+<p>
+<div class="slide vfill">
+<h2>
+ Structures as dependent tuples
+</h2>
+
+<p>
+Dependent pairs generalize to dependent tuples:
+<p>
+$$ \Sigma x_1\ :\ T_1 \Sigma x_2\ :\ T_2\ x_1 \dots \Sigma x_{n+1}\ :\ T_{n +1} x_1\ \dots\ x_n $$
+<p>
+Just like sequences \( (x_1, x_2 \dots, x_n) \) 
+flatten nested pairs \( (x_1, (x_2, (\dots, x_n)) \), 
+dependent tuples flatten dependent pairs.
+<p>
+Dependent tuples are represented by inductive types with a single constructor, and \(n\) arguments. Here is an example:
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-26'>
+
+Module EqType.
+
+Import mini_ssrfun mini_ssrbool.
+
+Definition eq_axiom (T : Type) (op : T -> T -> bool) :=
+   forall x y : T, reflect (x = y) (op x y) .
+
+Record eqType := 
+  EqType {car : Type; eq_op : car -> car -> bool; eqP : eq_axiom _ eq_op}.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Dependent tuples can indeed model mathematical structures, which
+bundle a carrier set (here a type) with subsets, operations, 
+and prescribed properties on these data.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-27'>
+
+Record monoid := 
+  Monoid {
+      mon_car : Type; 
+      mon_op : mon_car -> mon_car -> mon_car;
+      mon_e : mon_car;
+      mon_opA : associative mon_op;
+      mon_opem : left_id mon_e mon_op;
+      mon_opme : right_id mon_e mon_op
+    }.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+<p><br/><p>
+<p>
+<div class="note">(notes)<div class="note-text">
+<p>
+Dependent tuples ressemble contexts, i.e., sequences of variables paired with types, with dependencies coming in order. Such a sequence is sometimes also refered to as a <i>telescope</i>, a terminology introduced by de Bruijn in
+<a href="https://www.win.tue.nl/automath/archive/pdf/aut103.pdf">this</a> paper.
+</div></div>
+<p>
+</div>
+<hr/>
+
+<p>
+<div class="slide vfill">
+<h2>
+ Sharing notations and theory
+</h2>
+
+<p>
+In Lesson 2, we defined an infix notation <tt>==</tt> for equality on type <tt>nat</tt>. 
+More generally, we can make this notation available on instances of the
+<tt>eqType</tt> structure, for types equiped with an effective equality test.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-28'>
+
+Notation "a == b" := (eq_op _ a b).
+
+Section eqTypeTheory.
+
+Variables (E : eqType) (x y : car E).
+
+Check x == y.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Instances of a same structure share a <i>theory</i>, i.e., a corpus of results that follow from the axioms of the structure.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-29'>
+
+Lemma eq_op_refl : x == x.
+Proof. apply/eqP. by []. Qed.
+
+End eqTypeTheory.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+Some of these results are about the preservation of the structure.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-30'>
+Section OptioneqType.
+
+Variables (E : eqType).
+
+Definition option_eq (x y : option (car E)) : bool :=
+  match x, y with
+  |Some u, Some v => eq_op _ u v
+  |None, None => true
+  |_, _ => false
+  end.
+
+Lemma option_eqP : eq_axiom _ option_eq.
+Proof.
+case=> [a|] [b|]; prove_reflect => //=.
+- by move/eqP->.
+- case=> ->. apply: eq_op_refl.
+Qed.
+
+Definition option_eqType : eqType := EqType _ option_eq option_eqP.
+
+End OptioneqType.
+
+Check option_eqType.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+We can define base case instances of the structure, for instance 
+using the lemmas proved in Lesson 4.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-31'>
+
+Fixpoint eqn m n {struct m} :=
+  match m, n with
+  | 0, 0 => true
+  | S m', S n' => eqn m' n'
+  | _, _ => false
+  end.
+
+Lemma eqnP : eq_axiom _ eqn.
+Proof.
+move=> n m; prove_reflect => [|<-]; last by elim n.
+by elim: n m => [|n IHn] [|m] //= /IHn->.
+Qed.
+
+Definition nat_eqType : eqType := EqType _ _ eqnP.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+But this is not enough.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-32'>
+
+Fail Check 2 == 3.
+
+</textarea></div>
+<div><p>
+</div>
+<p>
+This is a similar problem to the one of inferring positivity proofs,
+and it can be solved the same way.
+<p>
+<div>
+</div>
+<div><textarea id='coq-ta-33'>
+
+Canonical nat_eqType.
+
+Check 2 == 3.
+
+Fail Check Some 2 == Some 3.
+
+Canonical option_eqType.
+
+Check Some 2 == Some 3.
+
+Goal Some (Some 2) == Some (Some 2).
+apply: eq_op_refl.
+Qed.
+
+End EqType.
 </textarea></div>
 <div><p>
 </div>
@@ -425,14 +845,18 @@ End PosNat.
 <hr/>
 
 </div>
-<div><textarea id='coq-ta-17'>
+<div><textarea id='coq-ta-34'>
 </textarea></div>
 <script type="text/javascript">
  var coqdoc_ids = ['coq-ta-1',  'coq-ta-2',  'coq-ta-3',  'coq-ta-4', 
                   'coq-ta-5',  'coq-ta-6',  'coq-ta-7',  'coq-ta-8', 
                   'coq-ta-9',  'coq-ta-10',  'coq-ta-11',  'coq-ta-12', 
                   'coq-ta-13',  'coq-ta-14',  'coq-ta-15',  'coq-ta-16', 
-                  'coq-ta-17'];
+                  'coq-ta-17',  'coq-ta-18',  'coq-ta-19',  'coq-ta-20', 
+                  'coq-ta-21',  'coq-ta-22',  'coq-ta-23',  'coq-ta-24', 
+                  'coq-ta-25',  'coq-ta-26',  'coq-ta-27',  'coq-ta-28', 
+                  'coq-ta-29',  'coq-ta-30',  'coq-ta-31',  'coq-ta-32', 
+                  'coq-ta-33',  'coq-ta-34'];
 </script>
 <hr />
 
