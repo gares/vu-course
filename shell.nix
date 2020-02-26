@@ -10,7 +10,7 @@ let
   mc = fetchGit {
     url = "https://github.com/gares/mathcomp";
     ref = "minimc";
-    rev = "1773269a81268c503c8af8973f6db8596e813107";
+    rev = "f4ea1abac523107baf16e3cf528752b22ad8fdb5";
    };
   config.packageOverrides = pkgs:
 
