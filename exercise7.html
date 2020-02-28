@@ -246,7 +246,8 @@ Fixpoint size  (t : tree) : nat :=
   | Parent l r => (* write here *)
   end.
 
-(* Define a tree with one node, with three nodes, and test your size function *)
+(* Define a tree featuring one single Leaf, then one with three Lea(ves). 
+Then test your size function *)
 
 Definition one_tree : tree := (* write here *)
 .
@@ -279,8 +280,8 @@ Eval compute in depth one_tree.
 (* This should be 2 *)
 Eval compute in depth three_tree.
 
-(* This should be 2 *)
-Eval compute in depth (Parent Leaf (Parent Leaf Leaf)).
+(* This should be 4 *)
+Eval compute in depth (Parent (Parent Leaf Leaf) (Parent Leaf three_tree)).
 
 (* State and prove that the size of a binary_tree is always positive. *)
 (* Remember that we can ommit the _ = true because of the is_true
