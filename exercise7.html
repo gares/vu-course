@@ -66,9 +66,10 @@ End PredicateOnRelations.
 
 Definition associative (* write here *)
 := 
+(* write here *)
 .
 
-(* *** Exercise 1
+(* *** Exercise 2
 
  -------------------------------------------------------------------------- *)
 
@@ -111,13 +112,16 @@ Qed.
 
 (* xorb is commutative *)
 Lemma xorC (b1 b2 : bool) : (* write here *)
+.
 Proof.
 (* write here *)
 Qed.
 
 (* xorb has an inverse (left or right does not matter, by commutativity *)
 Lemma xorI (b : bool) : (* write here *)
+.
 Proof.
+(* write here *)
 Qed.
 
 (* *** Exercise 4
@@ -216,25 +220,25 @@ have broken_sym1 : depth t1 <= depth t2 -> S (maxn (depth t1) (depth t2)) <= siz
   move/maxn_idPr->.
   suff : S (size t2) <= size t1 + size t2.
 (* write here *)
-
+admit.
   have -> : S (size t2) = 1 + (size t2).
 (* write here *)
-
+admit.
 have broken_sym2 : depth t2 <= depth t1 -> S (maxn (depth t1) (depth t2)) <= size t1 + size t2.
   move/maxn_idPl->.
   suff : S (size t1) <= size t1 + size t2.
 (* write here *)
-Admitted.
+admit.
   have -> : S (size t1) = (size t1) + 1.
 (* write here *)
-
-Admitted.
+admit.
 have [le21 | l212] : depth t2 <= depth t1 \/ depth t1 <= depth t2.
   case: leqP=> j; first by left.
   by right; apply: ltnW.
 (* write here *)
-Admitted.
-Admitted.
+admit.
+(* write here *)
+admit.
 Qed.
 </textarea></div>
 <script type="text/javascript">
