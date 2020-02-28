@@ -63,7 +63,6 @@ End PredicateOnRelations.
 
 (* Write a statement parameterized by a type (T : Type) and a boolean relation
   (r : T -> T -> bool) stating that r is transitive *)
-(* 1 min *)
 
 Definition associative (* write here *)
 := 
@@ -105,7 +104,6 @@ Qed.
 
 (* false is a left neutral for the law *)
 Lemma xorFb b : (* write here *)
-(* D*) xorb false b = b
 .
 Proof.
 (* write here *)
@@ -133,6 +131,9 @@ Fixpoint u (n : nat) : nat := match n with S m => a * u m | O => 1 end.
 
 (* Use theorem <tt>expnS</tt> to show the following formula *)
 Lemma u_eq (n : nat) : u n = a ^ n.
+(* Remember /= simplifies by computation, 
+            // closes trivial subgoals, 
+            //= does both.*)
 Proof.
 (* write here *)
 Qed.
@@ -177,7 +178,7 @@ to compute the maximum of two natural numbers.
  *)
 Fixpoint depth (t : tree) : nat :=
   match t with
-  | Leaf => (* write here *)
+  | Leaf => 0
   | Parent l r => (* write here *)
   end.
 
@@ -210,8 +211,7 @@ About addn1.
 
 Lemma leq_depth_size (t : tree) : depth t <= size t.
 Proof.
-(* write here *)
-
+elim: t => [| t1 iht1 t2 iht2] //=.
 have broken_sym1 : depth t1 <= depth t2 -> S (maxn (depth t1) (depth t2)) <= size t1 + size t2.
   move/maxn_idPr->.
   suff : S (size t2) <= size t1 + size t2.
@@ -224,14 +224,17 @@ have broken_sym2 : depth t2 <= depth t1 -> S (maxn (depth t1) (depth t2)) <= siz
   move/maxn_idPl->.
   suff : S (size t1) <= size t1 + size t2.
 (* write here *)
-
+Admitted.
   have -> : S (size t1) = (size t1) + 1.
 (* write here *)
 
+Admitted.
 have [le21 | l212] : depth t2 <= depth t1 \/ depth t1 <= depth t2.
   case: leqP=> j; first by left.
   by right; apply: ltnW.
 (* write here *)
+Admitted.
+Admitted.
 Qed.
 </textarea></div>
 <script type="text/javascript">
