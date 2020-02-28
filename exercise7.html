@@ -45,7 +45,7 @@ Unset Printing Implicit Defensive.
   You can always skip a question:
   - either using comments, (* this is a comment *), e.g., to skip an
     incomplete definition
-  - or using the <tt>admit</tt> tactic, to skip a subproof. 
+  - or using the 'admit' tactic, to skip a subproof. 
 *)
 
 (* *** Exercise 1
@@ -73,10 +73,10 @@ Definition associative (* write here *)
 
  -------------------------------------------------------------------------- *)
 
-(* The term <tt>erfl t</tt> has type t = t for any term t : T, of type T. *)
+(* The term (erfl t) has type (t = t) for any term (t : T), of type T. *)
 Check (erefl 2).
 
-(* The term <tt>eq_ind</tt> expresses that <tt>eq</tt> is a polymorphic binary relation:*)
+(* The term eq_ind expresses that eq is a polymorphic binary relation:*)
 About eq_ind.
 (* Note that the first argument (A : Type) is implicit *)
 
@@ -133,7 +133,9 @@ Variable (a : nat).
 
 Fixpoint u (n : nat) : nat := match n with S m => a * u m | O => 1 end.
 
-(* Use theorem <tt>expnS</tt> to show the following formula *)
+(* Use theorem expnS to show the following formula *)
+About expnS.
+
 Lemma u_eq (n : nat) : u n = a ^ n.
 (* Remember /= simplifies by computation, 
             // closes trivial subgoals, 
