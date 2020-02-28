@@ -157,7 +157,7 @@ Inductive tree : Set :=
 | Parent (* write here*) : (* write here*)
 .
 
-(* Define a function counting the number of nodes (both leaf and parent nodes) in a tree *)
+(* Define a function counting the number of leaves in a tree *)
 
 Fixpoint size  (t : tree) : nat :=
   match t with
@@ -173,8 +173,10 @@ Definition one_tree : tree := (* write here *)
 Definition three_tree : tree := (* write here *)
 .
 
+(* This should be 1 *)
 Eval compute in size one_tree.
 
+(* This should be 3 *)
 Eval compute in size three_tree.
 
 (* Define a function counting the depth of the tree.
@@ -188,12 +190,15 @@ Fixpoint depth (t : tree) : nat :=
   | Parent l r => (* write here *)
   end.
 
-(* Test your depth function *)
+(* Test your depth function. *)
 
+(* This should be 0 *)
 Eval compute in depth one_tree.
 
+(* This should be 2 *)
 Eval compute in depth three_tree.
 
+(* This should be 2 *)
 Eval compute in depth (Parent Leaf (Parent Leaf Leaf)).
 
 (* State and prove that the size of a binary_tree is always positive. *)
