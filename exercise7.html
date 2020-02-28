@@ -124,7 +124,9 @@ Check (erefl 2).
 
 (* The term eq_ind expresses that eq is a polymorphic binary relation:*)
 About eq_ind.
-(* Note that the first argument (A : Type) is implicit *)
+(* Note that the first argument (A : Type) is implicit, which
+   means that the first argument to provide to eq_ind is the (x : A),
+   from which Coq will infer the actual value of A. *)
 
 (* Write an instance of eq_ind witnessing that equality is symmetric. *)
 Definition eq_sym (A : Type) (x y : A) (h : x = y) : y = x := (* write here *)
