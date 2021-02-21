@@ -62,14 +62,14 @@
 The first lines of a [.v] file are usually naming the libraries
 that will be used to write definitions, statements and prove them,
 the syntax, assuming the library [〈lib〉] is installed, is as follow.
-<<
+[[
 From 〈lib〉 Require Import 〈module(s)〉.
->>
+]]
 
 For most of the lectures we use simplified versions of the mathcomp library.
-<<
+[[
 From mathcomp Require Import mini_ssreflect 〈other mini mathcomp libs〉.
->>
+]]
 
 However, in this cheat sheet, which is more complete, we use:
 #<div>#
@@ -86,16 +86,16 @@ From mathcomp Require Import mini_ssreflect.
 The keyword [Definition] declares a term, a type, a proposition, or a
 non-recursive function. It looks like:
 
-<<
+[[
 Definition 〈name〉 : 〈type〉 := 〈value〉.
->>
+]]
 
 It's possible to omit the [type] if Coq can infer it from the value,
 which then looks like:
 
-<<
+[[
 Definition 〈name〉 := 〈value〉.
->>
+]]
 
 But we strongly suggest that you enforce type annotations in
 definitions, for the sake of documentation and robustness.
@@ -103,17 +103,17 @@ definitions, for the sake of documentation and robustness.
 For functions, the arguments can go before or after the colon. That
 is, saying:
 
-<<
+[[
 Definition 〈name〉 : 〈type1〉 -> 〈type2〉 -> 〈type3〉 :=
   fun 〈argname〉 〈argname〉 => 〈body〉.
 
->>
+]]
 is equivalent to:
 
-<<
+[[
 Definition 〈name〉 (〈argname〉 : 〈type1〉) : 〈type2〉 -> 〈type3〉 := fun 〈argname〉 => 〈body〉.
 Definition 〈name〉 (〈argname〉 : 〈type1〉) (〈argname〉 : 〈type2〉) : 〈type3〉 := 〈body〉.
->>
+]]
 
 #<div>#
 *)
@@ -204,10 +204,10 @@ End DefinitionExamples.
 
   [Fixpoint] defines a *recursive* function. Syntax is similar to [Definition]:
 
-<<
+[[
 Fixpoint 〈name〉 : 〈type〉 := fun 〈arguments...〉 => 〈body〉.
 Fixpoint 〈name〉 (〈argname〉 : 〈type〉) (argname : 〈type〉) ... : 〈type〉 := 〈body〉.
->>
+]]
 
   Such a definition is accepted if termination is ensured by a recursive call
   on a strict subterm.
@@ -250,12 +250,12 @@ End FixpointExamples.
 
 The syntax looks like:
 
-<<
+[[
 Lemma 〈name〉 : 〈proof statement〉.
 Proof.
   〈proof body〉
 Qed.
->>
+]]
 
    [Theorem], [Remark], [Corollary] are synonyms.
 
